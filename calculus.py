@@ -71,6 +71,47 @@ def computePostfix(postfixExp):
 
 	return operandeStack.pop()
 
+def computePostfixBis(postfixExp):
+	"""Compute a postfix expression like a good student
+
+	:param postfixExp: a postfix expression
+	:returns: the result of the expression
+
+	"""
+	print(postfixToInfix(postfixExp))
+	# where to save numbers or 
+	operandeStack = Stack()
+
+	tokenList = postfixExp.split(" ")
+
+	while len(tokenList) > 1:
+		tmpTokenList = []
+		i = 0
+		while len(tokenList) > 2: 
+			if (tokenList[1].isdigit() or (tokenList[1][0] == "-" and tokenList[1][1:].isdigit())) and tokenList[2] in "+-*/":
+				# S'il y a une opération à faire
+				op1 = tokenList[0]
+				op2 = tokenList[1]
+				token = tokenList[2]
+				res = doMath(token, op1, op2)
+
+				tmpTokenList.append(res)
+				# Comme on vient de faire le calcul, on peut sauter les deux prochains termes
+				i += 3
+
+				del tokenList[0:3]
+			else:
+				tmpTokenList.append(tokenList[0])
+				i += 1
+
+				del tokenList[0]
+		tmpTokenList += tokenList
+
+		tokenList = tmpTokenList.copy()
+		print(postfixToInfix(" ".join(tokenList)))
+
+	return tokenList[0]
+
 def doMath(op, op1, op2):
 	"""Compute "op1 op op2"
 
@@ -132,6 +173,8 @@ def test(exp):
 	postfix = infixToPostfix(exp)
 	print("Postfix " , postfix)
 	print(computePostfix(postfix))
+	print("Bis")
+	print(computePostfixBis(postfix))
 	#print(postfixToInfix(postfix))
 
 

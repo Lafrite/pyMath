@@ -9,6 +9,14 @@ class Stack(object):
 		"""@todo: to be defined1 """
 		self.items = []
 
+	def pushFromList(self, list):
+		"""Push the list in the stack
+
+		:param list: a list
+		"""
+		for i in list[::-1]:
+			self.push(i)
+
 	def isEmpty(self):
 		""" Says if the stack is empty
 		:returns: @todo
@@ -27,27 +35,24 @@ class Stack(object):
 
 	def pop(self):
 		"""Getting the last item and remove it
-		:returns: @todo
+		:returns: last item
 
 		"""
 		return self.items.pop()
 
-	def peek(self):
+	def peek(self, posi = 0):
 		"""Getting the last item
-		:returns: @todo
+        :param posi: which item to peek 0 (last) 1 (the onebefore the last)...
+		:returns: the item
 
 		"""
-		return self.items[-1]
+		return self.items[-1 - posi]
 
-	def size(self):
-		"""Lenght of the stack
-		:returns: @todo
-
-		"""
+	def __len__(self):
 		return len(self.items)
 
 	def __str__(self):
-		return str(self.items)
+		return str(self.items) + " -> "
 
 	def __add__(self, addList):
 		return self.items + addList
