@@ -84,8 +84,10 @@ def computePostfixBis(postfixExp):
 
 	tokenList = postfixExp.split(" ")
 
+    # On fait le calcul jusqu'à n'avoir plus qu'un élément
 	while len(tokenList) > 1:
 		tmpTokenList = []
+        # on va chercher les motifs du genre A B + pour les calculer
 		while len(tokenList) > 2: 
 			if isNumber(tokenList[0]) and isNumber(tokenList[1]) and tokenList[2] in "+-*/":
 				# S'il y a une opération à faire
