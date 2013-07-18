@@ -139,29 +139,49 @@ def postfixToInfix(postfixExp):
 	for (i,token) in enumerate(tokenList):
 		if token in "+-*/":
 			op2 = operandeStack.pop()
+			if get_main_op(op2) and (priority[get_main_op(op2)] < priority[token] or token in "-/"):
+				op2 = "( " + op2 + " )"
 			op1 = operandeStack.pop()
+			if get_main_op(op1) and (priority[get_main_op(op1)] < priority[token] or token in "/"):
+				op1 = "( " + op1 + " )"
 			res = "{op1} {op} {op2}".format(op1 = op1, op = token, op2 = op2)
-			
-			parenthesis = False
-			if i+1 < len(tokenList):
-				if tokenList[i+1] in "+-*/":
-					if priority[token] < priority[tokenList[i+1]]:
-						res = "( " + res + " )"
-						parenthesis = True 
-			if i+2 < len(tokenList) and not parenthesis:
-				if tokenList[i+2] in "+-*/":
-					if priority[token] < priority[tokenList[i+2]]:
-						res = "( " + res + " )"
 
 			operandeStack.push(res)
-
-			#print("new token: {token}".format(token = token))
-			#print(" ".join(operandeStack +["!!"]+ tokenList[i+1:]))
 
 		else:
 			operandeStack.push(token)
 
 	return operandeStack.pop()
+
+def get_main_op(exp):
+	"""Getting the main operation of th expression
+
+	:param exp: the expression
+	:returns: the main operation (+, -, * or /) or 0 if the expression is only one element
+
+	"""
+
+	priority = {"*" : 3, "/": 3, "+": 2, "-":2}
+
+	parStack = Stack()
+	tokenList = exp.split(" ")
+
+	if len(tokenList) == 1:
+    # Si l'expression n'est qu'un élément
+		return 0
+
+	main_op = []
+
+	for token in tokenList:
+		if token == "(":
+			parStack.push(token)
+		elif token == ")":
+			parStack.pop()
+		elif token in "+-*/" and parStack.isEmpty():
+			main_op.append(token)
+
+	return min(main_op, key = lambda s: priority[s])
+
 
 
 def test(exp):
@@ -171,15 +191,19 @@ def test(exp):
 	print("-------------")
 	print("Expression ",exp)
 	postfix = infixToPostfix(exp)
-	print("Postfix " , postfix)
-	print(computePostfix(postfix))
-	print("Bis")
-	print(computePostfixBis(postfix))
-	#print(postfixToInfix(postfix))
+	#print("Postfix " , postfix)
+	#print(computePostfix(postfix))
+	#print("Bis")
+	#print(computePostfixBis(postfix))
+	print(postfixToInfix(postfix))
+	#print(get_main_op(exp))
 
 
 if __name__ == '__main__':
 	exp = "1 + 3 * 5"
+	test(exp)
+
+	exp = "2 * 3 * 3 * 5"
 	test(exp)
 
 	exp = "2 * 3 + 3 * 5"
@@ -198,6 +222,12 @@ if __name__ == '__main__':
 	test(exp)
 	
 	exp = "2 + 5 * ( 3 - 4 )"
+	test(exp)
+	
+	exp = "( 2 + 5 ) * ( 3 - 4 )"
+	test(exp)
+	
+	exp = "( 2 + 5 ) * ( 3 * 4 )"
 	test(exp)
 
 
