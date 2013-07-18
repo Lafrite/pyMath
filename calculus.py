@@ -86,9 +86,8 @@ def computePostfixBis(postfixExp):
 
 	while len(tokenList) > 1:
 		tmpTokenList = []
-		i = 0
 		while len(tokenList) > 2: 
-			if (tokenList[1].isdigit() or (tokenList[1][0] == "-" and tokenList[1][1:].isdigit())) and tokenList[2] in "+-*/":
+			if isNumber(tokenList[0]) and isNumber(tokenList[1]) and tokenList[2] in "+-*/":
 				# S'il y a une opération à faire
 				op1 = tokenList[0]
 				op2 = tokenList[1]
@@ -96,13 +95,11 @@ def computePostfixBis(postfixExp):
 				res = doMath(token, op1, op2)
 
 				tmpTokenList.append(res)
-				# Comme on vient de faire le calcul, on peut sauter les deux prochains termes
-				i += 3
 
+				# Comme on vient de faire le calcul, on peut détruire aussi les deux prochains termes
 				del tokenList[0:3]
 			else:
 				tmpTokenList.append(tokenList[0])
-				i += 1
 
 				del tokenList[0]
 		tmpTokenList += tokenList
@@ -111,6 +108,22 @@ def computePostfixBis(postfixExp):
 		print(postfixToInfix(" ".join(tokenList)))
 
 	return tokenList[0]
+
+def isNumber(exp):
+	"""Check if the expression can be a number
+
+	:param exp: an expression
+	:returns: True if the expression can be a number and false otherwise
+
+	"""
+	tokenList = exp.split(" ")
+	if len(tokenList) != 1:
+		# Ici l'expression est trop longue
+		return 0
+	return exp.isdigit() or (exp[0] == "-" and exp[1:].isdigit())
+
+
+	pass
 
 def doMath(op, op1, op2):
 	"""Compute "op1 op op2"
@@ -131,7 +144,6 @@ def postfixToInfix(postfixExp):
 	:returns: the corresponding infix expression
 
 	"""
-	priority = {"*" : 3, "/": 3, "+": 2, "-":2}
 	operandeStack = Stack()
 
 	tokenList = postfixExp.split(" ")
@@ -139,10 +151,10 @@ def postfixToInfix(postfixExp):
 	for (i,token) in enumerate(tokenList):
 		if token in "+-*/":
 			op2 = operandeStack.pop()
-			if get_main_op(op2) and (priority[get_main_op(op2)] < priority[token] or token in "-/"):
+			if needPar(op2, token, "after"):
 				op2 = "( " + op2 + " )"
 			op1 = operandeStack.pop()
-			if get_main_op(op1) and (priority[get_main_op(op1)] < priority[token] or token in "/"):
+			if needPar(op1, token, "before"):
 				op1 = "( " + op1 + " )"
 			res = "{op1} {op} {op2}".format(op1 = op1, op = token, op2 = op2)
 
@@ -152,6 +164,30 @@ def postfixToInfix(postfixExp):
 			operandeStack.push(token)
 
 	return operandeStack.pop()
+
+def needPar(operande, operator, posi = "after"):
+	"""Says whether or not the operande needs parenthesis
+
+	:param operande: the operande
+	:param operator: the operator
+	:param posi: "after"(default) if the operande will be after the operator, "before" othewise
+	:returns: bollean
+	"""
+	priority = {"*" : 3, "/": 3, "+": 2, "-":2}
+
+	if isNumber(operande) and "-" in operande:
+		return 1
+	elif not isNumber(operande):
+		# Si c'est une grande expression ou un chiffre négatif
+		stand_alone = get_main_op(operande)
+		# Si la priorité de l'operande est plus faible que celle de l'opérateur
+		minor_priority = priority[get_main_op(operande)] < priority[operator]
+		# Si l'opérateur est -/ pour after ou juste / pour before
+		special = (operator in "-/" and posi == "after") or (operator in "/" and posi == "before")
+
+		return stand_alone and (minor_priority or special)
+	else:
+		return 0
 
 def get_main_op(exp):
 	"""Getting the main operation of th expression
@@ -167,7 +203,7 @@ def get_main_op(exp):
 	tokenList = exp.split(" ")
 
 	if len(tokenList) == 1:
-    # Si l'expression n'est qu'un élément
+	# Si l'expression n'est qu'un élément
 		return 0
 
 	main_op = []
@@ -194,8 +230,8 @@ def test(exp):
 	#print("Postfix " , postfix)
 	#print(computePostfix(postfix))
 	#print("Bis")
-	#print(computePostfixBis(postfix))
-	print(postfixToInfix(postfix))
+	print(computePostfixBis(postfix))
+	#print(postfixToInfix(postfix))
 	#print(get_main_op(exp))
 
 
@@ -229,6 +265,13 @@ if __name__ == '__main__':
 	
 	exp = "( 2 + 5 ) * ( 3 * 4 )"
 	test(exp)
+	
+	exp = "( 2 + 5 ) / ( 3 * 4 )"
+	test(exp)
+	
+	## Ce denier pose un soucis. Pour le faire marcher il faudrai implémenter le calcul avec les fractions
+	#exp = "( 2 + 5 ) / 3 * 4"
+	#test(exp)
 
 
 # -----------------------------
