@@ -2,58 +2,8 @@
 # encoding: utf-8
 
 
+from generic import Stack
 
-
-
-class Stack(object):
-	"""Docstring for Stack """
-
-	def __init__(self):
-		"""@todo: to be defined1 """
-		self.items = []
-
-	def isEmpty(self):
-		""" Says if the stack is empty
-		:returns: @todo
-
-		"""
-		return self.items == []
-
-	def push(self,  item):
-		"""Push an item in the stack
-
-		:param item: @todo
-		:returns: @todo
-
-		"""
-		self.items.append(item)
-
-	def pop(self):
-		"""Getting the last item and remove it
-		:returns: @todo
-
-		"""
-		return self.items.pop()
-
-	def peek(self):
-		"""Getting the last item
-		:returns: @todo
-
-		"""
-		return self.items[-1]
-
-	def size(self):
-		"""Lenght of the stack
-		:returns: @todo
-
-		"""
-		return len(self.items)
-
-	def __str__(self):
-		return str(self.items)
-
-	def __add__(self, addList):
-		return self.items + addList
 
 
 def infixToPostfix(infixExp):
@@ -97,7 +47,8 @@ def computePostfix(postfixExp):
 	:returns: the result of the expression
 
 	"""
-    # where to save numbers or 
+	print(postfixToInfix(postfixExp))
+	# where to save numbers or 
 	operandeStack = Stack()
 
 	tokenList = postfixExp.split(" ")
@@ -150,9 +101,15 @@ def postfixToInfix(postfixExp):
 			op1 = operandeStack.pop()
 			res = "{op1} {op} {op2}".format(op1 = op1, op = token, op2 = op2)
 			
+			parenthesis = False
 			if i+1 < len(tokenList):
 				if tokenList[i+1] in "+-*/":
 					if priority[token] < priority[tokenList[i+1]]:
+						res = "( " + res + " )"
+						parenthesis = True 
+			if i+2 < len(tokenList) and not parenthesis:
+				if tokenList[i+2] in "+-*/":
+					if priority[token] < priority[tokenList[i+2]]:
 						res = "( " + res + " )"
 
 			operandeStack.push(res)
@@ -171,9 +128,9 @@ def test(exp):
 
 	"""
 	print("-------------")
-	print(exp)
+	print("Expression ",exp)
 	postfix = infixToPostfix(exp)
-	#print(postfix)
+	print("Postfix " , postfix)
 	print(computePostfix(postfix))
 	#print(postfixToInfix(postfix))
 
@@ -192,6 +149,12 @@ if __name__ == '__main__':
 	test(exp)
 	
 	exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
+	test(exp)
+	
+	exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
+	test(exp)
+	
+	exp = "2 + 5 * ( 3 - 4 )"
 	test(exp)
 
 
