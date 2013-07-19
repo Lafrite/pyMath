@@ -84,10 +84,10 @@ def computePostfixBis(postfixExp):
 
 	tokenList = postfixExp.split(" ")
 
-    # On fait le calcul jusqu'à n'avoir plus qu'un élément
+	# On fait le calcul jusqu'à n'avoir plus qu'un élément
 	while len(tokenList) > 1:
 		tmpTokenList = []
-        # on va chercher les motifs du genre A B + pour les calculer
+		# on va chercher les motifs du genre A B + pour les calculer
 		while len(tokenList) > 2: 
 			if isNumber(tokenList[0]) and isNumber(tokenList[1]) and tokenList[2] in "+-*/":
 				# S'il y a une opération à faire
@@ -120,12 +120,10 @@ def isNumber(exp):
 	"""
 	tokenList = exp.split(" ")
 	if len(tokenList) != 1:
-		# Ici l'expression est trop longue
+		# si l'expression est trop longue pour être un chiffre
 		return 0
 	return exp.isdigit() or (exp[0] == "-" and exp[1:].isdigit())
 
-
-	pass
 
 def doMath(op, op1, op2):
 	"""Compute "op1 op op2"
@@ -221,6 +219,34 @@ def get_main_op(exp):
 	return min(main_op, key = lambda s: priority[s])
 
 
+def expand_list(list_list):
+	"""Expand list of list
+	[1,2,[3,4],5,[6,7,8]] -> [1,2,3,5,6], [1,2,4,5,7], [1,2,4,5,8]
+
+	:param list: the list to expande
+	:returns: list of expanded lists
+
+	"""
+	list_in_list = [i for i in list_list if type(i) == list].copy()
+	nbr_ans_list = max([len(i) for i in list_in_list])
+
+	ans = [list_list.copy() for i in range(nbr_ans_list)]
+	for (i,l) in enumerate(ans):
+		for (j,e) in enumerate(l):
+			if type(e) == list:
+				ans[i][j] = e[min(i,len(e)-1)]
+
+	return ans
+
+
+def debug_var(name, var):
+	"""print the name of the variable and the value
+
+	:param name: the name of the variable
+	:param var: the variable we want information
+	"""
+	print(name, ": ", var)
+
 
 def test(exp):
 	"""Make various test on an expression
@@ -238,38 +264,40 @@ def test(exp):
 
 
 if __name__ == '__main__':
-	exp = "1 + 3 * 5"
-	test(exp)
+	#exp = "1 + 3 * 5"
+	#test(exp)
 
-	exp = "2 * 3 * 3 * 5"
-	test(exp)
+	#exp = "2 * 3 * 3 * 5"
+	#test(exp)
 
-	exp = "2 * 3 + 3 * 5"
-	test(exp)
+	#exp = "2 * 3 + 3 * 5"
+	#test(exp)
 
-	exp = "2 * ( 3 + 4 ) + 3 * 5"
-	test(exp)
-	
-	exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
-	test(exp)
-	
-	exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
-	test(exp)
-	
-	exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
-	test(exp)
-	
-	exp = "2 + 5 * ( 3 - 4 )"
-	test(exp)
-	
-	exp = "( 2 + 5 ) * ( 3 - 4 )"
-	test(exp)
-	
-	exp = "( 2 + 5 ) * ( 3 * 4 )"
-	test(exp)
-	
-	exp = "( 2 + 5 ) / ( 3 * 4 )"
-	test(exp)
+	#exp = "2 * ( 3 + 4 ) + 3 * 5"
+	#test(exp)
+	#
+	#exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
+	#test(exp)
+	#
+	#exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
+	#test(exp)
+	#
+	#exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
+	#test(exp)
+	#
+	#exp = "2 + 5 * ( 3 - 4 )"
+	#test(exp)
+	#
+	#exp = "( 2 + 5 ) * ( 3 - 4 )"
+	#test(exp)
+	#
+	#exp = "( 2 + 5 ) * ( 3 * 4 )"
+	#test(exp)
+	#
+	#exp = "( 2 + 5 ) / ( 3 * 4 )"
+	#test(exp)
+
+	print(expand_list([1,2,['a','b','c'], 3, ['d','e']]))
 	
 	## Ce denier pose un soucis. Pour le faire marcher il faudrai implémenter le calcul avec les fractions
 	#exp = "( 2 + 5 ) / 3 * 4"
