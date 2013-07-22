@@ -270,34 +270,34 @@ if __name__ == '__main__':
 	#exp = "2 * 3 * 3 * 5"
 	#test(exp)
 
-	#exp = "2 * 3 + 3 * 5"
-	#test(exp)
+	exp = "2 * 3 + 3 * 5"
+	test(exp)
 
-	#exp = "2 * ( 3 + 4 ) + 3 * 5"
-	#test(exp)
-	#
-	#exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
-	#test(exp)
-	#
-	#exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
-	#test(exp)
-	#
-	#exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
-	#test(exp)
-	#
-	#exp = "2 + 5 * ( 3 - 4 )"
-	#test(exp)
-	#
-	#exp = "( 2 + 5 ) * ( 3 - 4 )"
-	#test(exp)
-	#
-	#exp = "( 2 + 5 ) * ( 3 * 4 )"
-	#test(exp)
-	#
-	#exp = "( 2 + 5 ) / ( 3 * 4 )"
-	#test(exp)
+	exp = "2 * ( 3 + 4 ) + 3 * 5"
+	test(exp)
+	
+	exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
+	test(exp)
+	
+	exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
+	test(exp)
+	
+	exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
+	test(exp)
+	
+	exp = "2 + 5 * ( 3 - 4 )"
+	test(exp)
+	
+	exp = "( 2 + 5 ) * ( 3 - 4 )"
+	test(exp)
+	
+	exp = "( 2 + 5 ) * ( 3 * 4 )"
+	test(exp)
+	
+	exp = "( 2 + 5 ) / ( 3 * 4 )"
+	test(exp)
 
-	print(expand_list([1,2,['a','b','c'], 3, ['d','e']]))
+	#print(expand_list([1,2,['a','b','c'], 3, ['d','e']]))
 	
 	## Ce denier pose un soucis. Pour le faire marcher il faudrai implémenter le calcul avec les fractions
 	#exp = "( 2 + 5 ) / 3 * 4"
