@@ -12,6 +12,14 @@ def infixToPostfix(infixExp):
 	:param infixExp: an infix expression (caracters must be separate by a space)
 	:returns: the corresponding postfix expression
 
+	:Example:
+
+	>>> infixToPostfix("1 + 2")
+	'1 2 +'
+
+	>>> infixToPostfix("1 * 2 + 3")
+	'1 2 * 3 +'
+
 	"""
 	priority = {"*" : 3, "/": 3, "+": 2, "-":2, "(": 1}
 	
@@ -190,7 +198,7 @@ def needPar(operande, operator, posi = "after"):
 		return 0
 
 def get_main_op(exp):
-	"""Getting the main operation of th expression
+	"""Getting the main operation of the expression
 
 	:param exp: the expression
 	:returns: the main operation (+, -, * or /) or 0 if the expression is only one element
@@ -221,10 +229,14 @@ def get_main_op(exp):
 
 def expand_list(list_list):
 	"""Expand list of list
-	[1,2,[3,4],5,[6,7,8]] -> [1,2,3,5,6], [1,2,4,5,7], [1,2,4,5,8]
 
 	:param list: the list to expande
 	:returns: list of expanded lists
+
+	:Example:
+
+	>>> expand_list([1,2,[3,4],5,[6,7,8]])
+	[[1, 2, 3, 5, 6], [1, 2, 4, 5, 7], [1, 2, 4, 5, 8]]
 
 	"""
 	list_in_list = [i for i in list_list if type(i) == list].copy()
@@ -270,38 +282,40 @@ if __name__ == '__main__':
 	#exp = "2 * 3 * 3 * 5"
 	#test(exp)
 
-	exp = "2 * 3 + 3 * 5"
-	test(exp)
+	#exp = "2 * 3 + 3 * 5"
+	#test(exp)
 
-	exp = "2 * ( 3 + 4 ) + 3 * 5"
-	test(exp)
-	
-	exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
-	test(exp)
-	
-	exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
-	test(exp)
-	
-	exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
-	test(exp)
-	
-	exp = "2 + 5 * ( 3 - 4 )"
-	test(exp)
-	
-	exp = "( 2 + 5 ) * ( 3 - 4 )"
-	test(exp)
-	
-	exp = "( 2 + 5 ) * ( 3 * 4 )"
-	test(exp)
-	
-	exp = "( 2 + 5 ) / ( 3 * 4 )"
-	test(exp)
+	#exp = "2 * ( 3 + 4 ) + 3 * 5"
+	#test(exp)
+	#
+	#exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
+	#test(exp)
+	#
+	#exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
+	#test(exp)
+	#
+	#exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
+	#test(exp)
+	#
+	#exp = "2 + 5 * ( 3 - 4 )"
+	#test(exp)
+	#
+	#exp = "( 2 + 5 ) * ( 3 - 4 )"
+	#test(exp)
+	#
+	#exp = "( 2 + 5 ) * ( 3 * 4 )"
+	#test(exp)
+	#
+	#exp = "( 2 + 5 ) / ( 3 * 4 )"
+	#test(exp)
 
 	#print(expand_list([1,2,['a','b','c'], 3, ['d','e']]))
 	
 	## Ce denier pose un soucis. Pour le faire marcher il faudrai implémenter le calcul avec les fractions
 	#exp = "( 2 + 5 ) / 3 * 4"
 	#test(exp)
+	import doctest
+	doctest.testmod()
 
 
 # -----------------------------
