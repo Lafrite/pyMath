@@ -5,6 +5,8 @@
 class Expression(object):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
 
+    priority = {"*" : 3, "/": 3, "+": 2, "-":2, "(": 1}
+
     def __init__(self, exp):
         """ Initiate the expression.
 
@@ -66,9 +68,15 @@ class Expression(object):
         :returns: list of tokens
 
         """
+        # Si ce fix n'a pas encore été enregistré
         if fix not in self._tokens:
-            fix_transfo = "to" + fix.capitalize()
-            getattr(self,fix_transfo)()
+            # Il peut venir de la version string
+            if fix in self._string:
+                self._tokens[fix] = self.parseExp(self._string[fix])
+            # Sinon il faut le calculer à partir d'une autre forme
+            else:
+                fix_transfo = "to" + fix.capitalize()
+                getattr(self,fix_transfo)()
 
         return self._tokens[fix]
 
@@ -81,25 +89,31 @@ class Expression(object):
         :returns: the string representing the expression
 
         """
-        if fix in self._string:
-            return self._string[fix]
-        else:
-            pass
+        # Si ce fix n'a pas encore été enregistré
+        if fix not in self._string:
+            # Il peut venir de la version string
+            if fix in self._tokens:
+                self._string[fix] = self.parseExp(self._string[fix])
+            # Sinon il faut le calculer à partir d'une autre forme
+            else:
+                fix_transfo = "to" + fix.capitalize()
+                getattr(self,fix_transfo)()
+
+        return self._string[fix]
     
     # ----------------------
     # "fix" tranformations
 
     def toPostfix(self):
-        """ Transorm the expression into postfix form """
+        """ Transorm the expression into postfix form using the infix form"""
         pass
 
     def toInfix(self):
-        """ Tranform the expression into infix form"""
+        """ Tranform the expression into infix form using postfix form"""
         pass
 
     # ---------------------
     # Tools for placing parenthesis in infix notation
-
 
     def needPar(operande, operator, posi = "after"):
         """ Says whether or not the operande needs parenthesis
@@ -109,8 +123,21 @@ class Expression(object):
         :param posi: "after"(default) if the operande will be after the operator, "before" othewise
         :returns: bollean
         """
-        pass
+        if isNumber(operande) and "-" in operande:
+            return 1
+        elif not isNumber(operande):
+            # Si c'est une grande expression ou un chiffre négatif
+            stand_alone = get_main_op(operande)
+            # Si la priorité de l'operande est plus faible que celle de l'opérateur
+            minor_priority = self.priority[get_main_op(operande)] < self.priority[operator]
+            # Si l'opérateur est -/ pour after ou juste / pour before
+            special = (operator in "-/" and posi == "after") or (operator in "/" and posi == "before")
+
+            return stand_alone and (minor_priority or special)
+        else:
+            return 0
     
+# J'aime pas bien cette endroit faudrait que ce soit une méthode qui s'applique uniquement à l'expression en question (self) pas à n'importe quel string, ça serait plus propre.
     def get_main_op(exp):
         """ Gives the main operation of the expression
 
@@ -118,7 +145,24 @@ class Expression(object):
         :returns: the main operation (+, -, * or /) or 0 if the expression is only one element
 
         """
-        pass
+        parStack = Stack()
+        tokenList = exp.split(" ")
+
+        if len(tokenList) == 1:
+        # Si l'expression n'est qu'un élément
+            return 0
+
+        main_op = []
+
+        for token in tokenList:
+            if token == "(":
+                parStack.push(token)
+            elif token == ")":
+                parStack.pop()
+            elif token in "+-*/" and parStack.isEmpty():
+                main_op.append(token)
+
+        return min(main_op, key = lambda s: priority[s])
 
     # ---------------------
     # Computing the expression
