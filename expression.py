@@ -10,7 +10,18 @@ class Expression(object):
 
         :param exp: the expression. It can be a string or a list of tokens. It can be infix or postfix expression
         """
-        pass
+        self._tokens = {}
+        self._strings = {}
+        if type(exp) == list:
+            fix = self.get_fix(exp)
+            self._tokens[fix] = exp
+        elif type(exp) == str:
+            tokens = self.parseExp(exp)
+            fix = self.get_fix(tokens)
+            self._tokens[fix] = tokens
+            self._strings[fix] = exp
+        else:
+            raise ValueError("The expression needs to be a string or a list of token")
 
     # ---------------------
     # String parsing
@@ -19,26 +30,61 @@ class Expression(object):
     def parseExp(self, exp):
         """ Parse the expression, ie tranform a string into a list of tokens
 
-        :param exp: The expression
+        :param exp: The expression (a string)
         :returns: list of token
 
         """
-        pass
+        return exp.split(" ")
 
     # ---------------------
     # "fix" recognition
 
-    def expressionFix(self, exp):
+    def get_fix(self, tokens):
         """ Give the "fix" of an expression
         infix -> A + B
         prefix -> + A B
         postfix -> A B +
 
-        :param exp: the expression
+        :param exp: the expression (list of token)
         :returns: the "fix" (infix, postfix, prefix)
 
         """
-        pass
+        if tokens[0] in  "+-*/":
+            return "prefix"
+        elif token[0] not in "+-*/" ans token[1] not in "+-*/":
+            return "postfix"
+        else:
+            return "infix"
+
+    # ----------------------
+    # Expressions - tokens getters
+
+    def tokens(self, fix = "infix"):
+        """Get the list of tokens with the wanted fix
+
+        :param fix: the fix wanted (infix default)
+        :returns: list of tokens
+
+        """
+        if fix not in self._tokens:
+            fix_transfo = "to" + fix.capitalize()
+            getattr(self,fix_transfo)()
+
+        return self._tokens[fix]
+
+##### On en est là,il faudra faire attention à bien vérifier ce que les "to..." enregistre (string ou tokens)  
+
+    def string(self, fix = "infix"):
+        """Get the string with the wanted fix
+
+        :param fix: the fix wanted (infix default)
+        :returns: the string representing the expression
+
+        """
+        if fix in self._string:
+            return self._string[fix]
+        else:
+            pass
     
     # ----------------------
     # "fix" tranformations
