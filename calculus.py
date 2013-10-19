@@ -4,31 +4,41 @@
 
 from generic import Stack
 
+def str2tokens(exp):
+    """Convert an expression into a list of tokens
 
+    :param exp: The expression
+    :returns: the list of tokens
 
-def infixToPostfix(infixExp):
-    """Transform an infix expression into postfix expression
+    >>> str2tokens("1 + 2")
+    ['1', '+', '2']
 
-    :param infixExp: an infix expression (caracters must be separate by a space)
-    :returns: the corresponding postfix expression
+    """
+    return exp.split(" ")
+
+def infixToPostfix(infixTokens):
+    """Transform an infix list of tokens into postfix tokens
+
+    :param infixTokens: an infix list of tokens
+    :returns: the corresponding postfix list of tokens
 
     :Example:
 
-    >>> infixToPostfix("1 + 2")
-    '1 2 +'
+    >>> infixToPostfix([1, "+", 2])
+    [1, 2, '+']
 
-    >>> infixToPostfix("1 * 2 + 3")
-    '1 2 * 3 +'
-
+    >>> infixToPostfix([1, "*", 2, "+", 3])
+    [1, 2, '*', 3, '+']
     """
+
     priority = {"*" : 3, "/": 3, "+": 2, "-":2, "(": 1}
     
     opStack = Stack()
     postfixList = []
 
-    tokenList = infixExp.split(" ")
+    #infixTokens = infixExp.split(" ")
 
-    for token in tokenList:
+    for token in infixTokens:
         if token == "(":
             opStack.push(token)
         elif token == ")":
@@ -36,7 +46,8 @@ def infixToPostfix(infixExp):
             while topToken != "(":
                 postfixList.append(topToken)
                 topToken = opStack.pop()
-        elif token in "+-*/":
+        elif type(token) == str and token in "+-*/":
+            # On doit ajouter la condition == str sinon python ne veut pas tester l'appartenance à la chaine de caractère. 
             while (not opStack.isEmpty()) and (priority[opStack.peek()] >= priority[token]):
                 postfixList.append(opStack.pop())
             opStack.push(token)
@@ -46,22 +57,22 @@ def infixToPostfix(infixExp):
     while not opStack.isEmpty():
         postfixList.append(opStack.pop())
 
-    return " ".join(postfixList)
+    return postfixList
 
-def computePostfix(postfixExp):
-    """Compute a postfix expression
+def computePostfix(postfixTokens):
+    """Compute a postfix list of tokens 
 
-    :param postfixExp: a postfix expression
-    :returns: the result of the expression
+    :param postfixTokens: a postfix list of tokens
+    :returns: the result of the calculus
 
     """
-    print(postfixToInfix(postfixExp))
+    #print(postfixToInfix(postfixExp))
     # where to save numbers or 
     operandeStack = Stack()
 
-    tokenList = postfixExp.split(" ")
+    #tokenList = postfixExp.split(" ")
 
-    for (i,token) in enumerate(tokenList):
+    for (i,token) in enumerate(postfixTokens):
         if token in "+-*/":
             op2 = operandeStack.pop()
             op1 = operandeStack.pop()
@@ -70,8 +81,8 @@ def computePostfix(postfixExp):
 
             #print("Operation: {op1} {op} {op2}".format(op1 = op1, op = token, op2 = op2))
             #print(operandeStack)
-            #print(tokenList[i+1:])
-            newPostfix = " ".join(operandeStack + tokenList[i+1:])
+            #print(postfixTokens[i+1:])
+            newPostfix = " ".join(operandeStack + postfixTokens[i+1:])
             print(postfixToInfix(newPostfix))
 
         else:
@@ -79,18 +90,19 @@ def computePostfix(postfixExp):
 
     return operandeStack.pop()
 
-def computePostfixBis(postfixExp):
-    """Compute a postfix expression like a good student
+def computePostfixBis(postfixTokens):
+    """Compute a postfix list of tokens like a good student
 
-    :param postfixExp: a postfix expression
+    :param postfixTokens: a postfix list of tokens
     :returns: the result of the expression
 
     """
-    print(postfixToInfix(postfixExp))
+    #print(postfixToInfix(postfixTokens))
     # where to save numbers or 
     operandeStack = Stack()
 
-    tokenList = postfixExp.split(" ")
+    #tokenList = postfixExp.split(" ")
+    tokenList = postfixTokens.copy()
 
     # On fait le calcul jusqu'à n'avoir plus qu'un élément
     while len(tokenList) > 1:
@@ -115,7 +127,7 @@ def computePostfixBis(postfixExp):
         tmpTokenList += tokenList
 
         tokenList = expand_list(tmpTokenList)
-        print(postfixToInfix(" ".join(tokenList)))
+        print(postfixToInfix(tokenList))
 
     return tokenList[0]
 
@@ -145,18 +157,20 @@ def doMath(op, op1, op2):
     return str(eval(op1 + op + op2))
 
 
-def postfixToInfix(postfixExp):
-    """Transforme postfix expression into infix expression
+def postfixToInfix(postfixTokens):
+    """Transforme postfix list of tokens into infix list of tokens 
 
-    :param postfixExp: a postfix expression
-    :returns: the corresponding infix expression
+    :param postfixTokens: a postfix list of tokens
+    :returns: the corresponding infix list of tokens
 
     """
     operandeStack = Stack()
 
-    tokenList = postfixExp.split(" ")
+    #print(postfixTokens)
 
-    for (i,token) in enumerate(tokenList):
+    #tokenList = postfixExp.split(" ")
+
+    for (i,token) in enumerate(postfixTokens):
         if token in "+-*/":
             op2 = operandeStack.pop()
             if needPar(op2, token, "after"):
@@ -181,6 +195,7 @@ def needPar(operande, operator, posi = "after"):
     :param posi: "after"(default) if the operande will be after the operator, "before" othewise
     :returns: bollean
     """
+
     priority = {"*" : 3, "/": 3, "+": 2, "-":2}
 
     if isNumber(operande) and "-" in operande:
@@ -197,10 +212,10 @@ def needPar(operande, operator, posi = "after"):
     else:
         return 0
 
-def get_main_op(exp):
-    """Getting the main operation of the expression
+def get_main_op(tokens):
+    """Getting the main operation of the list of tokens
 
-    :param exp: the expression
+    :param exp: the list of tokens
     :returns: the main operation (+, -, * or /) or 0 if the expression is only one element
 
     """
@@ -208,15 +223,15 @@ def get_main_op(exp):
     priority = {"*" : 3, "/": 3, "+": 2, "-":2}
 
     parStack = Stack()
-    tokenList = exp.split(" ")
+    #tokenList = exp.split(" ")
 
-    if len(tokenList) == 1:
+    if len(tokens) == 1:
     # Si l'expression n'est qu'un élément
         return 0
 
     main_op = []
 
-    for token in tokenList:
+    for token in tokens:
         if token == "(":
             parStack.push(token)
         elif token == ")":
@@ -273,7 +288,8 @@ def test(exp):
     """
     print("-------------")
     print("Expression ",exp)
-    postfix = infixToPostfix(exp)
+    tokens = str2tokens(exp)
+    postfix = infixToPostfix(tokens)
     #print("Postfix " , postfix)
     #print(computePostfix(postfix))
     #print("Bis")
@@ -283,27 +299,27 @@ def test(exp):
 
 
 if __name__ == '__main__':
-    #exp = "1 + 3 * 5"
-    #test(exp)
+    exp = "1 + 3 * 5"
+    test(exp)
 
-    #exp = "2 * 3 * 3 * 5"
-    #test(exp)
+    exp = "2 * 3 * 3 * 5"
+    test(exp)
 
-    #exp = "2 * 3 + 3 * 5"
-    #test(exp)
+    exp = "2 * 3 + 3 * 5"
+    test(exp)
 
-    #exp = "2 * ( 3 + 4 ) + 3 * 5"
-    #test(exp)
-    #
-    #exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
-    #test(exp)
-    #
-    #exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
-    #test(exp)
-    #
-    #exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
-    #test(exp)
-    #
+    exp = "2 * ( 3 + 4 ) + 3 * 5"
+    test(exp)
+    
+    exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
+    test(exp)
+    
+    exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
+    test(exp)
+    
+    exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
+    test(exp)
+    
     exp = "2 + 5 * ( 3 - 4 )"
     test(exp)
     
@@ -321,8 +337,8 @@ if __name__ == '__main__':
     ## Ce denier pose un soucis. Pour le faire marcher il faudrai implémenter le calcul avec les fractions
     #exp = "( 2 + 5 ) / 3 * 4"
     #test(exp)
-    #import doctest
-    #doctest.testmod()
+    import doctest
+    doctest.testmod()
 
 
 # -----------------------------
