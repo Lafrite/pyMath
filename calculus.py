@@ -114,7 +114,7 @@ def computePostfixBis(postfixExp):
                 del tokenList[0]
         tmpTokenList += tokenList
 
-        tokenList = tmpTokenList.copy()
+        tokenList = expand_list(tmpTokenList)
         print(postfixToInfix(" ".join(tokenList)))
 
     return tokenList[0]
@@ -237,16 +237,23 @@ def expand_list(list_list):
 
     >>> expand_list([1,2,[3,4],5,[6,7,8]])
     [[1, 2, 3, 5, 6], [1, 2, 4, 5, 7], [1, 2, 4, 5, 8]]
+    >>> expand_list([1,2,4,5,6,7,8])
+    [1, 2, 4, 5, 6, 7, 8]
 
     """
     list_in_list = [i for i in list_list if type(i) == list].copy()
-    nbr_ans_list = max([len(i) for i in list_in_list])
 
-    ans = [list_list.copy() for i in range(nbr_ans_list)]
-    for (i,l) in enumerate(ans):
-        for (j,e) in enumerate(l):
-            if type(e) == list:
-                ans[i][j] = e[min(i,len(e)-1)]
+    try:
+        nbr_ans_list = max([len(i) for i in list_in_list])
+
+        ans = [list_list.copy() for i in range(nbr_ans_list)]
+        for (i,l) in enumerate(ans):
+            for (j,e) in enumerate(l):
+                if type(e) == list:
+                    ans[i][j] = e[min(i,len(e)-1)]
+    # S'il n'y a pas eut d'étapes intermédiaires (2e exemple)
+    except ValueError:
+        ans = list_list
 
     return ans
 
@@ -297,25 +304,25 @@ if __name__ == '__main__':
     #exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
     #test(exp)
     #
-    #exp = "2 + 5 * ( 3 - 4 )"
-    #test(exp)
-    #
-    #exp = "( 2 + 5 ) * ( 3 - 4 )"
-    #test(exp)
-    #
-    #exp = "( 2 + 5 ) * ( 3 * 4 )"
-    #test(exp)
-    #
-    #exp = "( 2 + 5 ) / ( 3 * 4 )"
-    #test(exp)
+    exp = "2 + 5 * ( 3 - 4 )"
+    test(exp)
+    
+    exp = "( 2 + 5 ) * ( 3 - 4 )"
+    test(exp)
+    
+    exp = "( 2 + 5 ) * ( 3 * 4 )"
+    test(exp)
+    
+    exp = "( 2 + 5 ) / ( 3 * 4 )"
+    test(exp)
 
     #print(expand_list([1,2,['a','b','c'], 3, ['d','e']]))
     
     ## Ce denier pose un soucis. Pour le faire marcher il faudrai implémenter le calcul avec les fractions
     #exp = "( 2 + 5 ) / 3 * 4"
     #test(exp)
-    import doctest
-    doctest.testmod()
+    #import doctest
+    #doctest.testmod()
 
 
 # -----------------------------
