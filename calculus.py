@@ -3,6 +3,7 @@
 
 
 from generic import Stack
+from fraction import Fraction
 
 def str2tokens(exp):
     """Convert an expression into a list of tokens
@@ -11,10 +12,18 @@ def str2tokens(exp):
     :returns: the list of tokens
 
     >>> str2tokens("1 + 2")
-    ['1', '+', '2']
+    [1, '+', 2]
 
     """
-    return exp.split(" ")
+    tokens = exp.split(" ")
+
+    for (i,t) in enumerate(tokens):
+        try:
+            tokens[i] = int(t)
+        except ValueError:
+            pass
+
+    return tokens
 
 def infixToPostfix(infixTokens):
     """Transform an infix list of tokens into postfix tokens
@@ -46,7 +55,7 @@ def infixToPostfix(infixTokens):
             while topToken != "(":
                 postfixList.append(topToken)
                 topToken = opStack.pop()
-        elif type(token) == str and token in "+-*/":
+        elif isOperation(token):
             # On doit ajouter la condition == str sinon python ne veut pas tester l'appartenance à la chaine de caractère. 
             while (not opStack.isEmpty()) and (priority[opStack.peek()] >= priority[token]):
                 postfixList.append(opStack.pop())
@@ -73,7 +82,7 @@ def computePostfix(postfixTokens):
     #tokenList = postfixExp.split(" ")
 
     for (i,token) in enumerate(postfixTokens):
-        if token in "+-*/":
+        if isOperation(token):
             op2 = operandeStack.pop()
             op1 = operandeStack.pop()
             res = doMath(token, op1, op2)
@@ -109,7 +118,7 @@ def computePostfixBis(postfixTokens):
         tmpTokenList = []
         # on va chercher les motifs du genre A B + pour les calculer
         while len(tokenList) > 2: 
-            if isNumber(tokenList[0]) and isNumber(tokenList[1]) and tokenList[2] in "+-*/":
+            if isNumber(tokenList[0]) and isNumber(tokenList[1]) and isOperation(tokenList[2]):
                 # S'il y a une opération à faire
                 op1 = tokenList[0]
                 op2 = tokenList[1]
@@ -138,11 +147,16 @@ def isNumber(exp):
     :returns: True if the expression can be a number and false otherwise
 
     """
-    tokenList = exp.split(" ")
-    if len(tokenList) != 1:
-        # si l'expression est trop longue pour être un chiffre
-        return 0
-    return exp.isdigit() or (exp[0] == "-" and exp[1:].isdigit())
+    return type(exp) == int
+
+def isOperation(exp):
+    """Check if the expression is an opération in "+-*/"
+
+    :param exp: an expression
+    :returns: boolean
+
+    """
+    return (type(exp) == str and exp in "+-*/")
 
 
 def doMath(op, op1, op2):
@@ -154,7 +168,12 @@ def doMath(op, op1, op2):
     :returns: string representing the result
 
     """
-    return str(eval(op1 + op + op2))
+    operations = {"+": "__add__", "-": "__sub__", "*": "__mul__"}
+    if op == "/":
+        return Fraction(op1,op2)
+    else:
+        return getattr(op1,operations[op])(op2)
+
 
 
 def postfixToInfix(postfixTokens):
@@ -171,13 +190,13 @@ def postfixToInfix(postfixTokens):
     #tokenList = postfixExp.split(" ")
 
     for (i,token) in enumerate(postfixTokens):
-        if token in "+-*/":
+        if isOperation(token):
             op2 = operandeStack.pop()
             if needPar(op2, token, "after"):
-                op2 = "( " + op2 + " )"
+                op2 = "( " + str(op2) + " )"
             op1 = operandeStack.pop()
             if needPar(op1, token, "before"):
-                op1 = "( " + op1 + " )"
+                op1 = "( " + str(op1) + " )"
             res = "{op1} {op} {op2}".format(op1 = op1, op = token, op2 = op2)
 
             operandeStack.push(res)
@@ -198,7 +217,7 @@ def needPar(operande, operator, posi = "after"):
 
     priority = {"*" : 3, "/": 3, "+": 2, "-":2}
 
-    if isNumber(operande) and "-" in operande:
+    if isNumber(operande) and operande < 0:
         return 1
     elif not isNumber(operande):
         # Si c'est une grande expression ou un chiffre négatif
@@ -236,7 +255,7 @@ def get_main_op(tokens):
             parStack.push(token)
         elif token == ")":
             parStack.pop()
-        elif token in "+-*/" and parStack.isEmpty():
+        elif isOperation(token) and parStack.isEmpty():
             main_op.append(token)
 
     return min(main_op, key = lambda s: priority[s])
@@ -329,7 +348,7 @@ if __name__ == '__main__':
     exp = "( 2 + 5 ) * ( 3 * 4 )"
     test(exp)
     
-    exp = "( 2 + 5 ) / ( 3 * 4 )"
+    exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
     test(exp)
 
     #print(expand_list([1,2,['a','b','c'], 3, ['d','e']]))

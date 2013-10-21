@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from calculus import isNumber
 from arithmetic import gcd
 
 class Fraction(object):
