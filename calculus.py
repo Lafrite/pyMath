@@ -92,7 +92,7 @@ def computePostfix(postfixTokens):
             #print(operandeStack)
             #print(postfixTokens[i+1:])
             newPostfix = " ".join(operandeStack + postfixTokens[i+1:])
-            print(postfixToInfix(newPostfix))
+            #print(postfixToInfix(newPostfix))
 
         else:
             operandeStack.push(token)
@@ -113,6 +113,8 @@ def computePostfixBis(postfixTokens):
     #tokenList = postfixExp.split(" ")
     tokenList = postfixTokens.copy()
 
+    steps = []
+
     # On fait le calcul jusqu'à n'avoir plus qu'un élément
     while len(tokenList) > 1:
         tmpTokenList = []
@@ -123,6 +125,7 @@ def computePostfixBis(postfixTokens):
                 op1 = tokenList[0]
                 op2 = tokenList[1]
                 token = tokenList[2]
+
                 res = doMath(token, op1, op2)
 
                 tmpTokenList.append(res)
@@ -135,10 +138,14 @@ def computePostfixBis(postfixTokens):
                 del tokenList[0]
         tmpTokenList += tokenList
 
-        tokenList = expand_list(tmpTokenList)
-        print(postfixToInfix(tokenList))
 
-    return tokenList[0]
+        steps += expand_list(tmpTokenList)
+
+        tokenList = steps[-1].copy()
+
+        #print(postfixToInfix(tokenList))
+
+    return steps
 
 def isNumber(exp):
     """Check if the expression can be a number
@@ -147,7 +154,7 @@ def isNumber(exp):
     :returns: True if the expression can be a number and false otherwise
 
     """
-    return type(exp) == int
+    return type(exp) == int or type(exp) == Fraction
 
 def isOperation(exp):
     """Check if the expression is an opération in "+-*/"
@@ -170,17 +177,19 @@ def doMath(op, op1, op2):
     """
     operations = {"+": "__add__", "-": "__sub__", "*": "__mul__"}
     if op == "/":
-        return Fraction(op1,op2)
+        ans = [Fraction(op1, op2)]
+        ans += ans[0].simplify()
+        return ans
     else:
         return getattr(op1,operations[op])(op2)
 
 
 
 def postfixToInfix(postfixTokens):
-    """Transforme postfix list of tokens into infix list of tokens 
+    """Transforms postfix list of tokens into infix string 
 
     :param postfixTokens: a postfix list of tokens
-    :returns: the corresponding infix list of tokens
+    :returns: the corresponding infix string
 
     """
     operandeStack = Stack()
@@ -223,6 +232,8 @@ def needPar(operande, operator, posi = "after"):
         # Si c'est une grande expression ou un chiffre négatif
         stand_alone = get_main_op(operande)
         # Si la priorité de l'operande est plus faible que celle de l'opérateur
+        #debug_var("stand_alone",stand_alone)
+        #debug_var("operande", type(operande))
         minor_priority = priority[get_main_op(operande)] < priority[operator]
         # Si l'opérateur est -/ pour after ou juste / pour before
         special = (operator in "-/" and posi == "after") or (operator in "/" and posi == "before")
@@ -272,7 +283,7 @@ def expand_list(list_list):
     >>> expand_list([1,2,[3,4],5,[6,7,8]])
     [[1, 2, 3, 5, 6], [1, 2, 4, 5, 7], [1, 2, 4, 5, 8]]
     >>> expand_list([1,2,4,5,6,7,8])
-    [1, 2, 4, 5, 6, 7, 8]
+    [[1, 2, 4, 5, 6, 7, 8]]
 
     """
     list_in_list = [i for i in list_list if type(i) == list].copy()
@@ -287,9 +298,31 @@ def expand_list(list_list):
                     ans[i][j] = e[min(i,len(e)-1)]
     # S'il n'y a pas eut d'étapes intermédiaires (2e exemple)
     except ValueError:
-        ans = list_list
+        ans = [list_list]
 
     return ans
+
+def print_steps(steps):
+    """Juste print a list
+
+    :param steps: @todo
+    :returns: @todo
+
+    """
+    print("{first} \t = {sec}".format(first = str_from_postfix(steps[0]), sec = str_from_postfix(steps[1])))
+    for i in steps[2:]:
+        print("\t\t = {i}".format(i=str_from_postfix(i)))
+
+
+def str_from_postfix(postfix):
+    """Return the string representing the expression
+
+    :param postfix: a postfix ordered list of tokens 
+    :returns: the corresponding string expression
+
+    """
+    infix = postfixToInfix(postfix)
+    return infix
 
 
 def debug_var(name, var):
@@ -312,43 +345,55 @@ def test(exp):
     #print("Postfix " , postfix)
     #print(computePostfix(postfix))
     #print("Bis")
-    print(computePostfixBis(postfix))
+    steps = [postfix]
+    steps += computePostfixBis(postfix)
+    print(steps)
+    print_steps(steps)
     #print(postfixToInfix(postfix))
     #print(get_main_op(exp))
 
 
 if __name__ == '__main__':
-    exp = "1 + 3 * 5"
+    #exp = "1 + 3 * 5"
+    #test(exp)
+
+    #exp = "2 * 3 * 3 * 5"
+    #test(exp)
+
+    #exp = "2 * 3 + 3 * 5"
+    #test(exp)
+
+    #exp = "2 * ( 3 + 4 ) + 3 * 5"
+    #test(exp)
+    #
+    #exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
+    #test(exp)
+    #
+    #exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
+    #test(exp)
+    #
+    #exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
+    #test(exp)
+    #
+    #exp = "2 + 5 * ( 3 - 4 )"
+    #test(exp)
+    #
+    #exp = "( 2 + 5 ) * ( 3 - 4 )"
+    #test(exp)
+    #
+    #exp = "( 2 + 5 ) * ( 3 * 4 )"
+    #test(exp)
+    
+    #exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
+    #test(exp)
+
+    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
     test(exp)
 
-    exp = "2 * 3 * 3 * 5"
+    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 2"
     test(exp)
 
-    exp = "2 * 3 + 3 * 5"
-    test(exp)
-
-    exp = "2 * ( 3 + 4 ) + 3 * 5"
-    test(exp)
-    
-    exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
-    test(exp)
-    
-    exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
-    test(exp)
-    
-    exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
-    test(exp)
-    
-    exp = "2 + 5 * ( 3 - 4 )"
-    test(exp)
-    
-    exp = "( 2 + 5 ) * ( 3 - 4 )"
-    test(exp)
-    
-    exp = "( 2 + 5 ) * ( 3 * 4 )"
-    test(exp)
-    
-    exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
+    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12 + 5 * 5"
     test(exp)
 
     #print(expand_list([1,2,['a','b','c'], 3, ['d','e']]))
