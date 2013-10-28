@@ -22,23 +22,25 @@ class Fraction(object):
 
         :returns: steps to simplify the fraction or the fraction if there is nothing to do
         """
-        steps = [str(self)]
+        steps = [self]
 
         if self._denom < 0:
             self._num = - self._num
             self._denom = - self._denom
-            steps += [str(self)]
+            steps += [self]
 
         gcd_ = gcd(abs(self._num), abs(self._denom))
         if self._num == self._denom:
             self._num = 1
             self._denom = 1
-            steps += [str(self)]
+            steps += [self]
 
         elif gcd_ != 1:
             self._num, self._denom = self._num // gcd_ , self._denom // gcd_
             steps += ["( {reste1} * {gcd} ) / ( {reste2} * {gcd} )".format(reste1 = self._num, reste2 = self._denom, gcd = gcd_)]
-            steps += [str(self)]
+
+            # Certainement le truc le plus moche que j'ai jamais fait... On ne met que des strings dans steps puis au dernier moment on met une fraction. C'est moche de ma part
+            steps += [self]
 
         return steps
 
@@ -47,6 +49,9 @@ class Fraction(object):
             return str(self._num)
         else:
             return str(self._num) + " / " + str(self._denom)
+
+    #def __repr__(self):
+    #    return self.__str__()
     
     def __add__(self, other):
         if type(other) == Fraction:

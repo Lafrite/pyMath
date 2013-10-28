@@ -86,11 +86,14 @@ def computePostfixBis(postfixExp):
     :returns: the result of the expression
 
     """
+    print(postfixExp)
     print(postfixToInfix(postfixExp))
     # where to save numbers or 
     operandeStack = Stack()
 
     tokenList = postfixExp.split(" ")
+
+    steps = []
 
     # On fait le calcul jusqu'à n'avoir plus qu'un élément
     while len(tokenList) > 1:
@@ -114,10 +117,15 @@ def computePostfixBis(postfixExp):
                 del tokenList[0]
         tmpTokenList += tokenList
 
-        tokenList = expand_list(tmpTokenList)
-        print(postfixToInfix(" ".join(tokenList)))
+        steps += expand_list(tmpTokenList)
+        #print("----- Steps -----")
+        #print(steps)
 
-    return tokenList[0]
+        tokenList = steps[-1]
+
+        #print(postfixToInfix(tokenList))
+
+    return steps
 
 def isNumber(exp):
     """Check if the expression can be a number
@@ -126,11 +134,16 @@ def isNumber(exp):
     :returns: True if the expression can be a number and false otherwise
 
     """
-    tokenList = exp.split(" ")
-    if len(tokenList) != 1:
-        # si l'expression est trop longue pour être un chiffre
-        return 0
-    return exp.isdigit() or (exp[0] == "-" and exp[1:].isdigit())
+    return type(exp) == int or type(exp) == "Fraction"
+
+def isOperation(exp):
+    """Check if the expression is an opération in "+-*/"
+
+    :param exp: an expression
+    :returns: boolean
+
+    """
+    return (type(exp) == str and exp in "+-*/")
 
 
 def doMath(op, op1, op2):
@@ -183,12 +196,14 @@ def needPar(operande, operator, posi = "after"):
     """
     priority = {"*" : 3, "/": 3, "+": 2, "-":2}
 
-    if isNumber(operande) and "-" in operande:
+    if type(operande)==int and operande < 0:
         return 1
     elif not isNumber(operande):
         # Si c'est une grande expression ou un chiffre négatif
         stand_alone = get_main_op(operande)
         # Si la priorité de l'operande est plus faible que celle de l'opérateur
+        debug_var("stand_alone",stand_alone)
+        debug_var("operande", type(operande))
         minor_priority = priority[get_main_op(operande)] < priority[operator]
         # Si l'opérateur est -/ pour after ou juste / pour before
         special = (operator in "-/" and posi == "after") or (operator in "/" and posi == "before")
@@ -238,7 +253,7 @@ def expand_list(list_list):
     >>> expand_list([1,2,[3,4],5,[6,7,8]])
     [[1, 2, 3, 5, 6], [1, 2, 4, 5, 7], [1, 2, 4, 5, 8]]
     >>> expand_list([1,2,4,5,6,7,8])
-    [1, 2, 4, 5, 6, 7, 8]
+    [[1, 2, 4, 5, 6, 7, 8]]
 
     """
     list_in_list = [i for i in list_list if type(i) == list].copy()
@@ -253,9 +268,20 @@ def expand_list(list_list):
                     ans[i][j] = e[min(i,len(e)-1)]
     # S'il n'y a pas eut d'étapes intermédiaires (2e exemple)
     except ValueError:
-        ans = list_list
+        ans = [list_list]
 
     return ans
+
+def print_steps(steps):
+    """Juste print a list
+
+    :param steps: @todo
+    :returns: @todo
+
+    """
+    print("{first} \t = {sec}".format(first = steps[-1], sec = steps[-2]))
+    for i in steps[-2:0:-1]:
+        print("\t\t = ",i)
 
 
 def debug_var(name, var):
@@ -277,14 +303,15 @@ def test(exp):
     #print("Postfix " , postfix)
     #print(computePostfix(postfix))
     #print("Bis")
-    print(computePostfixBis(postfix))
+    steps = computePostfixBis(postfix)
+    print_steps(steps)
     #print(postfixToInfix(postfix))
     #print(get_main_op(exp))
 
 
 if __name__ == '__main__':
-    #exp = "1 + 3 * 5"
-    #test(exp)
+    exp = "1 + 3 * 5"
+    test(exp)
 
     #exp = "2 * 3 * 3 * 5"
     #test(exp)
@@ -304,16 +331,25 @@ if __name__ == '__main__':
     #exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
     #test(exp)
     #
-    exp = "2 + 5 * ( 3 - 4 )"
-    test(exp)
+    #exp = "2 + 5 * ( 3 - 4 )"
+    #test(exp)
+    #
+    #exp = "( 2 + 5 ) * ( 3 - 4 )"
+    #test(exp)
+    #
+    #exp = "( 2 + 5 ) * ( 3 * 4 )"
+    #test(exp)
     
-    exp = "( 2 + 5 ) * ( 3 - 4 )"
+    exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
     test(exp)
-    
-    exp = "( 2 + 5 ) * ( 3 * 4 )"
+
+    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
     test(exp)
-    
-    exp = "( 2 + 5 ) / ( 3 * 4 )"
+
+    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 2"
+    test(exp)
+
+    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12 + 5 * 5"
     test(exp)
 
     #print(expand_list([1,2,['a','b','c'], 3, ['d','e']]))
