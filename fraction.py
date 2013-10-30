@@ -24,22 +24,20 @@ class Fraction(object):
         steps = []
 
         if self._denom < 0:
-            self._num = - self._num
-            self._denom = - self._denom
-            steps.append(self)
+            n_frac = Fraction(-self._num, -self._denom)
+            steps.append(n_frac)
 
         gcd_ = gcd(abs(self._num), abs(self._denom))
         if self._num == self._denom:
-            self._num = 1
-            self._denom = 1
-            steps.append(self)
+            n_frac = Fraction(1,1)
+            steps.append(n_frac)
 
         elif gcd_ != 1:
-            self._num, self._denom = self._num // gcd_ , self._denom // gcd_
-            steps.append("( {reste1} * {gcd} ) / ( {reste2} * {gcd} )".format(reste1 = self._num, reste2 = self._denom, gcd = gcd_))
+            n_frac = Fraction(self._num // gcd_ , self._denom // gcd_)
+            steps.append("( {reste1} * {gcd} ) / ( {reste2} * {gcd} )".format(reste1 = n_frac._num, reste2 = n_frac._denom, gcd = gcd_))
 
             # Certainement le truc le plus moche que j'ai jamais fait... On ne met que des strings dans steps puis au dernier moment on met une fraction. C'est moche de ma part
-            steps.append(self)
+            steps.append(n_frac)
 
         return steps
 

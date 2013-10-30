@@ -346,7 +346,6 @@ def test(exp):
     #print("Bis")
     steps = [postfix]
     steps += computePostfixBis(postfix)
-    print(steps)
     print_steps(steps)
     #print(postfixToInfix(postfix))
     #print(get_main_op(exp))
