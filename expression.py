@@ -1,190 +1,332 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from generic import Stack, flatten_list, expand_list
+from fraction import Fraction
+
+def trace(f):
+    """ Permet de visualiser des appels récursifs à la fonction décorée """
+    f.indent = 0
+    def g(x):
+        print('|  ' * f.indent + '|--', f.__name__, x)
+        f.indent += 1
+        value = f(x)
+        print( '|  ' * f.indent + '|--', 'return', repr(value))
+        f.indent -= 1
+        return value
+    return g
 
 class Expression(object):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
 
-    priority = {"*" : 3, "/": 3, "+": 2, "-":2, "(": 1}
+    PRIORITY = {"*" : 3, "/": 3, "+": 2, "-":2, "(": 1}
 
     def __init__(self, exp):
         """ Initiate the expression
 
         :param exp: the expression. It can be a string or a list of tokens. It can be infix or postfix expression
         """
-        self._exp = exp
+        if type(exp) == str:
+            self._exp = exp
+            self.tokens = self.str2tokens(exp) # les tokens seront alors stockés dans self.tokens temporairement
+        elif type(exp) == list:
+            self.tokens = exp
 
-    def simplify(self):
-        """ Generator which return steps for computing the expression """
-        if self._exp == 0:
-            yield "Zero!"
+        self.find_fix() # Determine le fix et range la liste dans self.[fix]_tokens
+
+    ## ---------------------
+    ## Mechanism functions
+
+    def simplify(self, render = lambda x:str(x)):
+        """ Generator which return steps for computing the expression
+        @param render: function which render the list of token (postfix form now)
+        """
+        if not self.can_go_further():
+            yield render(self.postfix_tokens) # self.postfix_tokens devra être une propriété pour vérifier que quand on y accède, on a bien la forme voulu et si non, la calculer.
         else:
-            self.children = Expression(self._exp - 1)
-            yield "num: " + str(self._exp)
-            yield self.children.simplify().next()
+            self.compute_exp() # crée self.children et éventuellement les étapes intermédiaires pour y arriver. /!\ les étapes sont sous la forme de listes de tokens en postfix
+            for s in self.steps:
+                yield render(s)
+            for s in self.children.simplify(render = render):
+                yield render(s)
+
+    def can_go_further(self):
+        """Check whether it's a last step or not. If not create self.children the next expression.
+        :returns: 1 if it's not the last step, 0 otherwise
+        """
+        if len(self.tokens) == 1:
+            return 0
+        else:
+            return 1
+
+    def compute_exp(self):
+        """ Create self.children with self.steps to go up to it """
+        self.steps = [self.postfix_tokens]
+
+        tokenList = self.postfix_tokens.copy()
+        tmpTokenList = []
+
+        while len(tokenList) > 2: 
+            # on va chercher les motifs du genre A B + pour les calculer
+            if isNumber(tokenList[0]) and isNumber(tokenList[1]) and self.isOperator(tokenList[2]):
+                
+                # S'il y a une opération à faire
+                op1 = tokenList[0]
+                op2 = tokenList[1]
+                token = tokenList[2]
+
+                res = doMath(token, op1, op2)
+
+                tmpTokenList.append(res)
+
+                # Comme on vient de faire le calcul, on peut détruire aussi les deux prochains termes
+                del tokenList[0:3]
+            else:
+                tmpTokenList.append(tokenList[0])
+
+                del tokenList[0]
+        tmpTokenList += tokenList
+
+        steps += expand_list(tmpTokenList)
+
+        self.steps += [steps[:-1]]
+        self.children = Expression(steps[-1])
+
 
     ## ---------------------
     ## String parsing
 
     ## @classmethod ????
-    #def parseExp(self, exp):
-    #    """ Parse the expression, ie tranform a string into a list of tokens
+    def str2tokens(self, exp):
+        """ Parse the expression, ie tranform a string into a list of tokens
 
-    #    :param exp: The expression (a string)
-    #    :returns: list of token
+        :param exp: The expression (a string)
+        :returns: list of token
 
-    #    """
-    #    return exp.split(" ")
+        """
+        return exp.split(" ")
 
-    ## ---------------------
-    ## "fix" recognition
+    # ---------------------
+    # "fix" recognition
 
-    #def get_fix(self, tokens):
-    #    """ Give the "fix" of an expression
-    #    infix -> A + B
-    #    prefix -> + A B
-    #    postfix -> A B +
+    @classmethod
+    def get_fix(self, tokens):
+        """ Give the "fix" of an expression
+        [A, +, B] -> infix
+        [+, A, B] -> prefix
+        [A, B, +] -> postfix
+        /!\ does not verify if the expression is correct/computable!
 
-    #    :param exp: the expression (list of token)
-    #    :returns: the "fix" (infix, postfix, prefix)
+        :param exp: the expression (list of token)
+        :returns: the "fix" (infix, postfix, prefix)
 
-    #    """
-    #    if tokens[0] in  "+-*/":
-    #        return "prefix"
-    #    elif token[0] not in "+-*/" ans token[1] not in "+-*/":
-    #        return "postfix"
-    #    else:
-    #        return "infix"
+        """
+        if self.isOperator(tokens[0]):
+            return "prefix"
+        elif not self.isOperator(tokens[0]) and not self.isOperator(tokens[1]):
+            return "postfix"
+        else:
+            return "infix"
 
-    ## ----------------------
-    ## Expressions - tokens getters
+    def find_fix(self):
+        """ Recognize the fix of self.tokens and stock tokens in self.[fix]_tokens """
+        fix = self.get_fix(self.tokens)
 
-    #def tokens(self, fix = "infix"):
-    #    """Get the list of tokens with the wanted fix
+        setattr(self, fix+"_tokens", self.tokens)
 
-    #    :param fix: the fix wanted (infix default)
-    #    :returns: list of tokens
+    # ----------------------
+    # Expressions - tokens manipulation
 
-    #    """
-    #    # Si ce fix n'a pas encore été enregistré
-    #    if fix not in self._tokens:
-    #        # Il peut venir de la version string
-    #        if fix in self._string:
-    #            self._tokens[fix] = self.parseExp(self._string[fix])
-    #        # Sinon il faut le calculer à partir d'une autre forme
-    #        else:
-    #            fix_transfo = "to" + fix.capitalize()
-    #            getattr(self,fix_transfo)()
+    @property
+    def infix_tokens(self):
+        """ Return infix list of tokens. Verify if it has already been computed and compute it if not
 
-    #    return self._tokens[fix]
+        :returns: infix list of tokens
+        """
+        if hasattr(self, "_infix_tokens"):
+            return self._infix_tokens
 
-###### On en est là,il faudra faire attention à bien vérifier ce que les "to..." enregistre (string ou tokens)  
+        elif hasattr(self, "_postfix_tokens"):
+            self.infix_tokens = self.post2in_fix()
+            return self._infix_tokens
 
-    #def string(self, fix = "infix"):
-    #    """Get the string with the wanted fix
+        else:
+            raise ValueError("Unkown fix")
 
-    #    :param fix: the fix wanted (infix default)
-    #    :returns: the string representing the expression
+    @infix_tokens.setter
+    def infix_tokens(self, val):
+        self._infix_tokens = val
 
-    #    """
-    #    # Si ce fix n'a pas encore été enregistré
-    #    if fix not in self._string:
-    #        # Il peut venir de la version string
-    #        if fix in self._tokens:
-    #            self._string[fix] = self.parseExp(self._string[fix])
-    #        # Sinon il faut le calculer à partir d'une autre forme
-    #        else:
-    #            fix_transfo = "to" + fix.capitalize()
-    #            getattr(self,fix_transfo)()
+    @property
+    def postfix_tokens(self):
+        """ Return postfix list of tokens. Verify if it has already been computed and compute it if not
 
-    #    return self._string[fix]
-    #
-    ## ----------------------
-    ## "fix" tranformations
+        :returns: postfix list of tokens
+        """
+        if hasattr(self, "_postfix_tokens"):
+            return self._postfix_tokens
 
-    #def toPostfix(self):
-    #    """ Transorm the expression into postfix form using the infix form"""
-    #    pass
+        elif hasattr(self,"_infix_tokens"):
+            self.postfix_tokens = self.in2post_fix()
+            return self._postfix_tokens
 
-    #def toInfix(self):
-    #    """ Tranform the expression into infix form using postfix form"""
-    #    pass
+        else:
+            raise ValueError("Unkown fix")
 
-    ## ---------------------
-    ## Tools for placing parenthesis in infix notation
+    @postfix_tokens.setter
+    def postfix_tokens(self, val):
+        self._postfix_tokens = val
 
-    #def needPar(operande, operator, posi = "after"):
-    #    """ Says whether or not the operande needs parenthesis
+    # ----------------------
+    # "fix" tranformations
 
-    #    :param operande: the operande
-    #    :param operator: the operator
-    #    :param posi: "after"(default) if the operande will be after the operator, "before" othewise
-    #    :returns: bollean
-    #    """
-    #    if isNumber(operande) and "-" in operande:
-    #        return 1
-    #    elif not isNumber(operande):
-    #        # Si c'est une grande expression ou un chiffre négatif
-    #        stand_alone = get_main_op(operande)
-    #        # Si la priorité de l'operande est plus faible que celle de l'opérateur
-    #        minor_priority = self.priority[get_main_op(operande)] < self.priority[operator]
-    #        # Si l'opérateur est -/ pour after ou juste / pour before
-    #        special = (operator in "-/" and posi == "after") or (operator in "/" and posi == "before")
+    def in2post_fix(self):
+        """ From the self.infix_tokens list compute the corresponding self.postfix_tokens list """
+        
+        opStack = Stack()
+        postfixList = []
 
-    #        return stand_alone and (minor_priority or special)
-    #    else:
-    #        return 0
-    #
-# J'#aime pas bien cette endroit faudrait que ce soit une méthode qui s'applique uniquement à l'expression en question (self) pas à n'importe quel string, ça serait plus propre.
-    #def get_main_op(exp):
-    #    """ Gives the main operation of the expression
+        for token in self.infix_tokens:
+            if token == "(":
+                opStack.push(token)
+            elif token == ")":
+                topToken = opStack.pop()
+                while topToken != "(":
+                    postfixList.append(topToken)
+                    topToken = opStack.pop()
+            elif self.isOperator(token):
+                # On doit ajouter la condition == str sinon python ne veut pas tester l'appartenance à la chaine de caractère. 
+                while (not opStack.isEmpty()) and (self.PRIORITY[opStack.peek()] >= self.PRIORITY[token]):
+                    postfixList.append(opStack.pop())
+                opStack.push(token)
+            else:
+                postfixList.append(token)
 
-    #    :param exp: the expression
-    #    :returns: the main operation (+, -, * or /) or 0 if the expression is only one element
+        while not opStack.isEmpty():
+            postfixList.append(opStack.pop())
 
-    #    """
-    #    parStack = Stack()
-    #    tokenList = exp.split(" ")
+        self.postfix_tokens = postfixList
 
-    #    if len(tokenList) == 1:
-    #    # Si l'expression n'est qu'un élément
-    #        return 0
+    def post2in_fix(self):
+        """ From the self.postfix_tokens list compute the corresponding self.infix_tokens list """
+        operandeStack = Stack()
 
-    #    main_op = []
+        for token in postfixTokens:
+            if self.isOperator(token):
+                op2 = operandeStack.pop()
+                if self.needPar(op2, token, "after"):
+                    op2 = ["( ", op2, " )"]
+                op1 = operandeStack.pop()
+                if self.needPar(op1, token, "before"):
+                    op1 = ["( ", op1, " )"]
+                res = [op1, token, op2]
 
-    #    for token in tokenList:
-    #        if token == "(":
-    #            parStack.push(token)
-    #        elif token == ")":
-    #            parStack.pop()
-    #        elif token in "+-*/" and parStack.isEmpty():
-    #            main_op.append(token)
+                operandeStack.push(res)
 
-    #    return min(main_op, key = lambda s: priority[s])
+            else:
+                operandeStack.push(token)
+
+        self.infix_tokens = flatten_list(operandeStack.pop())
+
+    # ---------------------
+    # Tools for placing parenthesis in infix notation
+
+    @classmethod
+    def needPar(self, operande, operator, posi = "after"):
+        """Says whether or not the operande needs parenthesis
+
+        :param operande: the operande
+        :param operator: the operator
+        :param posi: "after"(default) if the operande will be after the operator, "before" othewise
+        :returns: bollean
+        """
+
+        if isNumber(operande) and operande < 0:
+            return 1
+        elif not isNumber(operande):
+            # Si c'est une grande expression ou un chiffre négatif
+            stand_alone = self.get_main_op(operande)
+            # Si la priorité de l'operande est plus faible que celle de l'opérateur
+            minor_priority = self.PRIORITY[self.get_main_op(operande)] < self.PRIORITY[operator]
+            # Si l'opérateur est -/ pour after ou juste / pour before
+            special = (operator in "-/" and posi == "after") or (operator in "/" and posi == "before")
+
+            return stand_alone and (minor_priority or special)
+        else:
+            return 0
+    
+    @classmethod
+    def get_main_op(self, tokens):
+        """Getting the main operation of the list of tokens
+
+        :param exp: the list of tokens
+        :returns: the main operation (+, -, * or /) or 0 if the expression is only one element
+
+        """
+        parStack = Stack()
+
+        if len(tokens) == 1:
+        # Si l'expression n'est qu'un élément
+            return 0
+
+        main_op = []
+
+        for token in tokens:
+            if token == "(":
+                parStack.push(token)
+            elif token == ")":
+                parStack.pop()
+            elif self.isOperator(token) and parStack.isEmpty():
+                main_op.append(token)
+
+        return min(main_op, key = lambda s: self.PRIORITY[s])
 
     ## ---------------------
     ## Computing the expression
 
-    #def compute(self):
-    #    """ Recursive method for computing as a student the expression
-    #    :returns: list of steps needed to reach the result
+    @classmethod
+    def doMath(self, op, op1, op2):
+        """Compute "op1 op op2" or create a fraction
 
-    #    """
-    #    pass
-    #
-    #def doMath(op, op1, op2):
-    #    """Compute "op1 op op2"
+        :param op: operator
+        :param op1: first operande
+        :param op2: second operande
+        :returns: string representing the result
 
-    #    :param op: operator
-    #    :param op1: first operande
-    #    :param op2: second operande
-    #    :returns: string representing the result
+        """
+        operations = {"+": "__add__", "-": "__sub__", "*": "__mul__"}
+        if op == "/":
+            ans = [Fraction(op1, op2)]
+            ans += ans[0].simplify()
+            return ans
+        else:
+            return getattr(op1,operations[op])(op2)
 
-    #    """
-    #    return str(eval(op1 + op + op2))
+    ## ---------------------
+    ## Recognize numbers and operators
+
+    @classmethod
+    def isNumber(self, exp):
+        """Check if the expression can be a number
+
+        :param exp: an expression
+        :returns: True if the expression can be a number and false otherwise
+
+        """
+        return type(exp) == int or type(exp) == Fraction
+
+    @classmethod
+    def isOperator(self, exp):
+        """Check if the expression is an opération in "+-*/"
+
+        :param exp: an expression
+        :returns: boolean
+
+        """
+        return (type(exp) == str and exp in "+-*/")
 
 if __name__ == '__main__':
-    a = Expression(10)
+    a = Expression("10 + 1 * 3")
     for i in a.simplify():
         print(i)
 
