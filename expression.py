@@ -34,10 +34,8 @@ class Expression(object):
         else:
             self.compute_exp() 
             for s in self.steps:
-                print(repr(self) + " steps")
                 yield render(s)
             for s in self.child.simplify(render = render):
-                print(repr(self) + " child")
                 yield render(s)
 
     def can_go_further(self):
@@ -79,7 +77,9 @@ class Expression(object):
 
         steps = expand_list(tmpTokenList)
 
-        self.steps += [steps[:-1]]
+        if len(steps[:-1]) > 0:
+            self.steps += [steps[:-1]]
+
         self.child = Expression(steps[-1])
 
     ## ---------------------
@@ -325,10 +325,54 @@ class Expression(object):
         """
         return (type(exp) == str and exp in "+-*/")
 
-if __name__ == '__main__':
-    a = Expression("10 + 1 * 3")
+
+def test(exp):
+    a = Expression(exp)
     for i in a.simplify():
         print(i)
+
+if __name__ == '__main__':
+    exp = "1 + 3 * 5"
+    test(exp)
+
+    exp = "2 * 3 * 3 * 5"
+    test(exp)
+
+    exp = "2 * 3 + 3 * 5"
+    test(exp)
+
+    #exp = "2 * ( 3 + 4 ) + 3 * 5"
+    #test(exp)
+    #
+    #exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
+    #test(exp)
+    #
+    #exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
+    #test(exp)
+    #
+    #exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
+    #test(exp)
+    #
+    #exp = "2 + 5 * ( 3 - 4 )"
+    #test(exp)
+    #
+    #exp = "( 2 + 5 ) * ( 3 - 4 )"
+    #test(exp)
+    #
+    #exp = "( 2 + 5 ) * ( 3 * 4 )"
+    #test(exp)
+    #
+    #exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
+    #test(exp)
+
+    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
+    #test(exp)
+
+    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 2"
+    #test(exp)
+
+    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12 + 5 * 5"
+    #test(exp)
 
 # -----------------------------
 # Reglages pour 'vim'
