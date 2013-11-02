@@ -4,18 +4,6 @@
 from generic import Stack, flatten_list, expand_list
 from fraction import Fraction
 
-def trace(f):
-    """ Permet de visualiser des appels récursifs à la fonction décorée """
-    f.indent = 0
-    def g(x):
-        print('|  ' * f.indent + '|--', f.__name__, x)
-        f.indent += 1
-        value = f(x)
-        print( '|  ' * f.indent + '|--', 'return', repr(value))
-        f.indent -= 1
-        return value
-    return g
-
 class Expression(object):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
 
@@ -42,16 +30,18 @@ class Expression(object):
         @param render: function which render the list of token (postfix form now)
         """
         if not self.can_go_further():
-            yield render(self.postfix_tokens) # self.postfix_tokens devra être une propriété pour vérifier que quand on y accède, on a bien la forme voulu et si non, la calculer.
+            yield render(self.postfix_tokens) 
         else:
-            self.compute_exp() # crée self.children et éventuellement les étapes intermédiaires pour y arriver. /!\ les étapes sont sous la forme de listes de tokens en postfix
+            self.compute_exp() 
             for s in self.steps:
+                print(repr(self) + " steps")
                 yield render(s)
-            for s in self.children.simplify(render = render):
+            for s in self.child.simplify(render = render):
+                print(repr(self) + " child")
                 yield render(s)
 
     def can_go_further(self):
-        """Check whether it's a last step or not. If not create self.children the next expression.
+        """Check whether it's a last step or not. If not create self.child the next expression.
         :returns: 1 if it's not the last step, 0 otherwise
         """
         if len(self.tokens) == 1:
@@ -60,7 +50,7 @@ class Expression(object):
             return 1
 
     def compute_exp(self):
-        """ Create self.children with self.steps to go up to it """
+        """ Create self.child with self.steps to go up to it """
         self.steps = [self.postfix_tokens]
 
         tokenList = self.postfix_tokens.copy()
@@ -68,14 +58,14 @@ class Expression(object):
 
         while len(tokenList) > 2: 
             # on va chercher les motifs du genre A B + pour les calculer
-            if isNumber(tokenList[0]) and isNumber(tokenList[1]) and self.isOperator(tokenList[2]):
+            if self.isNumber(tokenList[0]) and self.isNumber(tokenList[1]) and self.isOperator(tokenList[2]):
                 
                 # S'il y a une opération à faire
                 op1 = tokenList[0]
                 op2 = tokenList[1]
                 token = tokenList[2]
 
-                res = doMath(token, op1, op2)
+                res = self.doMath(token, op1, op2)
 
                 tmpTokenList.append(res)
 
@@ -87,11 +77,10 @@ class Expression(object):
                 del tokenList[0]
         tmpTokenList += tokenList
 
-        steps += expand_list(tmpTokenList)
+        steps = expand_list(tmpTokenList)
 
         self.steps += [steps[:-1]]
-        self.children = Expression(steps[-1])
-
+        self.child = Expression(steps[-1])
 
     ## ---------------------
     ## String parsing
@@ -104,7 +93,15 @@ class Expression(object):
         :returns: list of token
 
         """
-        return exp.split(" ")
+        tokens = exp.split(" ")
+
+        for (i,t) in enumerate(tokens):
+            try:
+                tokens[i] = int(t)
+            except ValueError:
+                pass
+
+        return tokens
 
     # ---------------------
     # "fix" recognition
@@ -130,7 +127,10 @@ class Expression(object):
 
     def find_fix(self):
         """ Recognize the fix of self.tokens and stock tokens in self.[fix]_tokens """
-        fix = self.get_fix(self.tokens)
+        if len(self.tokens) > 1:
+            fix = self.get_fix(self.tokens)
+        else:
+            fix = "postfix" # Completement arbitraire mais on s'en fiche!
 
         setattr(self, fix+"_tokens", self.tokens)
 
@@ -147,7 +147,7 @@ class Expression(object):
             return self._infix_tokens
 
         elif hasattr(self, "_postfix_tokens"):
-            self.infix_tokens = self.post2in_fix()
+            self.post2in_fix()
             return self._infix_tokens
 
         else:
@@ -167,7 +167,7 @@ class Expression(object):
             return self._postfix_tokens
 
         elif hasattr(self,"_infix_tokens"):
-            self.postfix_tokens = self.in2post_fix()
+            self.in2post_fix()
             return self._postfix_tokens
 
         else:
@@ -241,9 +241,9 @@ class Expression(object):
         :returns: bollean
         """
 
-        if isNumber(operande) and operande < 0:
+        if self.isNumber(operande) and operande < 0:
             return 1
-        elif not isNumber(operande):
+        elif not self.isNumber(operande):
             # Si c'est une grande expression ou un chiffre négatif
             stand_alone = self.get_main_op(operande)
             # Si la priorité de l'operande est plus faible que celle de l'opérateur
