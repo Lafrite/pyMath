@@ -20,14 +20,19 @@ class Expression(object):
         elif type(exp) == list:
             self.tokens = exp
 
-        self.find_fix() # Determine le fix et range la liste dans self.[fix]_tokens
+        self._infix_tokens = None
+        self._postfix_tokens = None
+
+        self.feed_fix() # Determine le fix et range la liste dans self.[fix]_tokens
 
     ## ---------------------
     ## Mechanism functions
 
     def simplify(self, render = lambda x:str(x)):
         """ Generator which return steps for computing the expression
+
         @param render: function which render the list of token (postfix form now)
+
         """
         if not self.can_go_further():
             yield render(self.postfix_tokens) 
@@ -78,7 +83,7 @@ class Expression(object):
         steps = expand_list(tmpTokenList)
 
         if len(steps[:-1]) > 0:
-            self.steps += [steps[:-1]]
+            self.steps += steps[:-1]
 
         self.child = Expression(steps[-1])
 
@@ -109,7 +114,7 @@ class Expression(object):
     @classmethod
     def get_fix(self, tokens):
         """ Give the "fix" of an expression
-        [A, +, B] -> infix
+        [A, +, B] -> infix, or if there is parenthesis it is infix
         [+, A, B] -> prefix
         [A, B, +] -> postfix
         /!\ does not verify if the expression is correct/computable!
@@ -120,12 +125,14 @@ class Expression(object):
         """
         if self.isOperator(tokens[0]):
             return "prefix"
+        elif "(" in tokens:
+            return "infix"
         elif not self.isOperator(tokens[0]) and not self.isOperator(tokens[1]):
             return "postfix"
         else:
             return "infix"
 
-    def find_fix(self):
+    def feed_fix(self):
         """ Recognize the fix of self.tokens and stock tokens in self.[fix]_tokens """
         if len(self.tokens) > 1:
             fix = self.get_fix(self.tokens)
@@ -133,6 +140,7 @@ class Expression(object):
             fix = "postfix" # Completement arbitraire mais on s'en fiche!
 
         setattr(self, fix+"_tokens", self.tokens)
+
 
     # ----------------------
     # Expressions - tokens manipulation
@@ -143,10 +151,10 @@ class Expression(object):
 
         :returns: infix list of tokens
         """
-        if hasattr(self, "_infix_tokens"):
+        if self._infix_tokens:
             return self._infix_tokens
 
-        elif hasattr(self, "_postfix_tokens"):
+        elif self._postfix_tokens:
             self.post2in_fix()
             return self._infix_tokens
 
@@ -163,10 +171,10 @@ class Expression(object):
 
         :returns: postfix list of tokens
         """
-        if hasattr(self, "_postfix_tokens"):
+        if self._postfix_tokens:
             return self._postfix_tokens
 
-        elif hasattr(self,"_infix_tokens"):
+        elif self._infix_tokens:
             self.in2post_fix()
             return self._postfix_tokens
 
@@ -180,13 +188,28 @@ class Expression(object):
     # ----------------------
     # "fix" tranformations
 
-    def in2post_fix(self):
-        """ From the self.infix_tokens list compute the corresponding self.postfix_tokens list """
+    #@classmethod
+    def in2post_fix(self, infix_tokens = None):
+        """ From the self.infix_tokens list compute the corresponding self.postfix_tokens list
+        
+        @param infix_tokens: the infix list of tokens to transform into postfix form. If nothing is set, it takes the value self.infix_tokens
+        @return: the corresponding postfix list of tokens if infix_tokens is set. nothing otherwise but stock it in self.postfix_tokens
+
+        >>> Expression.in2post_fix(['(', 2, '+', 5, '-', 1, ')', '/', '(', 3, '*', 4, ')'])
+        [2, 5, '+', 1, '-', 3, 4, '*', '/']
+        """
+
+        arg = 1
+        if infix_tokens == None:
+            arg = 0
+            infix_tokens = self._infix_tokens
+            # TODO: Trouver une autre méthode pour ne pas à avoir à utiliser cet attribu privé |dim. nov.  3 07:24:31 CET 2013
+
         
         opStack = Stack()
         postfixList = []
 
-        for token in self.infix_tokens:
+        for token in infix_tokens:
             if token == "(":
                 opStack.push(token)
             elif token == ")":
@@ -205,13 +228,29 @@ class Expression(object):
         while not opStack.isEmpty():
             postfixList.append(opStack.pop())
 
-        self.postfix_tokens = postfixList
+        if not arg:
+            self.postfix_tokens = postfixList
+        else:
+            return postfixList
 
-    def post2in_fix(self):
-        """ From the self.postfix_tokens list compute the corresponding self.infix_tokens list """
+    #@classmethod
+    def post2in_fix(self, postfix_tokens = None):
+        """ From the self.postfix_tokens list compute the corresponding self.infix_tokens list
+        
+        @param postfix_tokens: the postfix list of tokens to transform into infix form. If nothing is set, it takes the value self.postfix_tokens
+        @return: the corresponding infix list of tokens if postfix_tokens is set. nothing otherwise but stock it in self.infix_tokens
+
+        >>> Expression.post2in_fix([2, 5, '+', 1, '-', 3, 4, '*', '/'])
+        ['( ', 2, '+', 5, '-', 1, ' )', '/', '( ', 3, '*', 4, ' )']
+        """
+        arg = 1
+        if postfix_tokens == None:
+            arg = 0
+            postfix_tokens = self._postfix_tokens
+
         operandeStack = Stack()
 
-        for token in postfixTokens:
+        for token in postfix_tokens:
             if self.isOperator(token):
                 op2 = operandeStack.pop()
                 if self.needPar(op2, token, "after"):
@@ -226,7 +265,12 @@ class Expression(object):
             else:
                 operandeStack.push(token)
 
-        self.infix_tokens = flatten_list(operandeStack.pop())
+        infix_tokens = flatten_list(operandeStack.pop())
+
+        if not arg:
+            self.infix_tokens = infix_tokens
+        else:
+            return infix_tokens
 
     # ---------------------
     # Tools for placing parenthesis in infix notation
@@ -327,23 +371,31 @@ class Expression(object):
 
 
 def test(exp):
+    print(exp)
     a = Expression(exp)
+    #for i in a.simplify(render = render):
     for i in a.simplify():
         print(i)
+
+    print("\n")
+
+def render(tokens):
+    post_tokens = Expression.post2in_fix(tokens)
+    return ' '.join(post_tokens)
 
 if __name__ == '__main__':
     exp = "1 + 3 * 5"
     test(exp)
 
-    exp = "2 * 3 * 3 * 5"
-    test(exp)
+    #exp = "2 * 3 * 3 * 5"
+    #test(exp)
 
     exp = "2 * 3 + 3 * 5"
     test(exp)
 
-    #exp = "2 * ( 3 + 4 ) + 3 * 5"
-    #test(exp)
-    #
+    exp = "2 * ( 3 + 4 ) + 3 * 5"
+    test(exp)
+
     #exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
     #test(exp)
     #
@@ -355,15 +407,15 @@ if __name__ == '__main__':
     #
     #exp = "2 + 5 * ( 3 - 4 )"
     #test(exp)
-    #
-    #exp = "( 2 + 5 ) * ( 3 - 4 )"
-    #test(exp)
-    #
-    #exp = "( 2 + 5 ) * ( 3 * 4 )"
-    #test(exp)
-    #
-    #exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
-    #test(exp)
+
+    exp = "( 2 + 5 ) * ( 3 - 4 )"
+    test(exp)
+
+    exp = "( 2 + 5 ) * ( 3 * 4 )"
+    test(exp)
+
+    exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
+    test(exp)
 
     #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
     #test(exp)
