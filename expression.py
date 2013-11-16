@@ -83,7 +83,7 @@ class Expression(object):
         steps = expand_list(tmpTokenList)
 
         if len(steps[:-1]) > 0:
-            self.steps += steps[:-1]
+            self.steps += [flatten_list(s) for s in steps[:-1]]
 
         self.child = Expression(steps[-1])
 
@@ -417,14 +417,14 @@ if __name__ == '__main__':
     exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
     test(exp)
 
-    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
-    #test(exp)
+    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
+    test(exp)
 
-    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 2"
-    #test(exp)
+    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 2"
+    test(exp)
 
-    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12 + 5 * 5"
-    #test(exp)
+    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12 + 5 * 5"
+    test(exp)
 
 # -----------------------------
 # Reglages pour 'vim'

@@ -94,7 +94,7 @@ def expand_list(list_list):
             for (j,e) in enumerate(l):
                 if type(e) == list:
                     ans[i][j] = e[min(i,len(e)-1)]
-    # S'il n'y a pas eut d'étapes intermédiaires (2e exemple)
+    # S'il n'y a pas de liste dans la liste (2e exemple)
     except ValueError:
         ans = [list_list]
 

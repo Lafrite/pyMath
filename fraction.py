@@ -34,7 +34,8 @@ class Fraction(object):
 
         elif gcd_ != 1:
             n_frac = Fraction(self._num // gcd_ , self._denom // gcd_)
-            steps.append("( {reste1} * {gcd} ) / ( {reste2} * {gcd} )".format(reste1 = n_frac._num, reste2 = n_frac._denom, gcd = gcd_))
+            #steps.append("( {reste1} * {gcd} ) / ( {reste2} * {gcd} )".format(reste1 = n_frac._num, reste2 = n_frac._denom, gcd = gcd_))
+            steps.append([n_frac._num, gcd_, '*', n_frac._denom, gcd_, '*', '/' ])
 
             # Certainement le truc le plus moche que j'ai jamais fait... On ne met que des strings dans steps puis au dernier moment on met une fraction. C'est moche de ma part
             steps.append(n_frac)
@@ -69,13 +70,17 @@ class Fraction(object):
             coef1 = number._denom // gcd_denom
             coef2 = self._denom // gcd_denom
 
-            steps.append("( {num1} * {coef1} ) / ( {den1} * {coef1} ) + ( {num2} * {coef2} ) / ( {den2} * {coef2} )".format(num1 = self._num, den1 = self._denom, coef1 = coef1, num2 = number._num, den2 = number._denom, coef2 = coef2)) 
+            #steps.append("( {num1} * {coef1} ) / ( {den1} * {coef1} ) + ( {num2} * {coef2} ) / ( {den2} * {coef2} )".format(num1 = self._num, den1 = self._denom, coef1 = coef1, num2 = number._num, den2 = number._denom, coef2 = coef2)) 
+
+            steps.append([self._num, coef1, "*", self._denom, coef1, "*", '/', number._num, coef2, "*", number._denom, coef2, "*", "/",'+']) 
 
             com_denom = self._denom * coef1
             num1 = self._num * coef1
             num2 = number._num * coef2
 
-        steps.append("( {num1} + {num2} ) / {denom}".format(num1 = num1, num2 = num2, denom = com_denom))
+        #steps.append("( {num1} + {num2} ) / {denom}".format(num1 = num1, num2 = num2, denom = com_denom))
+
+        steps.append([num1, num2, '+', com_denom, '/'])
 
         num = num1 + num2
 
@@ -104,13 +109,15 @@ class Fraction(object):
             coef1 = number._denom // gcd_denom
             coef2 = self._denom // gcd_denom
 
-            steps.append("( {num1} * {coef1} ) / ( {den1} * {coef1} ) - ( {num2} * {coef2} ) / ( {den2} * {coef2} )".format(num1 = self._num, den1 = self._denom, coef1 = coef1, num2 = number._num, den2 = number._denom, coef2 = coef2)) 
+            #steps.append("( {num1} * {coef1} ) / ( {den1} * {coef1} ) - ( {num2} * {coef2} ) / ( {den2} * {coef2} )".format(num1 = self._num, den1 = self._denom, coef1 = coef1, num2 = number._num, den2 = number._denom, coef2 = coef2)) 
+            steps.append([self._num, coef1, "*", self._denom, coef1, "*", '/', number._num, coef2, "*", number._denom, coef2, "*", "/",'-']) 
 
             com_denom = self._denom * coef1
             num1 = self._num * coef1
             num2 = number._num * coef2
 
-        steps.append("( {num1} - {num2} ) / {denom}".format(num1 = num1, num2 = num2, denom = com_denom))
+        #steps.append("( {num1} - {num2} ) / {denom}".format(num1 = num1, num2 = num2, denom = com_denom))
+        steps.append([num1, num2, '-', com_denom, '/'])
 
         num = num1 - num2
 
@@ -128,7 +135,9 @@ class Fraction(object):
             number = Fraction(other)
 
         steps = []
-        steps.append("( {num1} * {num2} ) / ( {denom1} * {denom2} )".format(num1 = self._num, num2 = number._num, denom1 = self._denom, denom2 = number._denom))
+        #steps.append("( {num1} * {num2} ) / ( {denom1} * {denom2} )".format(num1 = self._num, num2 = number._num, denom1 = self._denom, denom2 = number._denom))
+
+        steps.append([self._num, number._num, '*', self._denom, number._denom, '*', '/'])
 
         num = self._num * number._num
         denom = self._denom * number._denom
