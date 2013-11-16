@@ -38,8 +38,13 @@ class Expression(object):
             yield render(self.postfix_tokens) 
         else:
             self.compute_exp() 
+            old_s = ''
             for s in self.steps:
-                yield render(s)
+                new_s = render(s)
+                # Astuce pour éviter d'avoir deux fois la même étape (par exemple pour la transfo d'une division en fraction
+                if new_s != old_s:
+                    old_s = new_s
+                    yield new_s
             for s in self.child.simplify(render = render):
                 yield render(s)
 
