@@ -46,7 +46,7 @@ class Expression(object):
                     old_s = new_s
                     yield new_s
             for s in self.child.simplify(render = render):
-                yield render(s)
+                yield s
 
     def can_go_further(self):
         """Check whether it's a last step or not. If not create self.child the next expression.
@@ -236,15 +236,19 @@ class Expression(object):
 
         >>> Expression.post2in_fix([2, 5, '+', 1, '-', 3, 4, '*', '/'])
         ['( ', 2, '+', 5, '-', 1, ' )', '/', '( ', 3, '*', 4, ' )']
+        >>> Expression.post2in_fix([2])
+        [2]
         """
         operandeStack = Stack()
-
+        
         for token in postfix_tokens:
             if self.isOperator(token):
                 op2 = operandeStack.pop()
+                
                 if self.needPar(op2, token, "after"):
                     op2 = ["( ", op2, " )"]
                 op1 = operandeStack.pop()
+                
                 if self.needPar(op1, token, "before"):
                     op1 = ["( ", op1, " )"]
                 res = [op1, token, op2]
@@ -253,8 +257,13 @@ class Expression(object):
 
             else:
                 operandeStack.push(token)
-
-        infix_tokens = flatten_list(operandeStack.pop())
+            
+        # Manip pour gerer les cas similaires au deuxième exemple
+        infix_tokens = operandeStack.pop()
+        if type(infix_tokens) == list:
+            infix_tokens = flatten_list(infix_tokens)
+        elif type(infix_tokens) == int:
+            infix_tokens = [infix_tokens]
 
         return infix_tokens
 
@@ -270,7 +279,6 @@ class Expression(object):
         :param posi: "after"(default) if the operande will be after the operator, "before" othewise
         :returns: bollean
         """
-
         if self.isNumber(operande) and operande < 0:
             return 1
         elif not self.isNumber(operande):
@@ -357,17 +365,16 @@ class Expression(object):
 
 
 def test(exp):
-    print(exp)
     a = Expression(exp)
-    #for i in a.simplify(render = render):
-    for i in a.simplify():
+    #for i in a.simplify():
+    for i in a.simplify(render = render):
         print(i)
 
     print("\n")
 
 def render(tokens):
     post_tokens = Expression.post2in_fix(tokens)
-    return ' '.join(post_tokens)
+    return ' '.join([str(t) for t in post_tokens])
 
 if __name__ == '__main__':
     exp = "1 + 3 * 5"
