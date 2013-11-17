@@ -34,8 +34,6 @@ class Expression(object):
         @param render: function which render the list of token (postfix form now)
 
         """
-        print("\t ---------- In simplify ---------- ")
-        
         if not self.can_go_further():
             yield render(self.postfix_tokens) 
         else:
