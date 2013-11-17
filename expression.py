@@ -34,6 +34,8 @@ class Expression(object):
         @param render: function which render the list of token (postfix form now)
 
         """
+        print("\t ---------- In simplify ---------- ")
+        
         if not self.can_go_further():
             yield render(self.postfix_tokens) 
         else:
@@ -41,12 +43,13 @@ class Expression(object):
             old_s = ''
             for s in self.steps:
                 new_s = render(s)
-                # Astuce pour éviter d'avoir deux fois la même étape (par exemple pour la transfo d'une division en fraction
+                # Astuce pour éviter d'avoir deux fois la même étape (par exemple pour la transfo d'une division en fraction)
                 if new_s != old_s:
                     old_s = new_s
                     yield new_s
             for s in self.child.simplify(render = render):
-                yield s
+                if old_s != s:
+                    yield s
 
     def can_go_further(self):
         """Check whether it's a last step or not. If not create self.child the next expression.
@@ -262,7 +265,7 @@ class Expression(object):
         infix_tokens = operandeStack.pop()
         if type(infix_tokens) == list:
             infix_tokens = flatten_list(infix_tokens)
-        elif type(infix_tokens) == int:
+        elif self.isNumber(infix_tokens):
             infix_tokens = [infix_tokens]
 
         return infix_tokens
@@ -407,17 +410,17 @@ if __name__ == '__main__':
     #exp = "( 2 + 5 ) * ( 3 * 4 )"
     #test(exp)
 
-    #exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
-    #test(exp)
+    exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
+    test(exp)
 
-    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
-    #test(exp)
+    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
+    test(exp)
 
-    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 2"
-    #test(exp)
+    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 2"
+    test(exp)
 
-    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12 + 5 * 5"
-    #test(exp)
+    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12 + 5 * 5"
+    test(exp)
 
     import doctest
     doctest.testmod()
