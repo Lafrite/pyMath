@@ -160,7 +160,7 @@ class Expression(object):
             return self._infix_tokens
 
         elif self._postfix_tokens:
-            self.post2in_fix()
+            self._infix_tokens = self.post2in_fix(self._postfix_tokens)
             return self._infix_tokens
 
         else:
@@ -180,7 +180,7 @@ class Expression(object):
             return self._postfix_tokens
 
         elif self._infix_tokens:
-            self.in2post_fix()
+            self._postfix_tokens = self.in2post_fix(self._infix_tokens)
             return self._postfix_tokens
 
         else:
@@ -193,24 +193,16 @@ class Expression(object):
     # ----------------------
     # "fix" tranformations
 
-    #@classmethod
-    def in2post_fix(self, infix_tokens = None):
-        """ From the self.infix_tokens list compute the corresponding self.postfix_tokens list
+    @classmethod
+    def in2post_fix(self, infix_tokens):
+        """ From the infix_tokens list compute the corresponding postfix_tokens list
         
-        @param infix_tokens: the infix list of tokens to transform into postfix form. If nothing is set, it takes the value self.infix_tokens
-        @return: the corresponding postfix list of tokens if infix_tokens is set. nothing otherwise but stock it in self.postfix_tokens
+        @param infix_tokens: the infix list of tokens to transform into postfix form.
+        @return: the corresponding postfix list of tokens.
 
         >>> Expression.in2post_fix(['(', 2, '+', 5, '-', 1, ')', '/', '(', 3, '*', 4, ')'])
         [2, 5, '+', 1, '-', 3, 4, '*', '/']
         """
-
-        arg = 1
-        if infix_tokens == None:
-            arg = 0
-            infix_tokens = self._infix_tokens
-            # TODO: Trouver une autre méthode pour ne pas à avoir à utiliser cet attribu privé |dim. nov.  3 07:24:31 CET 2013
-
-        
         opStack = Stack()
         postfixList = []
 
@@ -233,26 +225,18 @@ class Expression(object):
         while not opStack.isEmpty():
             postfixList.append(opStack.pop())
 
-        if not arg:
-            self.postfix_tokens = postfixList
-        else:
-            return postfixList
+        return postfixList
 
-    #@classmethod
-    def post2in_fix(self, postfix_tokens = None):
-        """ From the self.postfix_tokens list compute the corresponding self.infix_tokens list
+    @classmethod
+    def post2in_fix(self, postfix_tokens):
+        """ From the postfix_tokens list compute the corresponding infix_tokens list
         
-        @param postfix_tokens: the postfix list of tokens to transform into infix form. If nothing is set, it takes the value self.postfix_tokens
-        @return: the corresponding infix list of tokens if postfix_tokens is set. nothing otherwise but stock it in self.infix_tokens
+        @param postfix_tokens: the postfix list of tokens to transform into infix form.
+        @return: the corresponding infix list of tokens if postfix_tokens.
 
         >>> Expression.post2in_fix([2, 5, '+', 1, '-', 3, 4, '*', '/'])
         ['( ', 2, '+', 5, '-', 1, ' )', '/', '( ', 3, '*', 4, ' )']
         """
-        arg = 1
-        if postfix_tokens == None:
-            arg = 0
-            postfix_tokens = self._postfix_tokens
-
         operandeStack = Stack()
 
         for token in postfix_tokens:
@@ -272,10 +256,7 @@ class Expression(object):
 
         infix_tokens = flatten_list(operandeStack.pop())
 
-        if not arg:
-            self.infix_tokens = infix_tokens
-        else:
-            return infix_tokens
+        return infix_tokens
 
     # ---------------------
     # Tools for placing parenthesis in infix notation
@@ -333,8 +314,8 @@ class Expression(object):
     ## ---------------------
     ## Computing the expression
 
-    @classmethod
-    def doMath(self, op, op1, op2):
+    @staticmethod
+    def doMath(op, op1, op2):
         """Compute "op1 op op2" or create a fraction
 
         :param op: operator
@@ -354,8 +335,8 @@ class Expression(object):
     ## ---------------------
     ## Recognize numbers and operators
 
-    @classmethod
-    def isNumber(self, exp):
+    @staticmethod
+    def isNumber(exp):
         """Check if the expression can be a number
 
         :param exp: an expression
@@ -364,8 +345,8 @@ class Expression(object):
         """
         return type(exp) == int or type(exp) == Fraction
 
-    @classmethod
-    def isOperator(self, exp):
+    @staticmethod
+    def isOperator(exp):
         """Check if the expression is an opération in "+-*/"
 
         :param exp: an expression
@@ -413,23 +394,26 @@ if __name__ == '__main__':
     #exp = "2 + 5 * ( 3 - 4 )"
     #test(exp)
 
-    exp = "( 2 + 5 ) * ( 3 - 4 )"
-    test(exp)
+    #exp = "( 2 + 5 ) * ( 3 - 4 )"
+    #test(exp)
 
-    exp = "( 2 + 5 ) * ( 3 * 4 )"
-    test(exp)
+    #exp = "( 2 + 5 ) * ( 3 * 4 )"
+    #test(exp)
 
-    exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
-    test(exp)
+    #exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
+    #test(exp)
 
-    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
-    test(exp)
+    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
+    #test(exp)
 
-    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 2"
-    test(exp)
+    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 2"
+    #test(exp)
 
-    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12 + 5 * 5"
-    test(exp)
+    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12 + 5 * 5"
+    #test(exp)
+
+    import doctest
+    doctest.testmod()
 
 # -----------------------------
 # Reglages pour 'vim'
