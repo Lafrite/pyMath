@@ -16,13 +16,14 @@ class Render(object):
 
     PRIORITY = {"*" : 3, "/": 3, "+": 2, "-":2, "(": 1}
 
-    def __init__(self, op_infix = {}, op_postfix = {}, other = {}, join = " "):
+    def __init__(self, op_infix = {}, op_postfix = {}, other = {}, join = " ", type_render = {int: str, Fraction: str}):
         """Initiate the render
         
         @param op_infix: the dictionnary of infix operator with how they have to be render
         @param op_postfix: the dictionnary of postfix operator with how they have to be render
         @param other: other caracters like parenthesis.
         @param raw: the caracter for joining the list of tokens (if False then it returns the list of tokens)
+        @param type_render: how to render number (str or tex for fractions for example)
         """
 
         self.op_infix = op_infix
@@ -31,6 +32,7 @@ class Render(object):
         # TODO: there may be issues with PRIORITY if a sign does not appear in PRIORITY
 
         self.join = join
+        self.type_render = type_render
 
         self.operators = list(self.op_infix.keys()) + list(self.op_postfix.keys()) + list(self.other.keys())
 
@@ -46,15 +48,14 @@ class Render(object):
         
         for token in postfix_tokens:
             if self.isOperator(token):
+
                 op2 = operandeStack.pop()
-                
                 if self.needPar(op2, token, "after"):
                     op2 = [self.other["("] ,  op2 , self.other[")"]]
+
                 op1 = operandeStack.pop()
-                
                 if self.needPar(op1, token, "before"):
                     op1 = [self.other["("] ,  op1 , self.other[")"]]
-
 
                 if token in self.op_infix:
                     res = flist([op1 , self.op_infix[token] ,  op2])
@@ -70,7 +71,7 @@ class Render(object):
             else:
                 operandeStack.push(token)
             
-        # Manip pour gerer les cas similaires au deuxième exemple
+        # Manip pour gerer les cas de listes imbriquées dans d'autres listes
         infix_tokens = operandeStack.pop()
         if type(infix_tokens) == list or type(infix_tokens) == flist:
             infix_tokens = flatten_list(infix_tokens)
@@ -78,9 +79,22 @@ class Render(object):
             infix_tokens = [infix_tokens]
 
         if self.join:
-            return self.join.join([str(t) for t in infix_tokens])
+            return self.join.join(flatten_list([self.render_from_type(t) for t in infix_tokens]))
         else:
             return infix_tokens
+
+    def render_from_type(self, op):
+        """ If the op is a number, it transforms it with type_render conditions
+
+        :param op: the operator
+        :returns: the op transformed if it's necessary
+
+        """
+        if self.isNumber(op):
+            return self.type_render[type(op)](op)
+        else:
+            return op
+
 
     # ---------------------
     # Tools for placing parenthesis in infix notation
@@ -137,7 +151,8 @@ class Render(object):
     ## ---------------------
     ## Recognize numbers and operators
 
-    def isNumber(self, exp):
+    @staticmethod
+    def isNumber( exp):
         """Check if the expression can be a number which means that it is not a operator
 
         :param exp: an expression
@@ -167,32 +182,36 @@ txt_infix = {"+": "+", "-": "-", "*": "*", "/" : "/"}
 txt_postfix = {}
 txt_other = {"(": "(", ")": ")"}
 
-txt = Render(txt_infix, txt_postfix, txt_other)
+txt_render = Render(txt_infix, txt_postfix, txt_other)
 
 # ------------------------
 # A infix to postfix list convertor
 
-i2p_infix = {"+": "+", "-": "-", "*": "*", "/" : "/"}
-i2p_postfix = {}
-i2p_other = {"(": "(", ")": ")"}
+p2i_infix = {"+": "+", "-": "-", "*": "*", "/" : "/"}
+p2i_postfix = {}
+p2i_other = {"(": "(", ")": ")"}
 
-in2post_fix = Render(i2p_infix, i2p_postfix, i2p_other, join = False)
+post2in_fix = Render(p2i_infix, p2i_postfix, p2i_other, join = False)
 
 # ------------------------
 # A latex render
 
-def texFrac(op1, op2):
-    if op1[0] == "(" and op1[-1] == ")":
+def texSlash(op1, op2):
+    if not Render.isNumber(op1) and op1[0] == "(" and op1[-1] == ")":
         op1 = op1[1:-1]
-    if op2[0] == "(" and op2[-1] == ")":
+    if not Render.isNumber(op2) and op2[0] == "(" and op2[-1] == ")":
         op2 = op2[1:-1]
     return ["\\frac{" , op1 , "}{" , op2 , "}"]
 
-tex_infix = {"+": " + ", "-": " - ", "*": " * "}
-tex_postfix = {"/": texFrac}
-tex_other = {"(": "(", ")": ")"}
+def texFrac(frac):
+    return ["\\frac{" , str(frac._num) , "}{" , str(frac._denom) , "}"]
 
-tex = Render(tex_infix, tex_postfix, tex_other)
+tex_infix = {"+": " + ", "-": " - ", "*": " * "}
+tex_postfix = {"/": texSlash}
+tex_other = {"(": "(", ")": ")"}
+tex_type_render = {int: str, Fraction: texFrac}
+
+tex_render = Render(tex_infix, tex_postfix, tex_other, type_render = tex_type_render)
 
 
 
@@ -202,7 +221,7 @@ if __name__ == '__main__':
     exp = [2, 5, '+', 1, '-', 3, 4, '*', '/', 3, '+']
     print(tex(exp))
     exp = [2, 5, '+', 1, '-', 3, 4, '*', '/', 3, '+']
-    print(in2post_fix(exp))
+    print(post2in_fix(exp))
     
 
 # -----------------------------
