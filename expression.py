@@ -8,6 +8,7 @@ class Expression(object):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
 
     PRIORITY = {"*" : 3, "/": 3, "+": 2, "-":2, "(": 1}
+    TEXSYM = {"*" : " \\times ", "+" : " + " , "-" : " - "}
 
     def __init__(self, exp):
         """ Initiate the expression
@@ -192,10 +193,59 @@ class Expression(object):
         self._postfix_tokens = val
 
     # ----------------------
+    # Latex render
+
+    @classmethod
+    def texRender(cls, postfix_tokens):
+        """@todo: Docstring for texRender
+
+        :param postfix_tokens: the postfix list of tokens to transform into infix form.
+        :returns: the latex render ready to insert into a maht environment
+
+        >>> Expression.post2in_fix([2, 5, '+', 1, '-', 3, 4, '*', '/'])
+        ['( ', 2, '+', 5, '-', 1, ' )', '/', '( ', 3, '*', 4, ' )']
+        "\frac{2 + 5 - 1}{3 \times 4)" 
+        >>> Expression.post2in_fix([2])
+        "2"
+        """
+        operandeStack = Stack()
+        
+        for token in postfix_tokens:
+            if cls.isOperator(token):
+                op2 = operandeStack.pop()
+                op1 = operandeStack.pop()
+
+                if token == "/":
+                    res = "\\frac{" + str(op1) + "}{" + str(op2) + "}"
+
+                else:
+                    if cls.needPar(op2, token, "after"):
+                        op2 = "\\left( " +  str(op2) + " \\right) "
+                    
+                    if cls.needPar(op1, token, "before"):
+                        op2 = "\\left( " +  str(op1) + " \\right) "
+                    res = str(op1) + cls.TEXSYM[token] + str(op2)
+
+                operandeStack.push(res)
+
+            else:
+                operandeStack.push(token)
+            
+        # Manip pour gerer les cas similaires au deuxième exemple
+        infix_tokens = operandeStack.pop()
+        if type(infix_tokens) == list:
+            infix_tokens = flatten_list(infix_tokens)
+        elif cls.isNumber(infix_tokens):
+            infix_tokens = [infix_tokens]
+
+        return infix_tokens
+
+
+    # ----------------------
     # "fix" tranformations
 
     @classmethod
-    def in2post_fix(self, infix_tokens):
+    def in2post_fix(cls, infix_tokens):
         """ From the infix_tokens list compute the corresponding postfix_tokens list
         
         @param infix_tokens: the infix list of tokens to transform into postfix form.
@@ -215,9 +265,9 @@ class Expression(object):
                 while topToken != "(":
                     postfixList.append(topToken)
                     topToken = opStack.pop()
-            elif self.isOperator(token):
+            elif cls.isOperator(token):
                 # On doit ajouter la condition == str sinon python ne veut pas tester l'appartenance à la chaine de caractère. 
-                while (not opStack.isEmpty()) and (self.PRIORITY[opStack.peek()] >= self.PRIORITY[token]):
+                while (not opStack.isEmpty()) and (cls.PRIORITY[opStack.peek()] >= cls.PRIORITY[token]):
                     postfixList.append(opStack.pop())
                 opStack.push(token)
             else:
@@ -229,7 +279,7 @@ class Expression(object):
         return postfixList
 
     @classmethod
-    def post2in_fix(self, postfix_tokens):
+    def post2in_fix(cls, postfix_tokens):
         """ From the postfix_tokens list compute the corresponding infix_tokens list
         
         @param postfix_tokens: the postfix list of tokens to transform into infix form.
@@ -243,14 +293,14 @@ class Expression(object):
         operandeStack = Stack()
         
         for token in postfix_tokens:
-            if self.isOperator(token):
+            if cls.isOperator(token):
                 op2 = operandeStack.pop()
                 
-                if self.needPar(op2, token, "after"):
+                if cls.needPar(op2, token, "after"):
                     op2 = ["( ", op2, " )"]
                 op1 = operandeStack.pop()
                 
-                if self.needPar(op1, token, "before"):
+                if cls.needPar(op1, token, "before"):
                     op1 = ["( ", op1, " )"]
                 res = [op1, token, op2]
 
@@ -263,7 +313,7 @@ class Expression(object):
         infix_tokens = operandeStack.pop()
         if type(infix_tokens) == list:
             infix_tokens = flatten_list(infix_tokens)
-        elif self.isNumber(infix_tokens):
+        elif cls.isNumber(infix_tokens):
             infix_tokens = [infix_tokens]
 
         return infix_tokens
@@ -272,7 +322,7 @@ class Expression(object):
     # Tools for placing parenthesis in infix notation
 
     @classmethod
-    def needPar(self, operande, operator, posi = "after"):
+    def needPar(cls, operande, operator, posi = "after"):
         """Says whether or not the operande needs parenthesis
 
         :param operande: the operande
@@ -280,13 +330,13 @@ class Expression(object):
         :param posi: "after"(default) if the operande will be after the operator, "before" othewise
         :returns: bollean
         """
-        if self.isNumber(operande) and operande < 0:
+        if cls.isNumber(operande) and operande < 0:
             return 1
-        elif not self.isNumber(operande):
+        elif not cls.isNumber(operande):
             # Si c'est une grande expression ou un chiffre négatif
-            stand_alone = self.get_main_op(operande)
+            stand_alone = cls.get_main_op(operande)
             # Si la priorité de l'operande est plus faible que celle de l'opérateur
-            minor_priority = self.PRIORITY[self.get_main_op(operande)] < self.PRIORITY[operator]
+            minor_priority = cls.PRIORITY[cls.get_main_op(operande)] < cls.PRIORITY[operator]
             # Si l'opérateur est -/ pour after ou juste / pour before
             special = (operator in "-/" and posi == "after") or (operator in "/" and posi == "before")
 
@@ -295,13 +345,16 @@ class Expression(object):
             return 0
     
     @classmethod
-    def get_main_op(self, tokens):
+    def get_main_op(cls, tokens):
         """Getting the main operation of the list of tokens
 
         :param exp: the list of tokens
         :returns: the main operation (+, -, * or /) or 0 if the expression is only one element
 
         """
+
+        print("tokens: ", tokens)
+
         parStack = Stack()
 
         if len(tokens) == 1:
@@ -315,10 +368,12 @@ class Expression(object):
                 parStack.push(token)
             elif token == ")":
                 parStack.pop()
-            elif self.isOperator(token) and parStack.isEmpty():
+            elif cls.isOperator(token) and parStack.isEmpty():
                 main_op.append(token)
 
-        return min(main_op, key = lambda s: self.PRIORITY[s])
+        print("main_op", main_op)
+
+        return min(main_op, key = lambda s: cls.PRIORITY[s])
 
     ## ---------------------
     ## Computing the expression
@@ -368,7 +423,7 @@ class Expression(object):
 def test(exp):
     a = Expression(exp)
     #for i in a.simplify():
-    for i in a.simplify(render = render):
+    for i in a.simplify(render = Expression.texRender):
         print(i)
 
     print("\n")
