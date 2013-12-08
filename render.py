@@ -16,18 +16,21 @@ class Render(object):
 
     PRIORITY = {"*" : 3, "/": 3, "+": 2, "-":2, "(": 1}
 
-    def __init__(self, op_infix = {}, op_postfix = {}, other = {}):
+    def __init__(self, op_infix = {}, op_postfix = {}, other = {}, join = " "):
         """Initiate the render
         
         @param op_infix: the dictionnary of infix operator with how they have to be render
         @param op_postfix: the dictionnary of postfix operator with how they have to be render
         @param other: other caracters like parenthesis.
+        @param raw: the caracter for joining the list of tokens (if False then it returns the list of tokens)
         """
 
         self.op_infix = op_infix
         self.op_postfix = op_postfix
         self.other = other
-        # TODO: there may be issues with PRIORITY
+        # TODO: there may be issues with PRIORITY if a sign does not appear in PRIORITY
+
+        self.join = join
 
         self.operators = list(self.op_infix.keys()) + list(self.op_postfix.keys()) + list(self.other.keys())
 
@@ -46,18 +49,18 @@ class Render(object):
                 op2 = operandeStack.pop()
                 
                 if self.needPar(op2, token, "after"):
-                    op2 = self.other["("] +  str(op2) + self.other[")"]
+                    op2 = [self.other["("] ,  op2 , self.other[")"]]
                 op1 = operandeStack.pop()
                 
                 if self.needPar(op1, token, "before"):
-                    op1 = self.other["("] +  str(op1) + self.other[")"]
+                    op1 = [self.other["("] ,  op1 , self.other[")"]]
 
 
                 if token in self.op_infix:
-                    res = fstr(str(op1) + self.op_infix[token] +  str(op2))
+                    res = flist([op1 , self.op_infix[token] ,  op2])
 
                 elif token in self.op_postfix:
-                    res = fstr(self.op_postfix[token](str(op1), str(op2)))
+                    res = flist([self.op_postfix[token](op1, op2)])
 
                 # Trick to remember the main op when the render will be done!
                 res.mainOp = token
@@ -69,12 +72,15 @@ class Render(object):
             
         # Manip pour gerer les cas similaires au deuxième exemple
         infix_tokens = operandeStack.pop()
-        if type(infix_tokens) == list:
+        if type(infix_tokens) == list or type(infix_tokens) == flist:
             infix_tokens = flatten_list(infix_tokens)
         elif self.isNumber(infix_tokens):
             infix_tokens = [infix_tokens]
 
-        return infix_tokens
+        if self.join:
+            return self.join.join([str(t) for t in infix_tokens])
+        else:
+            return infix_tokens
 
     # ---------------------
     # Tools for placing parenthesis in infix notation
@@ -149,33 +155,54 @@ class Render(object):
         """
         return (type(exp) == str and exp in self.operators)
         
-class fstr(str):
-    """Fake string - they are used to stock the main operation of an rendered expression"""
+class flist(list):
+    """Fake list- they are used to stock the main operation of an rendered expression"""
     pass
 
-txt_infix = {"+": " + ", "-": " - ", "*": " * ", "/" : " / "}
-txt_postfix = {}
-txt_other = {"(": "( ", ")": ") "}
-txt_render = Render(txt_infix, txt_postfix, txt_other)
 
+# ------------------------
+# A console render
+
+txt_infix = {"+": "+", "-": "-", "*": "*", "/" : "/"}
+txt_postfix = {}
+txt_other = {"(": "(", ")": ")"}
+
+txt = Render(txt_infix, txt_postfix, txt_other)
+
+# ------------------------
+# A infix to postfix list convertor
+
+i2p_infix = {"+": "+", "-": "-", "*": "*", "/" : "/"}
+i2p_postfix = {}
+i2p_other = {"(": "(", ")": ")"}
+
+in2post_fix = Render(i2p_infix, i2p_postfix, i2p_other, join = False)
+
+# ------------------------
+# A latex render
 
 def texFrac(op1, op2):
     if op1[0] == "(" and op1[-1] == ")":
         op1 = op1[1:-1]
     if op2[0] == "(" and op2[-1] == ")":
         op2 = op2[1:-1]
-    return "\\frac{" + str(op1) + "}{" + str(op2) + "}"
+    return ["\\frac{" , op1 , "}{" , op2 , "}"]
 
 tex_infix = {"+": " + ", "-": " - ", "*": " * "}
 tex_postfix = {"/": texFrac}
-tex_other = {"(": "( ", ")": " )"}
-tex_render = Render(tex_infix, tex_postfix, tex_other)
+tex_other = {"(": "(", ")": ")"}
+
+tex = Render(tex_infix, tex_postfix, tex_other)
+
+
 
 if __name__ == '__main__':
-    #exp = [2, 5, '+', 1, '-', 3, 4, '*', '/']
-    #print(txt_render(exp))
+    exp = [2, 5, '+', 1, '-', 3, 4, '*', '/']
+    print(txt(exp))
     exp = [2, 5, '+', 1, '-', 3, 4, '*', '/', 3, '+']
-    print(tex_render(exp))
+    print(tex(exp))
+    exp = [2, 5, '+', 1, '-', 3, 4, '*', '/', 3, '+']
+    print(in2post_fix(exp))
     
 
 # -----------------------------
