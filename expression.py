@@ -7,7 +7,7 @@ from fraction import Fraction
 class Expression(object):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
 
-    PRIORITY = {"*" : 3, "/": 3, "+": 2, "-":2, "(": 1}
+    PRIORITY = {"*" : 3, "/": 4, "+": 2, "-":2, "(": 1}
 
     def __init__(self, exp):
         """ Initiate the expression
@@ -408,16 +408,19 @@ if __name__ == '__main__':
     #exp = "( 2 + 5 ) * ( 3 * 4 )"
     #test(exp)
 
-    exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
-    test(exp)
+    #exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
+    #test(exp)
 
-    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
-    test(exp)
+    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
+    #test(exp)
 
-    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 2"
-    test(exp)
+    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 2"
+    #test(exp)
 
-    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12 + 5 * 5"
+    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12 + 5 * 5"
+    #test(exp)
+
+    exp = "3 / 7 - 2 / 7 * 4 / 3"
     test(exp)
 
     import doctest
