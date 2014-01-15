@@ -131,8 +131,15 @@ class Expression(object):
                     tokens[-1] = - int(character)
                 else:
                     tokens.append(int(character))
-            elif character in "+-*/()":
+
+            elif character in "+-*/)":
                 tokens.append(character)
+
+            elif character in "(":
+                if self.isNumber(tokens[-1]) or tokens[-1] == ")":
+                    tokens.append("*")
+                tokens.append(character)
+
             elif character != " ":
                 raise ValueError("{} is an unvalid character".format(character))
 
@@ -350,7 +357,7 @@ if __name__ == '__main__':
     exp="(-2+5)/(3*4)+1/12+5*5"
     test(exp)
 
-    exp="-2*4*(12 + 1)"
+    exp="-2*4(12 + 1)(3-12)"
     test(exp)
 
     import doctest
