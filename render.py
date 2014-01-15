@@ -206,7 +206,7 @@ def texSlash(op1, op2):
 def texFrac(frac):
     return ["\\frac{" , str(frac._num) , "}{" , str(frac._denom) , "}"]
 
-tex_infix = {"+": " + ", "-": " - ", "*": " * "}
+tex_infix = {"+": " + ", "-": " - ", "*": " \\times "}
 tex_postfix = {"/": texSlash}
 tex_other = {"(": "(", ")": ")"}
 tex_type_render = {int: str, Fraction: texFrac}
