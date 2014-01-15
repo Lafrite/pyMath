@@ -3,3 +3,6 @@
 * Improve fix recognition (DONE)
 * More flexible expression parsing (DONE)
 * bug: expression can't handle -(-2)
+* Overload + - * / for expression
+
+* Expression parents class and his children: Numerical_exp, toGenerate_exp and formal expression
