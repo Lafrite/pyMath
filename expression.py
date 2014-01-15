@@ -113,19 +113,27 @@ class Expression(object):
     def str2tokens(self, exp):
         """ Parse the expression, ie tranform a string into a list of tokens
 
+        /!\ float are not availiable yet!
+
         :param exp: The expression (a string)
         :returns: list of token
 
         """
-        tokens = exp.split(" ")
+        tokens = ['']
 
-        for (i,t) in enumerate(tokens):
-            try:
-                tokens[i] = int(t)
-            except ValueError:
-                pass
+        for character in exp:
+            if character.isdigit():
+                if type(tokens[-1]) == int:
+                    tokens[-1] = tokens[-1]*10 + int(character)
+                else:
+                    tokens.append(int(character))
+            elif character in "+-*/()":
+                tokens.append(character)
+            elif character != " ":
+                raise ValueError("{} is an unvalid character".format(character))
 
-        return tokens
+        print(tokens[1:])
+        return tokens[1:]
 
     # ---------------------
     # "fix" recognition
@@ -332,10 +340,10 @@ if __name__ == '__main__':
     exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
     test(exp)
 
-    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 2"
+    exp = "( 2+ 5 )/( 3 * 4 ) + 1 / 2"
     test(exp)
 
-    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12 + 5 * 5"
+    exp="(2+5)/(3*4)+1/12+5*5"
     test(exp)
 
     import doctest
