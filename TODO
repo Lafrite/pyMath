@@ -1,4 +1,5 @@
 # Todolist
 
-* Improve fix recognition
-* More flexible expression parsing
+* Improve fix recognition (DONE)
+* More flexible expression parsing (DONE)
+* bug: expression can't handle -(-2)

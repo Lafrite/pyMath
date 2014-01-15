@@ -360,6 +360,10 @@ if __name__ == '__main__':
     exp="-2*4(12 + 1)(3-12)"
     test(exp)
 
+    ## Can't handle it yet!!
+    #exp="-(-2)"
+    #test(exp)
+
     import doctest
     doctest.testmod()
 
