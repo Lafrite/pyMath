@@ -125,6 +125,10 @@ class Expression(object):
             if character.isdigit():
                 if type(tokens[-1]) == int:
                     tokens[-1] = tokens[-1]*10 + int(character)
+                # Special case for "-" at the begining of an expression or before "("
+                elif tokens[-1] == "-" and \
+                        str(tokens[-2]) in " (":
+                    tokens[-1] = - int(character)
                 else:
                     tokens.append(int(character))
             elif character in "+-*/()":
@@ -343,7 +347,10 @@ if __name__ == '__main__':
     exp = "( 2+ 5 )/( 3 * 4 ) + 1 / 2"
     test(exp)
 
-    exp="(2+5)/(3*4)+1/12+5*5"
+    exp="(-2+5)/(3*4)+1/12+5*5"
+    test(exp)
+
+    exp="-2*4*(12 + 1)"
     test(exp)
 
     import doctest
