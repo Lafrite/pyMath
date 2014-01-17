@@ -126,6 +126,9 @@ class Fraction(object):
         steps += ans_frac.simplify()
 
         return steps
+
+    def __neg__(self):
+        return [Fraction(-self._num,self._denom)]
     
     def __mul__(self, other):
         if type(other) == Fraction:
