@@ -26,7 +26,6 @@ class RdExpression(object):
         """
         pattern = "\{(\w+)\}"
         varia = re.findall(pattern, self._form)
-        print(varia)
         return list(set(varia))
 
     def __call__(self, val_min = -10, val_max = 10):
@@ -56,14 +55,19 @@ class RdExpression(object):
         :returns: boolean
 
         """
-        return eval(" and ".join(self._conditions).format(**self._gene_varia))
+        if self._conditions != []:
+            return eval(" and ".join(self._conditions).format(**self._gene_varia))
+        else:
+            return True
 
 
 if __name__ == '__main__':
     form = "{a}x + 2*{b}"
-    cond = ["{a} + {b} in [1, 2, 3, 4, 5]"]
+    cond = ["{a} + {b} in [1, 2, 3, 4, 5]", "{a} not in [0,1]", "{b} not in [0,1]"]
     rdExp1 = RdExpression(form, cond)
     print(rdExp1())
+    rdExp2 = RdExpression(form)
+    print(rdExp2())
 
 
 
