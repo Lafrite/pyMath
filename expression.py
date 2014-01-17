@@ -132,6 +132,12 @@ class Expression(object):
                 else:
                     tokens.append(int(character))
 
+            elif character.isalpha():
+                if str(tokens[-1]).isalpha():
+                    tokens[-1] += character
+                else:
+                    tokens.append(character)
+
             elif character in "+-*/)":
                 tokens.append(character)
 
@@ -143,7 +149,6 @@ class Expression(object):
             elif character != " ":
                 raise ValueError("{} is an unvalid character".format(character))
 
-        print(tokens[1:])
         return tokens[1:]
 
     # ---------------------
@@ -292,7 +297,9 @@ class Expression(object):
         :returns: True if the expression can be a number and false otherwise
 
         """
-        return type(exp) == int or type(exp) == Fraction
+        return type(exp) == int or \
+                type(exp) == Fraction or \
+                exp.isalpha()
 
     @staticmethod
     def isOperator(exp):
@@ -359,6 +366,15 @@ if __name__ == '__main__':
 
     exp="-2*4(12 + 1)(3-12)"
     test(exp)
+
+    exp="-2*a(12 + 1)(3-12)"
+    e = Expression(exp)
+    print(e)
+
+    # TODO: The next one doesn't work  |ven. janv. 17 14:56:58 CET 2014
+    #exp="-2*(-a)(12 + 1)(3-12)"
+    #e = Expression(exp)
+    #print(e)
 
     ## Can't handle it yet!!
     #exp="-(-2)"

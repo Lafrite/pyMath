@@ -16,7 +16,7 @@ class Render(object):
 
     PRIORITY = {"*" : 3, "/": 3, "+": 2, "-":2, "(": 1}
 
-    def __init__(self, op_infix = {}, op_postfix = {}, other = {}, join = " ", type_render = {int: str, Fraction: str}):
+    def __init__(self, op_infix = {}, op_postfix = {}, other = {}, join = " ", type_render = {int: str, Fraction: str, str: str}):
         """Initiate the render
         
         @param op_infix: the dictionnary of infix operator with how they have to be render
@@ -107,7 +107,9 @@ class Render(object):
         :param posi: "after"(default) if the operande will be after the operator, "before" othewise
         :returns: bollean
         """
-        if self.isNumber(operande) and operande < 0:
+        if self.isNumber(operande) \
+                and type(operande) != str \
+                and operande < 0:
             return 1
         elif not self.isNumber(operande):
             # Si c'est une grande expression ou un chiffre négatif
@@ -159,7 +161,10 @@ class Render(object):
         :returns: True if the expression can be a number and false otherwise
 
         """
-        return type(exp) == int or type(exp) == Fraction
+        return type(exp) == int or \
+                type(exp) == Fraction or \
+                (type(exp) == str and exp.isalpha())
+        #return type(exp) == int or type(exp) == Fraction
 
     def isOperator(self, exp):
         """Check if the expression is in self.operators
@@ -209,7 +214,7 @@ def texFrac(frac):
 tex_infix = {"+": " + ", "-": " - ", "*": " \\times "}
 tex_postfix = {"/": texSlash}
 tex_other = {"(": "(", ")": ")"}
-tex_type_render = {int: str, Fraction: texFrac}
+tex_type_render = {int: str, Fraction: texFrac, str: str}
 
 tex_render = Render(tex_infix, tex_postfix, tex_other, type_render = tex_type_render)
 
