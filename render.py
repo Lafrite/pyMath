@@ -3,6 +3,7 @@
 
 from generic import Stack,flatten_list
 from fraction import Fraction
+from formal import FormalExp
 
         
 
@@ -16,7 +17,7 @@ class Render(object):
 
     PRIORITY = {"*" : 3, "/": 3, "+": 2, "-":2, "(": 1}
 
-    def __init__(self, op_infix = {}, op_postfix = {}, other = {}, join = " ", type_render = {int: str, Fraction: str, str: str}):
+    def __init__(self, op_infix = {}, op_postfix = {}, other = {}, join = " ", type_render = {int: str, Fraction: str, FormalExp: str}):
         """Initiate the render
         
         @param op_infix: the dictionnary of infix operator with how they have to be render
@@ -70,12 +71,13 @@ class Render(object):
 
             else:
                 operandeStack.push(token)
+
             
         # Manip pour gerer les cas de listes imbriquées dans d'autres listes
         infix_tokens = operandeStack.pop()
         if type(infix_tokens) == list or type(infix_tokens) == flist:
             infix_tokens = flatten_list(infix_tokens)
-        elif self.isNumber(infix_tokens):
+        elif self.isNumerande(infix_tokens):
             infix_tokens = [infix_tokens]
 
         if self.join:
@@ -84,13 +86,13 @@ class Render(object):
             return infix_tokens
 
     def render_from_type(self, op):
-        """ If the op is a number, it transforms it with type_render conditions
+        """ If the op is a numerande, it transforms it with type_render conditions
 
         :param op: the operator
         :returns: the op transformed if it's necessary
 
         """
-        if self.isNumber(op):
+        if self.isNumerande(op):
             return self.type_render[type(op)](op)
         else:
             return op
@@ -108,9 +110,17 @@ class Render(object):
         :returns: bollean
         """
         if self.isNumber(operande) \
-                and type(operande) != str \
                 and operande < 0:
             return 1
+            
+        elif type(operande) == FormalExp:
+            if operator in ["*", "/"]:
+                if len(operande) > 1 \
+                        or operande.master_coef() < 0:
+                    return 1
+            else:
+                return 0
+
         elif not self.isNumber(operande):
             # Si c'est une grande expression ou un chiffre négatif
             stand_alone = self.get_main_op(operande)
@@ -155,16 +165,27 @@ class Render(object):
 
     @staticmethod
     def isNumber( exp):
-        """Check if the expression can be a number which means that it is not a operator
+        """Check if the expression can be a number which means int or Fraction
 
         :param exp: an expression
         :returns: True if the expression can be a number and false otherwise
 
         """
-        return type(exp) == int or \
-                type(exp) == Fraction or \
-                (type(exp) == str and exp.isalpha())
+        return type(exp) == int \
+                or type(exp) == Fraction
         #return type(exp) == int or type(exp) == Fraction
+
+    @staticmethod
+    def isNumerande(exp):
+        """Check if the expression can be a numerande (not an operator)
+
+        :param exp: an expression
+        :returns: True if the expression can be a number and false otherwise
+
+        """
+        return type(exp) == int \
+                or type(exp) == Fraction \
+                or type(exp) == FormalExp
 
     def isOperator(self, exp):
         """Check if the expression is in self.operators
@@ -202,9 +223,9 @@ post2in_fix = Render(p2i_infix, p2i_postfix, p2i_other, join = False)
 # A latex render
 
 def texSlash(op1, op2):
-    if not Render.isNumber(op1) and op1[0] == "(" and op1[-1] == ")":
+    if not Render.isNumerande(op1) and op1[0] == "(" and op1[-1] == ")":
         op1 = op1[1:-1]
-    if not Render.isNumber(op2) and op2[0] == "(" and op2[-1] == ")":
+    if not Render.isNumerande(op2) and op2[0] == "(" and op2[-1] == ")":
         op2 = op2[1:-1]
     return ["\\frac{" , op1 , "}{" , op2 , "}"]
 
@@ -214,7 +235,7 @@ def texFrac(frac):
 tex_infix = {"+": " + ", "-": " - ", "*": " \\times "}
 tex_postfix = {"/": texSlash}
 tex_other = {"(": "(", ")": ")"}
-tex_type_render = {int: str, Fraction: texFrac, str: str}
+tex_type_render = {int: str, Fraction: texFrac, FormalExp: str}
 
 tex_render = Render(tex_infix, tex_postfix, tex_other, type_render = tex_type_render)
 

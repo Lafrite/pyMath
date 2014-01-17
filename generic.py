@@ -99,6 +99,54 @@ def expand_list(list_list):
         ans = [list_list]
 
     return ans
+
+def add_in_dict(dict1, dict2):
+    """Merge dictionary keys and add the content from dict1 and dict2
+
+    :param dict1: first dictionary
+    :param dict2: second dictionary
+    :returns: merged and added dictionary
+
+    >>> add_in_dict({'a':1, 'b':2}, {'c':3, 'd': 4}) == {'d': 4, 'a': 1, 'c': 3, 'b': 2}
+    True
+    >>> add_in_dict({'a':1, 'b':2}, {'a':3, 'b': 4}) == {'a': 4, 'b': 6}
+    True
+    >>> add_in_dict({'a':1, 'b':2}, {'a':3, 'c': 4}) == {'a': 4, 'b': 2, 'c': 4}
+    True
+
+    """
+    new_dict = {}
+    new_dict.update(dict1)
+    for (k,v) in dict2.items():
+        if k in new_dict.keys():
+            new_dict[k] += v
+        else:
+            new_dict[k] = v
+
+    return new_dict
+
+def remove_in_dict(d, value = 0):
+    """ In a dictionary, remove keys which have certain value
+
+    :param d: the dictionary
+    :param value: value to remove
+    :returns: new dictionary whithout unwanted value
+
+    >>> remove_in_dict({'b': 1, 'a': 0}) == {'b': 1}
+    True
+    >>> remove_in_dict({'b': 1, 'a': 0}, 1) == {'a': 0}
+    True
+    """
+    new_dict = {}
+    for (k,v) in d.items():
+        if v != value:
+            new_dict[k] = v
+    return new_dict
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
+
 # -----------------------------
 # Reglages pour 'vim'
 # vim:set autoindent expandtab tabstop=4 shiftwidth=4:

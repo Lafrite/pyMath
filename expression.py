@@ -4,6 +4,8 @@
 from generic import Stack, flatten_list, expand_list
 from fraction import Fraction
 from render import txt_render, post2in_fix, tex_render
+from formal import FormalExp
+from formal import FormalExp
 
 class Expression(object):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
@@ -32,7 +34,7 @@ class Expression(object):
 
     def render(self, render = lambda  x:str(x)):
         """ Same as __str__ but accept render as argument
-        @param render: function which render the list of token (postfix form) to string
+        :param render: function which render the list of token (postfix form) to string
 
         """
         # TODO: I don't like the name of this method |ven. janv. 17 12:48:14 CET 2014
@@ -44,7 +46,7 @@ class Expression(object):
     def simplify(self, render = lambda x:str(x)):
         """ Generator which return steps for computing the expression
 
-        @param render: function which render the list of token (postfix form now) to string
+        :param render: function which render the list of token (postfix form now) to string
 
         """
         if not self.can_go_further():
@@ -123,8 +125,10 @@ class Expression(object):
 
         for character in exp:
             if character.isdigit():
+                # for "big" numbers (like 2345)
                 if type(tokens[-1]) == int:
                     tokens[-1] = tokens[-1]*10 + int(character)
+
                 # Special case for "-" at the begining of an expression or before "("
                 elif tokens[-1] == "-" and \
                         str(tokens[-2]) in " (":
@@ -133,16 +137,29 @@ class Expression(object):
                     tokens.append(int(character))
 
             elif character.isalpha():
-                if str(tokens[-1]).isalpha():
-                    tokens[-1] += character
+                # If "3x", ")x" or "yx"
+                if self.isNumber(tokens[-1]) \
+                        or tokens[-1] == ")" \
+                        or type(tokens[-1]) == FormalExp:
+                    tokens.append("*")
+                    tokens.append(FormalExp(letter = character))
+
+                # Special case for "-" at the begining of an expression or before "("
+                elif tokens[-1] == "-" \
+                        or str(tokens[-2]) in " (":
+                    tokens[-1] = - FormalExp(letter = character)
+
                 else:
-                    tokens.append(character)
+                    tokens.append(FormalExp(letter = character))
 
             elif character in "+-*/)":
                 tokens.append(character)
 
             elif character in "(":
-                if self.isNumber(tokens[-1]) or tokens[-1] == ")":
+                # If "3(", ")(" or "x("
+                if self.isNumber(tokens[-1]) \
+                        or tokens[-1] == ")" \
+                        or type(tokens[-1]) == FormalExp:
                     tokens.append("*")
                 tokens.append(character)
 
@@ -278,13 +295,18 @@ class Expression(object):
         :returns: string representing the result
 
         """
-        operations = {"+": "__add__", "-": "__sub__", "*": "__mul__"}
         if op == "/":
             ans = [Fraction(op1, op2)]
             ans += ans[0].simplify()
             return ans
         else:
-            return getattr(op1,operations[op])(op2)
+            if type(op2) != int:
+                operations = {"+": "__radd__", "-": "__rsub__", "*": "__rmul__"}
+                return getattr(op2,operations[op])(op1)
+            else:
+                operations = {"+": "__add__", "-": "__sub__", "*": "__mul__"}
+                return getattr(op1,operations[op])(op2)
+
 
     ## ---------------------
     ## Recognize numbers and operators
@@ -299,7 +321,7 @@ class Expression(object):
         """
         return type(exp) == int or \
                 type(exp) == Fraction or \
-                exp.isalpha()
+                type(exp) == FormalExp
 
     @staticmethod
     def isOperator(exp):
@@ -322,17 +344,17 @@ def test(exp):
     print("\n")
 
 if __name__ == '__main__':
-    exp = "1 + 3 * 5"
-    test(exp)
+    #exp = "1 + 3 * 5"
+    #test(exp)
 
     #exp = "2 * 3 * 3 * 5"
     #test(exp)
 
-    exp = "2 * 3 + 3 * 5"
-    test(exp)
+    #exp = "2 * 3 + 3 * 5"
+    #test(exp)
 
-    exp = "2 * ( 3 + 4 ) + 3 * 5"
-    test(exp)
+    #exp = "2 * ( 3 + 4 ) + 3 * 5"
+    #test(exp)
 
     #exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
     #test(exp)
@@ -352,24 +374,28 @@ if __name__ == '__main__':
     #exp = "( 2 + 5 ) * ( 3 * 4 )"
     #test(exp)
 
-    exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
-    test(exp)
+    #exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
+    #test(exp)
 
-    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
-    test(exp)
+    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
+    #test(exp)
 
-    exp = "( 2+ 5 )/( 3 * 4 ) + 1 / 2"
-    test(exp)
+    #exp = "( 2+ 5 )/( 3 * 4 ) + 1 / 2"
+    #test(exp)
 
-    exp="(-2+5)/(3*4)+1/12+5*5"
-    test(exp)
+    #exp="(-2+5)/(3*4)+1/12+5*5"
+    #test(exp)
 
     exp="-2*4(12 + 1)(3-12)"
     test(exp)
 
-    exp="-2*a(12 + 1)(3-12)"
+    exp="-2+a+(12 + 1)(3-12) + 34a"
+    test(exp)
     e = Expression(exp)
     print(e)
+
+    #exp="-2*b+a(12 + 1)(3-12)"
+    #test(exp)
 
     # TODO: The next one doesn't work  |ven. janv. 17 14:56:58 CET 2014
     #exp="-2*(-a)(12 + 1)(3-12)"
