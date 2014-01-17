@@ -18,15 +18,35 @@ class RdExpression(object):
         self._conditions = conditions
         self._letters = self.get_letters()
         self._gene_varia = {}
+        self._gene_2replaced= {}
+
+    def get_2replaced(self):
+        """Get elements of self._form which will have to be replaced
+        :returns: set for elements which have to be replaced
+
+        """
+        pattern = "\{(.*?)\}" #select inside {} non greedy way
+        varia = re.findall(pattern, self._form)
+        varia = set(varia)
+        self._2replaced = varia
+
+        return varia
         
     def get_letters(self):
         """Find letters in the form
         :returns: list of letters
 
         """
-        pattern = "\{(\w+)\}"
-        varia = re.findall(pattern, self._form)
-        return list(set(varia))
+        v2replaced = self.get_2replaced()
+        varia = set()
+
+        pattern = "([a-zA-Z]+)"
+        for v in v2replaced:
+            lvar = set(re.findall(pattern, v))
+            varia = varia | lvar
+
+        return varia
+
 
     def __call__(self, val_min = -10, val_max = 10):
         """RdExpression once it is initiate act like a function which create random expressions.
@@ -41,7 +61,7 @@ class RdExpression(object):
         while not(self.val_conditions()):
             self.gene_varia(val_min, val_max)
 
-        return self._form.format(**self._gene_varia)
+        return self._form.format(**self._gene_2replaced)
 
     def gene_varia(self, val_min = -10, val_max = 10):
         """RAndomly generates variables/letters
@@ -49,6 +69,9 @@ class RdExpression(object):
         """
         for l in self._letters:
             self._gene_varia[l] = randint(val_min, val_max)
+
+        for e in self._2replaced:
+            self._gene_2replaced[e] = eval(e, globals(), self._gene_varia)
 
     def val_conditions(self):
         """Tells whether or not conditions are validates
@@ -60,14 +83,29 @@ class RdExpression(object):
         else:
             return True
 
+def desc_rdExp(rdExp):
+    print("--------------------")
+    print("form: ",rdExp._form)
+    print("Conditions: ",rdExp._conditions)
+    print("Letters: ", rdExp._letters)
+    print("2replaced: ", rdExp._2replaced)
+    print("Call : ", rdExp())
+    print("Gene varia: ", rdExp._gene_varia)
+    print("Gene 2replaced: ", rdExp._gene_2replaced)
+    print('')
+
 
 if __name__ == '__main__':
     form = "{a}x + 2*{b}"
     cond = ["{a} + {b} in [1, 2, 3, 4, 5]", "{a} not in [0,1]", "{b} not in [0,1]"]
     rdExp1 = RdExpression(form, cond)
-    print(rdExp1())
+    desc_rdExp(rdExp1)
     rdExp2 = RdExpression(form)
-    print(rdExp2())
+    desc_rdExp(rdExp2)
+    form = "{a+a/10}x + {a} + 2*{b}"
+    cond = ["{a} + {b} in [1, 2, 3, 4, 5]", "{a} not in [0,1]", "{b} not in [0,1]"]
+    rdExp3 = RdExpression(form)
+    desc_rdExp(rdExp3)
 
 
 
