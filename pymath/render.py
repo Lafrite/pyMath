@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from generic import Stack,flatten_list
-from fraction import Fraction
-from formal import FormalExp
+from .generic import Stack,flatten_list
+from .fraction import Fraction
+from .formal import FormalExp
 
+        
 class Render(object):
     """A class which aims to create render functions from three dictionnaries:
         - op_infix: dict of caracters
@@ -15,7 +16,7 @@ class Render(object):
 
     PRIORITY = {"^": 4,"*" : 3, "/": 3, ":": 3, "+": 2, "-":2, "(": 1}
 
-    def __init__(self, op_infix = {}, op_postfix = {}, other = {}, join = " ", type_render = {int: str, Fraction: str, str: str}):
+    def __init__(self, op_infix = {}, op_postfix = {}, other = {}, join = " ", type_render = {int: str, Fraction: str, FormalExp: str}):
         """Initiate the render
         
         @param op_infix: the dictionnary of infix operator with how they have to be render

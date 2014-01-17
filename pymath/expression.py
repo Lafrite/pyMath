@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from generic import Stack, flatten_list, expand_list
-from fraction import Fraction
-from renders import txt_render, post2in_fix, tex_render
-from formal import FormalExp
+from .generic import Stack, flatten_list, expand_list
+from .fraction import Fraction
+from .render import txt_render, post2in_fix, tex_render
+from .formal import FormalExp
 
 class Expression(object):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
@@ -324,11 +324,7 @@ class Expression(object):
         """
         return type(exp) == int or \
                 type(exp) == Fraction or \
-<<<<<<< HEAD
                 type(exp) == FormalExp
-=======
-                exp.isalpha()
->>>>>>> Render ~work with letters still some bugs
 
     @staticmethod
     def isOperator(exp):
@@ -352,6 +348,9 @@ def test(exp):
 
 if __name__ == '__main__':
     #exp = "2 ^ 3 * 5"
+    #test(exp)
+
+    #exp = "1 + 3 * 5"
     #test(exp)
 
     #exp = "2 * 3 * 3 * 5"
@@ -404,14 +403,21 @@ if __name__ == '__main__':
     #exp="-2*b+a(12 + 1)(3-12)"
     #test(exp)
 
+    #exp="(-2+5)/(3*4)+1/12+5*5"
+    #test(exp)
+
     # TODO: The next one doesn't work  |ven. janv. 17 14:56:58 CET 2014
     #exp="-2*(-a)(12 + 1)(3-12)"
     #e = Expression(exp)
     #print(e)
 
-    exp="-2*a(12 + 1)(3-12)"
+    exp="-2+a+(12 + 1)(3-12) + 34a"
+    test(exp)
     e = Expression(exp)
     print(e)
+
+    #exp="-2*b+a(12 + 1)(3-12)"
+    #test(exp)
 
     # TODO: The next one doesn't work  |ven. janv. 17 14:56:58 CET 2014
     #exp="-2*(-a)(12 + 1)(3-12)"
