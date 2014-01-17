@@ -15,7 +15,7 @@ class Render(object):
 
     PRIORITY = {"^": 4,"*" : 3, "/": 3, ":": 3, "+": 2, "-":2, "(": 1}
 
-    def __init__(self, op_infix = {}, op_postfix = {}, other = {}, join = " ", type_render = {int: str, Fraction: str, FormalExp: str}):
+    def __init__(self, op_infix = {}, op_postfix = {}, other = {}, join = " ", type_render = {int: str, Fraction: str, str: str}):
         """Initiate the render
         
         @param op_infix: the dictionnary of infix operator with how they have to be render

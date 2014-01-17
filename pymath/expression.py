@@ -324,7 +324,11 @@ class Expression(object):
         """
         return type(exp) == int or \
                 type(exp) == Fraction or \
+<<<<<<< HEAD
                 type(exp) == FormalExp
+=======
+                exp.isalpha()
+>>>>>>> Render ~work with letters still some bugs
 
     @staticmethod
     def isOperator(exp):
@@ -399,6 +403,15 @@ if __name__ == '__main__':
 
     #exp="-2*b+a(12 + 1)(3-12)"
     #test(exp)
+
+    # TODO: The next one doesn't work  |ven. janv. 17 14:56:58 CET 2014
+    #exp="-2*(-a)(12 + 1)(3-12)"
+    #e = Expression(exp)
+    #print(e)
+
+    exp="-2*a(12 + 1)(3-12)"
+    e = Expression(exp)
+    print(e)
 
     # TODO: The next one doesn't work  |ven. janv. 17 14:56:58 CET 2014
     #exp="-2*(-a)(12 + 1)(3-12)"
