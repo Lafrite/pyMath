@@ -26,13 +26,25 @@ class Expression(object):
 
         self.feed_fix() # Determine le fix et range la liste dans self.[fix]_tokens
 
+    def __str__(self):
+        """Overload str as it aim to be use in console the render is txt_render"""
+        return txt_render(self.postfix_tokens)
+
+    def render(self, render = lambda  x:str(x)):
+        """ Same as __str__ but accept render as argument
+        @param render: function which render the list of token (postfix form) to string
+
+        """
+        # TODO: I don't like the name of this method |ven. janv. 17 12:48:14 CET 2014
+        return render(self.postfix_tokens)
+
     ## ---------------------
     ## Mechanism functions
 
     def simplify(self, render = lambda x:str(x)):
         """ Generator which return steps for computing the expression
 
-        @param render: function which render the list of token (postfix form now)
+        @param render: function which render the list of token (postfix form now) to string
 
         """
         if not self.can_go_further():
