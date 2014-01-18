@@ -35,7 +35,7 @@ class FormalExp(object):
         :returns: a_n
 
         """
-        pattern = "\w\*\*(\d*)"
+        pattern = "\w\^(\d*)"
         finder = re.compile(pattern)
         power = {}
         for (k,v) in self._coef.items():
@@ -135,12 +135,12 @@ class FormalExp(object):
 
     def __str__(self):
         return " + ".join([str(v) + str(k) for k,v in self._coef.items()])
-    
+
 if __name__ == '__main__':
     fe1 = FormalExp({"x": 1, "":2})    
-    print(fe1)
-    fe2 = FormalExp({"x**12": 5, "":2})    
-    print(fe2)
+    print(fe1.get_postfix())
+    fe2 = FormalExp({"x^12": 5, "":2})    
+    print(fe2.get_postfix())
     fe3 = fe1 * fe2
     for s in fe3:
         print(s)

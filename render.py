@@ -243,13 +243,12 @@ tex_render = Render(tex_infix, tex_postfix, tex_other, type_render = tex_type_re
 
 if __name__ == '__main__':
     exp = [2, 5, '+', 1, '-', 3, 4, '*', '/']
-    print(txt(exp))
+    print(txt_render(exp))
     exp = [2, 5, '+', 1, '-', 3, 4, '*', '/', 3, '+']
-    print(tex(exp))
+    print(tex_render(exp))
     exp = [2, 5, '+', 1, '-', 3, 4, '*', '/', 3, '+']
     print(post2in_fix(exp))
     
-
 # -----------------------------
 # Reglages pour 'vim'
 # vim:set autoindent expandtab tabstop=4 shiftwidth=4:
