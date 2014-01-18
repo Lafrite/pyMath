@@ -143,6 +143,42 @@ def remove_in_dict(d, value = 0):
             new_dict[k] = v
     return new_dict
 
+def convolution_dict(D1, D2, op = lambda x,y:x*y,\
+        commutative = True, op_twice = lambda x,y: x + y):
+    """Convolution of two dictionaries
+
+    :param D1: First dictionary
+    :param D2: Second dictionary
+    :param op: Operation of perform in value
+    :param commutative: keys are commutative?
+    :param op_twice: operation on value if the key appear twice
+
+    >>> convolution_dict({"a": 1, "b":3}, {"a":2, "":4}) == {"aa":2, "a": 4, "ba":6, "b":12}
+    True
+    >>> convolution_dict({"a": 1, "b":3}, {"a":2, "b":4}) == {"aa":2, "ab":10, "bb":12}
+    True
+    >>> convolution_dict({"a": 1, "b":3}, {"a":2, "b":4}, commutative = False) == {"aa":2, "ab":10, "bb":12}
+    False
+    >>> convolution_dict({"a": 1, "b":3}, {"a":2, "b":4}, commutative = False) == {"aa":2, "ab":4,"ba":6,  "bb":12}
+    True
+    >>> convolution_dict({"a": 1, "b":3}, {"a":2, "b":4}, \
+            op_twice = lambda x,y:[x,y]) == {"aa":2, "ab":[4,6], "bb":12}
+    True
+
+    """
+    new_dict = {}
+
+    for k1 in sorted(D1.keys()):
+        for k2 in sorted(D2.keys()):
+            if k1+k2 in new_dict.keys():
+                new_dict[k1+k2] = op_twice(new_dict[k1+k2], op(D1[k1],D2[k2]))
+            elif k2+k1 in new_dict.keys() and commutative:
+                new_dict[k2+k1] = op_twice(new_dict[k2+k1], op(D1[k1],D2[k2]))
+            else:
+                new_dict[k1+k2] = op(D1[k1],D2[k2])
+
+    return new_dict
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
