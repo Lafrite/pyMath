@@ -144,7 +144,6 @@ def remove_in_dict(d, value = 0):
     return new_dict
 
 def convolution_dict(D1, D2, op = lambda x,y:x*y,\
-        op_key = lambda x,y: x + y, \
         commutative = True, op_twice = lambda x,y: x + y):
     """Convolution of two dictionaries
 
@@ -171,17 +170,14 @@ def convolution_dict(D1, D2, op = lambda x,y:x*y,\
 
     for k1 in sorted(D1.keys()):
         for k2 in sorted(D2.keys()):
-            if op_key(k1,k2) in new_dict.keys():
-                key = op_key(k1,k2)
-                new_dict[key] = op_twice(new_dict[key], op(D1[k1],D2[k2]))
+            if k1+k2 in new_dict.keys():
+                new_dict[k1+k2] = op_twice(new_dict[k1+k2], op(D1[k1],D2[k2]))
 
-            elif op_key(k2,k1) in new_dict.keys() and commutative:
-                key = op_key(k1,k2)
-                new_dict[key] = op_twice(new_dict[key], op(D1[k1],D2[k2]))
+            elif k2+k1 in new_dict.keys() and commutative:
+                new_dict[k2+k1] = op_twice(new_dict[k2+k1], op(D1[k1],D2[k2]))
 
             else:
-                key = op_key(k1,k2)
-                new_dict[key] = op(D1[k1],D2[k2])
+                new_dict[k1+k2] = op(D1[k1],D2[k2])
 
     return new_dict
 
