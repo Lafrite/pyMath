@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 from .fraction import Fraction
-from .generic import add_in_dict, remove_in_dict
+from .generic import add_in_dict, remove_in_dict, convolution_dict
 import re
 
 class FormalExp(object):
@@ -51,20 +51,39 @@ class FormalExp(object):
         m_power = max(power)
         return power[m_power]
 
-    def __add__(self, other):
+    def check_calculous(self, other):
+        """Check if other is a constant and then transform it into a dictionary compatible with FormalExp
+
+        :param other: The thing to compute with the expression
+        :returns: dictionary of this thing
+
+        """
         if type(other) in [int, Fraction]:
-            d = {"":other}
+            return {"":other}
         elif type(other) == FormalExp:
-            d = other._coef
+            return other._coef.copy()
         else:
             raise ValueError("Can't add {type} with FormalExp".format(type=type(other)))
 
+    def const_or_formal(self, d):
+        """Return a constant if there is nothing else, FormalExp otherwise
+
+        :param d: dictionary descripting the expression
+        :returns: a constant or a FormalExp
+
+        """
+        if list(d.keys()) == ['']:
+            return d['']
+        else:
+            return FormalExp(d)
+
+    def __add__(self, other):
+        d = self.check_calculous(other)
+
         d = add_in_dict(self._coef, d)
         d = remove_in_dict(d)
-        if list(d.keys()) == ['']:
-            return [d['']]
-        else:
-            return [FormalExp(d)]
+
+        return [self.const_or_formal(d)]
 
     def __radd__(self, other):
         return self + other
@@ -80,15 +99,35 @@ class FormalExp(object):
         return FormalExp(d)    
 
     def __mul__(self, other):
-        pass
+        d = self.check_calculous(other)
+
+        d = convolution_dict(self._coef, d, op_key = self.op_key)
+        d = remove_in_dict(d)
+
+        return [self.const_or_formal(d)]
+
+    def op_key(self, x,y):
+        """Operation on keys for convolution_dict"""
+        if x == "" or y == "":
+            return x+y
+        else:
+            return x + "*" + y
+
     
     def __rmul__(self, other):
-        pass
+        d = self.check_calculous(other)
+
+        d = convolution_dict(d, self._coef, op_key = self.op_key)
+        d = remove_in_dict(d)
+
+        return [self.const_or_formal(d)]
 
     def __div__(self, other):
+        # Will never be done :D
         pass
     
     def __pow__(self, other):
+        # Will never be done :D quoique
         pass
 
     def __len__(self):
@@ -98,26 +137,24 @@ class FormalExp(object):
         return " + ".join([str(v) + str(k) for k,v in self._coef.items()])
     
 if __name__ == '__main__':
-    #fe1 = FormalExp({"x": 1, "":2})    
-    #print(fe1)
-    #fe2 = FormalExp({"x**12": 5, "":2})    
-    #print(fe2)
-    #fe3 = fe1 + fe2
-    #for s in fe3:
-    #    print(s)
-    #fe4 = fe1 + 2
-    #for s in fe4:
-    #    print(s)
-
-    #print(fe1.master_coef())
-    #print(fe2.master_coef())
-    #print(fe3[0].master_coef())
-    #print(fe4[0].master_coef())
+    fe1 = FormalExp({"x": 1, "":2})    
+    print(fe1)
+    fe2 = FormalExp({"x**12": 5, "":2})    
+    print(fe2)
+    fe3 = fe1 * fe2
+    for s in fe3:
+        print(s)
+    fe4 = fe1 * 2
+    for s in fe4:
+        print(s)
 
     fe = FormalExp(letter = "a")
-    fe_ = -2 + fe
+    fe_ = -2 * fe
     print(fe_[0])
 
+    fe = FormalExp(letter = "a")
+    fe_ = fe * (-2)
+    print(fe_[0])
 
 
 
