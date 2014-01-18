@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 from random import randint
+from expression import Expression
 import re
 
 class RdExpression(object):
@@ -53,7 +54,28 @@ class RdExpression(object):
 
         :param val_min: minimum value random generation
         :param val_max: maximum value random generation
-        :returns: an random expression
+        :returns: an random expression formated for console printing
+
+        """
+        return str(self.raw_exp(val_min, val_max))
+
+    def render(self, val_min = -10, val_max = 10, render = lambda x: str(x)):
+        """Same as __call_ but uses render from the Expression object
+
+        :param val_min: minimum value random generation
+        :param val_max: maximum value random generation
+        :param render: function which render the list of token (postfix form) to string
+        :returns: an random expression formated by render
+
+        """
+        return render(self.raw_exp(val_min, val_max).postfix_tokens)
+
+    def raw_exp(self, val_min = -10, val_max = 10):
+        """Same as __call_ but returns an Expression object
+
+        :param val_min: minimum value random generation
+        :param val_max: maximum value random generation
+        :returns: an random Expression object
 
         """
         self.gene_varia(val_min, val_max)
@@ -61,7 +83,9 @@ class RdExpression(object):
         while not(self.val_conditions()):
             self.gene_varia(val_min, val_max)
 
-        return self._form.format(**self._gene_2replaced)
+        exp = self._form.format(**self._gene_2replaced)
+
+        return Expression(exp)
 
     def gene_varia(self, val_min = -10, val_max = 10):
         """RAndomly generates variables/letters
@@ -84,28 +108,29 @@ class RdExpression(object):
             return True
 
 def desc_rdExp(rdExp):
+    from render import tex_render
     print("--------------------")
     print("form: ",rdExp._form)
     print("Conditions: ",rdExp._conditions)
     print("Letters: ", rdExp._letters)
     print("2replaced: ", rdExp._2replaced)
-    print("Call : ", rdExp())
+    print("Call : ", rdExp.render(render = tex_render))
     print("Gene varia: ", rdExp._gene_varia)
     print("Gene 2replaced: ", rdExp._gene_2replaced)
     print('')
 
 
 if __name__ == '__main__':
-    form = "{a}x + 2*{b}"
+    form = "{a}*-14 / 2*{b} + -23"
     cond = ["{a} + {b} in [1, 2, 3, 4, 5]", "{a} not in [0,1]", "{b} not in [0,1]"]
     rdExp1 = RdExpression(form, cond)
     desc_rdExp(rdExp1)
     rdExp2 = RdExpression(form)
     desc_rdExp(rdExp2)
-    form = "{a+a/10}x + {a} + 2*{b}"
-    cond = ["{a} + {b} in [1, 2, 3, 4, 5]", "{a} not in [0,1]", "{b} not in [0,1]"]
-    rdExp3 = RdExpression(form)
-    desc_rdExp(rdExp3)
+    #form = "{a+a/10}x + {a} + 2*{b}"
+    #cond = ["{a} + {b} in [1, 2, 3, 4, 5]", "{a} not in [0,1]", "{b} not in [0,1]"]
+    #rdExp3 = RdExpression(form)
+    #desc_rdExp(rdExp3)
 
 
 

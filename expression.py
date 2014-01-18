@@ -127,11 +127,15 @@ class Expression(object):
             if character.isdigit():
                 # for "big" numbers (like 2345)
                 if type(tokens[-1]) == int:
-                    tokens[-1] = tokens[-1]*10 + int(character)
+                    if tokens[-1] > 0:
+                        tokens[-1] = tokens[-1]*10 + int(character)
+                    else:
+                        tokens[-1] = tokens[-1]*10 - int(character)
+
 
                 # Special case for "-" at the begining of an expression or before "("
                 elif tokens[-1] == "-" and \
-                        str(tokens[-2]) in " (":
+                        str(tokens[-2]) in " (+-*/":
                     tokens[-1] = - int(character)
                 else:
                     tokens.append(int(character))
