@@ -2,8 +2,8 @@
 # encoding: utf-8
 
 from random import randint
-from expression import Expression
-from renders import tex_render, txt_render
+from .expression import Expression
+from .renders import tex_render, txt_render
 import re
 
 class RdExpression(object):
@@ -99,7 +99,6 @@ class RdExpression(object):
             return True
 
 def desc_rdExp(rdExp):
-    from renders import tex_render
     print("--------------------")
     print("form: ",rdExp._form)
     print("Conditions: ",rdExp._conditions)
