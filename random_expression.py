@@ -3,6 +3,7 @@
 
 from random import randint
 from expression import Expression
+from renders import tex_render, txt_render
 import re
 
 class RdExpression(object):
@@ -49,23 +50,13 @@ class RdExpression(object):
         return varia
 
 
-    def __call__(self, val_min = -10, val_max = 10):
+    def __call__(self, val_min = -10, val_max = 10, render = tex_render):
         """RdExpression once it is initiate act like a function which create random expressions.
 
         :param val_min: minimum value random generation
         :param val_max: maximum value random generation
-        :returns: an random expression formated for console printing
-
-        """
-        return str(self.raw_exp(val_min, val_max))
-
-    def render(self, val_min = -10, val_max = 10, render = lambda x: str(x)):
-        """Same as __call_ but uses render from the Expression object
-
-        :param val_min: minimum value random generation
-        :param val_max: maximum value random generation
-        :param render: function which render the list of token (postfix form) to string
-        :returns: an random expression formated by render
+        :param render: Render of the expression (returns an Expression by default)
+        :returns: an formated random expression 
 
         """
         return render(self.raw_exp(val_min, val_max).postfix_tokens)
@@ -108,13 +99,13 @@ class RdExpression(object):
             return True
 
 def desc_rdExp(rdExp):
-    from render import tex_render
+    from renders import tex_render
     print("--------------------")
     print("form: ",rdExp._form)
     print("Conditions: ",rdExp._conditions)
     print("Letters: ", rdExp._letters)
     print("2replaced: ", rdExp._2replaced)
-    print("Call : ", rdExp.render(render = tex_render))
+    print("Call : ", rdExp(render = tex_render))
     print("Gene varia: ", rdExp._gene_varia)
     print("Gene 2replaced: ", rdExp._gene_2replaced)
     print('')
