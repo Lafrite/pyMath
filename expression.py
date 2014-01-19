@@ -10,7 +10,7 @@ from formal import FormalExp
 class Expression(object):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
 
-    PRIORITY = {"*" : 3, "/": 3, ":": 3, "+": 2, "-":2, "(": 1}
+    PRIORITY = {"*" : 3, "/": 4, ":": 3, "+": 2, "-":2, "(": 1}
 
     def __init__(self, exp):
         """ Initiate the expression
