@@ -10,7 +10,7 @@ from formal import FormalExp
 class Expression(object):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
 
-    PRIORITY = {"*" : 3, "/": 3, "+": 2, "-":2, "(": 1}
+    PRIORITY = {"*" : 3, "/": 3, ":": 3, "+": 2, "-":2, "(": 1}
 
     def __init__(self, exp):
         """ Initiate the expression
@@ -135,7 +135,7 @@ class Expression(object):
 
                 # Special case for "-" at the begining of an expression or before "("
                 elif tokens[-1] == "-" and \
-                        str(tokens[-2]) in " (+-*/":
+                        str(tokens[-2]) in " (+-*/:":
                     tokens[-1] = - int(character)
                 else:
                     tokens.append(int(character))
@@ -156,7 +156,7 @@ class Expression(object):
                 else:
                     tokens.append(FormalExp(letter = character))
 
-            elif character in "+-*/)":
+            elif character in "+-*/):":
                 tokens.append(character)
 
             elif character in "(":
@@ -329,13 +329,13 @@ class Expression(object):
 
     @staticmethod
     def isOperator(exp):
-        """Check if the expression is an opération in "+-*/"
+        """Check if the expression is an opération in "+-*/:"
 
         :param exp: an expression
         :returns: boolean
 
         """
-        return (type(exp) == str and exp in "+-*/")
+        return (type(exp) == str and exp in "+-*/:")
 
 
 def test(exp):
@@ -393,10 +393,10 @@ if __name__ == '__main__':
     exp="-2*4(12 + 1)(3-12)"
     test(exp)
 
-    exp="-2+a+(12 + 1)(3-12) + 34a"
-    test(exp)
+    exp="-2+a+(12 + 1)(3-12) : 34a"
+    #test(exp)
     e = Expression(exp)
-    print(e)
+    print(e.render(render = tex_render))
 
     #exp="-2*b+a(12 + 1)(3-12)"
     #test(exp)
