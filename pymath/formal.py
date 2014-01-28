@@ -134,13 +134,27 @@ class FormalExp(object):
         return len(list(self._coef.keys()))
 
     def __str__(self):
-        return " + ".join([str(v) + str(k) for k,v in self._coef.items()])
+        ans = ""
+        for k,v in self._coef.items():
+            if v < 0:
+                ans += "-"
+            else:
+                ans += "+"
+
+            if abs(v) == 1:
+                ans += str(k)
+            else:
+                ans += str(abs(v)) + str(k)
+        if ans[0] == "+":
+            return ans[1:]
+        else:
+            return ans
 
 if __name__ == '__main__':
-    fe1 = FormalExp({"x": 1, "":2})    
-    print(fe1.get_postfix())
+    fe1 = FormalExp({"x": -1, "":-2})    
+    print(fe1)
     fe2 = FormalExp({"x^12": 5, "":2})    
-    print(fe2.get_postfix())
+    print(fe2)
     fe3 = fe1 * fe2
     for s in fe3:
         print(s)
