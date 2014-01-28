@@ -123,6 +123,11 @@ if __name__ == '__main__':
     #rdExp3 = RdExpression(form)
     #desc_rdExp(rdExp3)
 
+    form1 = "{a**2}y + {2*a*b}x + {b**2}"
+    cond1 = ["{a} != 0", "{b} != 0"]
+    rdExp1 = RdExpression(form1, cond1)
+    desc_rdExp(rdExp1)
+
 
 
 
