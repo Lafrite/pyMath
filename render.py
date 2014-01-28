@@ -13,7 +13,7 @@ class Render(object):
     Those three dictionnaries while define how a postfix expression will be transform into a string.
     """
 
-    PRIORITY = {"*" : 3, "/": 3, ":": 3, "+": 2, "-":2, "(": 1}
+    PRIORITY = {"^": 4,"*" : 3, "/": 3, ":": 3, "+": 2, "-":2, "(": 1}
 
     def __init__(self, op_infix = {}, op_postfix = {}, other = {}, join = " ", type_render = {int: str, Fraction: str, FormalExp: str}):
         """Initiate the render
@@ -107,12 +107,14 @@ class Render(object):
         :param posi: "after"(default) if the operande will be after the operator, "before" othewise
         :returns: bollean
         """
+        # Si l'operande est negatif
         if self.isNumber(operande) \
                 and operande < 0:
             return 1
             
+        # Si c'est un expression formelle
         elif type(operande) == FormalExp:
-            if operator in ["*", "/"]:
+            if operator in ["*", "/", "^"]:
                 if len(operande) > 1 \
                         or operande.master_coef() < 0:
                     return 1
@@ -124,8 +126,8 @@ class Render(object):
             stand_alone = self.get_main_op(operande)
             # Si la priorité de l'operande est plus faible que celle de l'opérateur
             minor_priority = self.PRIORITY[self.get_main_op(operande)] < self.PRIORITY[operator]
-            # Si l'opérateur est -/ pour after ou juste / pour before
-            special = (operator in "-/" and posi == "after") or (operator in "/" and posi == "before")
+            # Si l'opérateur est - ou / pour after ou / ou ^ pour before
+            special = (operator in "-/" and posi == "after") or (operator in "/^" and posi == "before")
 
             return stand_alone and (minor_priority or special)
         else:

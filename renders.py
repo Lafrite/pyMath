@@ -8,7 +8,7 @@ from formal import FormalExp
 # ------------------------
 # A console render
 
-txt_infix = {"+": "+", "-": "-", "*": "*", "/" : "/", ":": ":"}
+txt_infix = {"+": "+", "-": "-", "*": "*", "/" : "/", ":": ":", "^":"^"}
 txt_postfix = {}
 txt_other = {"(": "(", ")": ")"}
 
@@ -17,7 +17,7 @@ txt_render = Render(txt_infix, txt_postfix, txt_other)
 # ------------------------
 # A infix to postfix list convertor
 
-p2i_infix = {"+": "+", "-": "-", "*": "*", "/" : "/", ":":":"}
+p2i_infix = {"+": "+", "-": "-", "*": "*", "/" : "/", ":":":", "^":"^"}
 p2i_postfix = {}
 p2i_other = {"(": "(", ")": ")"}
 
@@ -36,7 +36,7 @@ def texSlash(op1, op2):
 def texFrac(frac):
     return ["\\frac{" , str(frac._num) , "}{" , str(frac._denom) , "}"]
 
-tex_infix = {"+": " + ", "-": " - ", "*": " \\times ", ":": ":"}
+tex_infix = {"+": " + ", "-": " - ", "*": " \\times ", ":": ":", "^":"^"}
 tex_postfix = {"/": texSlash}
 tex_other = {"(": "(", ")": ")"}
 tex_type_render = {int: str, Fraction: texFrac, FormalExp: str}
@@ -46,11 +46,11 @@ tex_render = Render(tex_infix, tex_postfix, tex_other, type_render = tex_type_re
 
 
 if __name__ == '__main__':
-    exp = [2, 5, '+', 1, '-', 3, 4, '*', ':']
+    exp = [2, 5, '^', 1, '-', 3, 4, '*', ':']
     print(txt_render(exp))
-    exp = [2, 5, '+', 1, '-', 3, 4, '*', '/', 3, 5, '/', ':']
+    exp = [2, 5, '^', 1, '-', 3, 4, '*', '/', 3, 5, '/', ':']
     print(tex_render(exp))
-    exp = [2, 5, '+', 1, '-', 3, 4, '*', '/', 3, '+']
+    exp = [2, 5, '^', 1, '-', 3, 4, '*', '/', 3, '+']
     print(post2in_fix(exp))
 
 

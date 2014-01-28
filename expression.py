@@ -10,7 +10,7 @@ from formal import FormalExp
 class Expression(object):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
 
-    PRIORITY = {"*" : 3, "/": 4, ":": 3, "+": 2, "-":2, "(": 1}
+    PRIORITY = {"^": 5, "*" : 3, "/": 4, ":": 3, "+": 2, "-":2, "(": 1}
 
     def __init__(self, exp):
         """ Initiate the expression
@@ -156,7 +156,7 @@ class Expression(object):
                 else:
                     tokens.append(FormalExp(letter = character))
 
-            elif character in "+-*/):":
+            elif character in "+-*/):^":
                 tokens.append(character)
 
             elif character in "(":
@@ -308,7 +308,7 @@ class Expression(object):
                 operations = {"+": "__radd__", "-": "__rsub__", "*": "__rmul__"}
                 return getattr(op2,operations[op])(op1)
             else:
-                operations = {"+": "__add__", "-": "__sub__", "*": "__mul__"}
+                operations = {"+": "__add__", "-": "__sub__", "*": "__mul__", "^": "__pow__"}
                 return getattr(op1,operations[op])(op2)
 
 
@@ -329,13 +329,13 @@ class Expression(object):
 
     @staticmethod
     def isOperator(exp):
-        """Check if the expression is an opération in "+-*/:"
+        """Check if the expression is an opération in "+-*/:^"
 
         :param exp: an expression
         :returns: boolean
 
         """
-        return (type(exp) == str and exp in "+-*/:")
+        return (type(exp) == str and exp in "+-*/:^")
 
 
 def test(exp):
@@ -348,7 +348,7 @@ def test(exp):
     print("\n")
 
 if __name__ == '__main__':
-    #exp = "1 + 3 * 5"
+    #exp = "2 ^ 3 * 5"
     #test(exp)
 
     #exp = "2 * 3 * 3 * 5"
@@ -372,7 +372,7 @@ if __name__ == '__main__':
     #exp = "2 + 5 * ( 3 - 4 )"
     #test(exp)
 
-    #exp = "( 2 + 5 ) * ( 3 - 4 )"
+    #exp = "( 2 + 5 ) * ( 3 - 4 )^4"
     #test(exp)
 
     #exp = "( 2 + 5 ) * ( 3 * 4 )"
@@ -390,13 +390,13 @@ if __name__ == '__main__':
     #exp="(-2+5)/(3*4)+1/12+5*5"
     #test(exp)
 
-    exp="-2*4(12 + 1)(3-12)"
-    test(exp)
-
-    exp="-2+a+(12 + 1)(3-12) : 34a"
+    #exp="-2*4(12 + 1)(3-12)"
     #test(exp)
-    e = Expression(exp)
-    print(e.render(render = tex_render))
+
+    #exp="-2+a+(12 + 1)(3-12) : 34a"
+    ##test(exp)
+    #e = Expression(exp)
+    #print(e.render(render = tex_render))
 
     #exp="-2*b+a(12 + 1)(3-12)"
     #test(exp)
