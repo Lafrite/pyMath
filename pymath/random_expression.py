@@ -84,6 +84,8 @@ class RdExpression(object):
         """
         for l in self._letters:
             self._gene_varia[l] = randint(val_min, val_max)
+            while self._gene_varia[l] == 0:
+                self._gene_varia[l] = randint(val_min, val_max)
 
         for e in self._2replaced:
             self._gene_2replaced[e] = eval(e, globals(), self._gene_varia)
@@ -123,7 +125,7 @@ if __name__ == '__main__':
     #desc_rdExp(rdExp3)
 
     form1 = "{a**2}x^2 + {2*a*b}x + {b**2}"
-    cond1 = ["{a} != 0", "{b} != 0"]
+    cond1 = []
     rdExp1 = RdExpression(form1, cond1)
     desc_rdExp(rdExp1)
 
