@@ -7,7 +7,7 @@ from .formal import FormalExp
 
 class Render(object):
     """A class which aims to create render functions from three dictionnaries:
-        - op_infix: dict of caracters
+        - op_infix: dict of caracters or two argument functions
         - op_postfix: dict of 2 arguments functions
         - other: dict of caracters
     Those three dictionnaries while define how a postfix expression will be transform into a string.
@@ -57,7 +57,11 @@ class Render(object):
                     op1 = [self.other["("] ,  op1 , self.other[")"]]
 
                 if token in self.op_infix:
-                    res = flist([op1 , self.op_infix[token] ,  op2])
+                    if type(self.op_infix[token]) == str:
+                        res = flist([op1 , self.op_infix[token] ,  op2])
+                    else:
+                        res = flist([self.op_infix[token](op1, op2)])
+
 
                 elif token in self.op_postfix:
                     res = flist([self.op_postfix[token](op1, op2)])
@@ -73,6 +77,7 @@ class Render(object):
             
         # Manip pour gerer les cas de listes imbriquées dans d'autres listes
         infix_tokens = operandeStack.pop()
+
         if type(infix_tokens) == list or type(infix_tokens) == flist:
             infix_tokens = flatten_list(infix_tokens)
         elif self.isNumerande(infix_tokens):

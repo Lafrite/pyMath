@@ -111,12 +111,12 @@ def desc_rdExp(rdExp):
 
 
 if __name__ == '__main__':
-    form = "{a}*-14 / (2*{b}) : -23 / 4"
-    cond = ["{a} + {b} in [1, 2, 3, 4, 5]", "{a} not in [0,1]", "{b} not in [0,1]"]
-    rdExp1 = RdExpression(form, cond)
-    desc_rdExp(rdExp1)
-    rdExp2 = RdExpression(form)
-    desc_rdExp(rdExp2)
+    #form = "{a}*-14 / (2*{b}) : -23 / 4"
+    #cond = ["{a} + {b} in [1, 2, 3, 4, 5]", "{a} not in [0,1]", "{b} not in [0,1]"]
+    #rdExp1 = RdExpression(form, cond)
+    #desc_rdExp(rdExp1)
+    #rdExp2 = RdExpression(form)
+    #desc_rdExp(rdExp2)
     #form = "{a+a/10}x + {a} + 2*{b}"
     #cond = ["{a} + {b} in [1, 2, 3, 4, 5]", "{a} not in [0,1]", "{b} not in [0,1]"]
     #rdExp3 = RdExpression(form)

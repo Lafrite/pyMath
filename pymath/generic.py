@@ -75,6 +75,37 @@ def flatten_list(a, result=None):
 
     return result
 
+def first_elem(ll):
+    """Get the first element in imbricates lists
+    # TODO: Fonction pourrie mais j'ai pas le temps de faire mieux! |mar. janv. 28 22:32:22 CET 2014
+
+    :param list: list of lists of lists...
+    :returns: the first element
+
+    >>> first_elem(1)
+    1
+    >>> first_elem([1,2])
+    1
+    >>> first_elem([["abc"]])
+    'a'
+    >>> first_elem("abc")
+    'a'
+    >>> first_elem([[[1,2],[3,4]], [5,6]])
+    1
+    >>> first_elem([[["ab",2],[3,4]], [5,6]])
+    'a'
+
+    """
+    if hasattr(ll, '__contains__'):
+        if len(ll) == 1 and type(ll) == str:
+            return ll[0]
+        else:
+            return first_elem(ll[0])
+    else:
+        return ll
+
+
+
 def expand_list(list_list):
     """Expand list of list
 
@@ -188,6 +219,7 @@ def convolution_dict(D1, D2, op = lambda x,y:x*y,\
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
+
 
 # -----------------------------
 # Reglages pour 'vim'

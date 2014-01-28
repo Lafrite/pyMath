@@ -4,6 +4,7 @@
 from render import Render
 from fraction import Fraction
 from formal import FormalExp
+from generic import first_elem
 
 # ------------------------
 # A console render
@@ -36,7 +37,17 @@ def texSlash(op1, op2):
 def texFrac(frac):
     return ["\\frac{" , str(frac._num) , "}{" , str(frac._denom) , "}"]
 
-tex_infix = {"+": " + ", "-": " - ", "*": " \\times ", ":": ":", "^":"^"}
+def texMult(op1,op2):
+    fe = first_elem(op2)
+    if type(fe) == FormalExp or fe.isalpha():
+        if type(op1) == list and op1[0] == "(":
+            return ["(", op1[1:-1], op2, ")"]
+        else:
+            return [op1, op2]
+    else:
+        return [op1, "\\times", op2]
+
+tex_infix = {"+": " + ", "-": " - ", "*": texMult , ":": ":", "^":"^"}
 tex_postfix = {"/": texSlash}
 tex_other = {"(": "(", ")": ")"}
 tex_type_render = {int: str, Fraction: texFrac, FormalExp: str}
