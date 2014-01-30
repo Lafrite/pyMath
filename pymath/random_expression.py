@@ -9,15 +9,17 @@ import re
 class RdExpression(object):
     """A generator of random expression builder"""
 
-    def __init__(self, form, conditions = []):
+    def __init__(self, form, conditions = [], with_Exp = True):
         """Initiate the generator
 
         :param form: the form of the expression (/!\ variables need to be in brackets {})
         :param conditions: condition on variables (/!\ variables need to be in brackets {})
+        :param with_Exp: If True, __call__ return an expression rendered through Expression class. If False, keep form and replace inside.
 
         """
         self._form = form
         self._conditions = conditions
+        self._with_Exp = with_Exp
         self._letters = self.get_letters()
         self._gene_varia = {}
         self._gene_2replaced= {}
@@ -59,10 +61,13 @@ class RdExpression(object):
         :returns: an formated random expression 
 
         """
-        return render(self.raw_exp(val_min, val_max).postfix_tokens)
+        if self._with_Exp:
+            return render(self.raw_exp(val_min, val_max).postfix_tokens)
+        else:
+            return self.raw_str(val_min, val_max)
 
-    def raw_exp(self, val_min = -10, val_max = 10):
-        """Same as __call_ but returns an Expression object
+    def raw_str(self, val_min = -10, val_max = 10):
+        """Return raw string (don't use Expression for rendering or parsing)
 
         :param val_min: minimum value random generation
         :param val_max: maximum value random generation
@@ -75,6 +80,18 @@ class RdExpression(object):
             self.gene_varia(val_min, val_max)
 
         exp = self._form.format(**self._gene_2replaced)
+
+        return exp
+
+    def raw_exp(self, val_min = -10, val_max = 10):
+        """Same as raw_str but returns an Expression object
+
+        :param val_min: minimum value random generation
+        :param val_max: maximum value random generation
+        :returns: an random Expression object
+
+        """
+        exp = self.raw_str(val_min, val_max)
 
         return Expression(exp)
 
@@ -126,7 +143,7 @@ if __name__ == '__main__':
 
     form1 = "{a**2}x^2 + {2*a*b}x + {b**2}"
     cond1 = []
-    rdExp1 = RdExpression(form1, cond1)
+    rdExp1 = RdExpression(form1, cond1, with_Exp = False)
     desc_rdExp(rdExp1)
 
 
