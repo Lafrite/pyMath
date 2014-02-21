@@ -145,6 +145,8 @@ if __name__ == '__main__':
     cond1 = []
     rdExp1 = RdExpression(form1, cond1, with_Exp = False)
     desc_rdExp(rdExp1)
+    rdExp1 = RdExpression(form1, cond1)
+    desc_rdExp(rdExp1)
 
 
 
