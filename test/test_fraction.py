@@ -15,39 +15,75 @@ class TestFraction(unittest.TestCase):
                 Fraction(4,5), \
                 Fraction(-1, 3), \
                 Fraction(1,-3), \
-                Fraction(0,2), \
                 1,
                 ]
 
     def test_add(self):
-        ans = [[Fraction(2, 3), 1, Fraction(17, 15), 0, 0, Fraction(1,3), Fraction(4,3)], \
-                [Fraction(4,3), Fraction(5,3), Fraction(9,3), Fraction(2,3), Fraction(2,3), 1, 0] \
+        ans = [[Fraction(2, 3), 1, Fraction(17, 15), 0, 0,  Fraction(4,3)], \
+                [Fraction(4,3), Fraction(5,3), Fraction(9,3), Fraction(2,3), Fraction(2,3),  0] \
                 ]
 
         for (i, f1) in enumerate(self.listFrom):
             for (j, f2) in enumerate(self.listAgainst):
                 res = f1 + f2
-                print(res)
-                self.assertAlmostEqual(res[-1], ans[i][j])
 
+                #print("-----------")
+                #print("f1 : ", f1)
+                #print("f2 : ", f2)
+                #print(res)
 
-    def test_radd(self):
-        pass
+                self.assertEqual(res[-1], ans[i][j])
 
     def test_sub(self):
-        pass
+        ans = [[0, Fraction(-1,3), Fraction(-7, 15), Fraction(2,3), Fraction(2,3), Fraction(-2,3)], \
+                [Fraction(2,3), Fraction(1,3), Fraction(1,5), Fraction(4,3), Fraction(4,3), 0] \
+                ]
 
-    def test_rsub(self):
-        pass
+        for (i, f1) in enumerate(self.listFrom):
+            for (j, f2) in enumerate(self.listAgainst):
+                res = f1 - f2
+
+                #print("-----------")
+                #print("f1 : ", f1)
+                #print("f2 : ", f2)
+                #print(res)
+
+                self.assertEqual(res[-1], ans[i][j])
 
     def test_neg(self):
         pass
 
     def test_mul(self):
-        pass
+        ans = [[Fraction(1, 9), Fraction(2,9), Fraction(4, 15), Fraction(-1,9), Fraction(-1,9), Fraction(1,3)], \
+                [ Fraction(1,3), Fraction(2,3), Fraction(4,5), Fraction(-1, 3), Fraction(1,-3), 1] \
+                ]
+
+        for (i, f1) in enumerate(self.listFrom):
+            for (j, f2) in enumerate(self.listAgainst):
+                res = f1 * f2
+
+                #print("-----------")
+                #print("f1 : ", f1)
+                #print("f2 : ", f2)
+                #print(res)
+
+                self.assertEqual(res[-1], ans[i][j])
 
     def test_truediv(self):
-        pass
+        ans = [[1, Fraction(1,2), Fraction(5, 12), -1, -1, Fraction(1,3)], \
+                [3, Fraction(3,2), Fraction(5,4), -3, -3,  1] \
+                ]
+
+        for (i, f1) in enumerate(self.listFrom):
+            for (j, f2) in enumerate(self.listAgainst):
+                res = f1 / f2
+
+                #print("-----------")
+                #print("f1 : ", f1)
+                #print("f2 : ", f2)
+                #print(res)
+
+                self.assertEqual(res[-1], ans[i][j])
 
     def test_lt(self):
         pass
