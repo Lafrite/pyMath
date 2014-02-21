@@ -23,6 +23,11 @@ class Fraction(object):
         """
         steps = []
 
+        if self._num == 0:
+            steps.append(0)
+
+            return steps
+
         if self._denom < 0:
             n_frac = Fraction(-self._num, -self._denom)
             steps.append(n_frac)
@@ -70,15 +75,11 @@ class Fraction(object):
             coef1 = number._denom // gcd_denom
             coef2 = self._denom // gcd_denom
 
-            #steps.append("( {num1} * {coef1} ) / ( {den1} * {coef1} ) + ( {num2} * {coef2} ) / ( {den2} * {coef2} )".format(num1 = self._num, den1 = self._denom, coef1 = coef1, num2 = number._num, den2 = number._denom, coef2 = coef2)) 
-
             steps.append([self._num, coef1, "*", self._denom, coef1, "*", '/', number._num, coef2, "*", number._denom, coef2, "*", "/",'+']) 
 
             com_denom = self._denom * coef1
             num1 = self._num * coef1
             num2 = number._num * coef2
-
-        #steps.append("( {num1} + {num2} ) / {denom}".format(num1 = num1, num2 = num2, denom = com_denom))
 
         steps.append([num1, num2, '+', com_denom, '/'])
 
@@ -109,14 +110,12 @@ class Fraction(object):
             coef1 = number._denom // gcd_denom
             coef2 = self._denom // gcd_denom
 
-            #steps.append("( {num1} * {coef1} ) / ( {den1} * {coef1} ) - ( {num2} * {coef2} ) / ( {den2} * {coef2} )".format(num1 = self._num, den1 = self._denom, coef1 = coef1, num2 = number._num, den2 = number._denom, coef2 = coef2)) 
             steps.append([self._num, coef1, "*", self._denom, coef1, "*", '/', number._num, coef2, "*", number._denom, coef2, "*", "/",'-']) 
 
             com_denom = self._denom * coef1
             num1 = self._num * coef1
             num2 = number._num * coef2
 
-        #steps.append("( {num1} - {num2} ) / {denom}".format(num1 = num1, num2 = num2, denom = com_denom))
         steps.append([num1, num2, '-', com_denom, '/'])
 
         num = num1 - num2
@@ -190,7 +189,7 @@ if __name__ == '__main__':
     for i in (f + 1):
         print(i)
     print("---------")
-    for i in (f + g):
+    for i in (f - g):
         print(i)
     #print("---------")
     #for i in (f - g):
