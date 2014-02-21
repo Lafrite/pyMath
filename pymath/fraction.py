@@ -166,13 +166,24 @@ class Fraction(object):
 
         return steps
 
+    def __eq__(self, other):
+        """ == """
+        if type(other) == Fraction:
+            number = other
+        else:
+            number = Fraction(other)
+
+        return self._num * number._denom == self._denom * number._num
+
     def __lt__(self, other):
+        """ < """
         if type(other) == Fraction:
             return (self._num / self._denom) < (other._num / other._denom)
         else:
             return (self._num / self._denom) < other
 
     def __le__(self, other):
+        """ <= """
         if type(other) == Fraction:
             return (self._num / self._denom) <= (other._num / other._denom)
         else:
