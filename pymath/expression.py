@@ -5,7 +5,6 @@ from generic import Stack, flatten_list, expand_list
 from fraction import Fraction
 from renders import txt_render, post2in_fix, tex_render
 from formal import FormalExp
-from formal import FormalExp
 
 class Expression(object):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
