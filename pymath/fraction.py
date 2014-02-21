@@ -55,6 +55,9 @@ class Fraction(object):
 
     def __repr__(self):
         return "< Fraction " + self.__str__() + ">"
+
+    def __float__(self):
+        return self._num / self._denom
     
     def __add__(self, other):
         if type(other) == Fraction:
