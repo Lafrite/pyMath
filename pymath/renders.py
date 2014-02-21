@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from render import Render
-from fraction import Fraction
-from formal import FormalExp
-from generic import first_elem
+from .render import Render
+from .fraction import Fraction
+from .formal import FormalExp
+from .generic import first_elem
 
 # ------------------------
 # A console render

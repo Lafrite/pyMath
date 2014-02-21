@@ -395,10 +395,10 @@ if __name__ == '__main__':
     #exp="-2*4(12 + 1)(3-12)"
     #test(exp)
 
-    #exp="-2+a+(12 + 1)(3-12) : 34a"
-    ##test(exp)
-    #e = Expression(exp)
-    #print(e.render(render = tex_render))
+    exp="-2+a+(12 + 1)(3-12) / 34a"
+    #test(exp)
+    e = Expression(exp)
+    print(e.render(render = tex_render))
 
     #exp="-2*b+a(12 + 1)(3-12)"
     #test(exp)
