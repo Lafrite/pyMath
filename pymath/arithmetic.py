@@ -10,19 +10,30 @@ def gcd(a, b):
         :returns: the gcd
 
         """
-        if a > b:
-            c = a % b
+        pos_a, _a = (a >= 0), abs(a)
+        pos_b, _b = (b >= 0), abs(b)
+
+        gcd_sgn = (-1 + 2*(pos_a or pos_b))
+
+        if _a > _b:
+            c = _a % _b
         else:
-            c = b % a
+            c = _b % _a
 
         if c == 0:
-            return min(a,b)
-        elif a == 1:
-            return b
-        elif b == 1:
-            return a
+            return gcd_sgn * min(_a,_b)
+        elif _a == 1:
+            return gcd_sgn * _b
+        elif _b == 1:
+            return gcd_sgn * _a
         else:
-            return gcd(min(a,b), c)
+            return gcd_sgn * gcd(min(_a,_b), c)
+
+if __name__ == '__main__':
+    print(gcd(3, 15))
+    print(gcd(3, 15))
+    print(gcd(-15, -3))
+    print(gcd(-3, -12))
 
 
 # -----------------------------
