@@ -3,7 +3,7 @@
 
 from .generic import Stack,flatten_list
 from .fraction import Fraction
-from .formal import FormalExp
+from .polynom import Polynom
 
 class Render(object):
     """A class which aims to create render functions from three dictionnaries:
@@ -15,7 +15,7 @@ class Render(object):
 
     PRIORITY = {"^": 4,"*" : 3, "/": 3, ":": 3, "+": 2, "-":2, "(": 1}
 
-    def __init__(self, op_infix = {}, op_postfix = {}, other = {}, join = " ", type_render = {int: str, Fraction: str, FormalExp: str}):
+    def __init__(self, op_infix = {}, op_postfix = {}, other = {}, join = " ", type_render = {int: str, Fraction: str, Polynom: str}):
         """Initiate the render
         
         @param op_infix: the dictionnary of infix operator with how they have to be render
@@ -118,7 +118,7 @@ class Render(object):
             return 1
             
         # Si c'est un expression formelle
-        elif type(operande) == FormalExp:
+        elif type(operande) == Polynom:
             if operator in ["*", "/", "^"]:
                 if len(operande) > 1 \
                         or operande.master_coef() < 0:
@@ -190,7 +190,7 @@ class Render(object):
         """
         return type(exp) == int \
                 or type(exp) == Fraction \
-                or type(exp) == FormalExp
+                or type(exp) == Polynom
 
     def isOperator(self, exp):
         """Check if the expression is in self.operators

@@ -4,7 +4,7 @@
 from .generic import Stack, flatten_list, expand_list
 from .fraction import Fraction
 from .renders import txt_render, post2in_fix, tex_render
-from .formal import FormalExp
+from .polynom import Polynom
 
 class Expression(object):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
@@ -143,17 +143,17 @@ class Expression(object):
                 # If "3x", ")x" or "yx"
                 if self.isNumber(tokens[-1]) \
                         or tokens[-1] == ")" \
-                        or type(tokens[-1]) == FormalExp:
+                        or type(tokens[-1]) == Polynom:
                     tokens.append("*")
-                    tokens.append(FormalExp(letter = character))
+                    tokens.append(Polynom(letter = character))
 
                 # Special case for "-" at the begining of an expression or before "("
                 elif tokens[-1] == "-" \
                         or str(tokens[-2]) in " (":
-                    tokens[-1] = - FormalExp(letter = character)
+                    tokens[-1] = - Polynom(letter = character)
 
                 else:
-                    tokens.append(FormalExp(letter = character))
+                    tokens.append(Polynom(letter = character))
 
             elif character in "+-*/):^":
                 tokens.append(character)
@@ -162,7 +162,7 @@ class Expression(object):
                 # If "3(", ")(" or "x("
                 if self.isNumber(tokens[-1]) \
                         or tokens[-1] == ")" \
-                        or type(tokens[-1]) == FormalExp:
+                        or type(tokens[-1]) == Polynom:
                     tokens.append("*")
                 tokens.append(character)
 
@@ -324,7 +324,7 @@ class Expression(object):
         """
         return type(exp) == int or \
                 type(exp) == Fraction or \
-                type(exp) == FormalExp
+                type(exp) == Polynom
 
     @staticmethod
     def isOperator(exp):

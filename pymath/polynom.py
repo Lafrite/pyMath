@@ -5,11 +5,11 @@ from .fraction import Fraction
 from .generic import add_in_dict, remove_in_dict, convolution_dict
 import re
 
-class FormalExp(object):
-    """A formal expression (similare to Symbol in Sympy"""
+class Polynom(object):
+    """A polynom (similare to Symbol in Sympy"""
 
     def __init__(self, coef = {}, letter = ""):
-        """Initiat the formal expression
+        """Initiat the polynom
 
         :param coef: the dictionary representing the expression
         :param letter:  minimum expression, a letter 
@@ -17,14 +17,14 @@ class FormalExp(object):
         """
 
         if coef != {} and letter != "":
-            raise ValueError("A FormalExp can't be initiate with dict_exp and a letter")
+            raise ValueError("A Polynom can't be initiate with dict_exp and a letter")
         elif letter != "":
             self._letter = letter
             self._coef = {letter: 1}
         elif coef != {}:
             self._coef = coef
         else:
-            raise ValueError("FormalExp needs a letter or dictionary of coeficients")
+            raise ValueError("Polynom needs a letter or dictionary of coeficients")
 
         if len(self) != 1:
             self.mainOp = "+"
@@ -52,7 +52,7 @@ class FormalExp(object):
         return power[m_power]
 
     def check_calculous(self, other):
-        """Check if other is a constant and then transform it into a dictionary compatible with FormalExp
+        """Check if other is a constant and then transform it into a dictionary compatible with Polynom
 
         :param other: The thing to compute with the expression
         :returns: dictionary of this thing
@@ -60,22 +60,22 @@ class FormalExp(object):
         """
         if type(other) in [int, Fraction]:
             return {"":other}
-        elif type(other) == FormalExp:
+        elif type(other) == Polynom:
             return other._coef.copy()
         else:
-            raise ValueError("Can't add {type} with FormalExp".format(type=type(other)))
+            raise ValueError("Can't add {type} with Polynom".format(type=type(other)))
 
-    def const_or_formal(self, d):
-        """Return a constant if there is nothing else, FormalExp otherwise
+    def const_or_poly(self, d):
+        """Return a constant if there is nothing else, Polynom otherwise
 
         :param d: dictionary descripting the expression
-        :returns: a constant or a FormalExp
+        :returns: a constant or a Polynom
 
         """
         if list(d.keys()) == ['']:
             return d['']
         else:
-            return FormalExp(d)
+            return Polynom(d)
 
     def __add__(self, other):
         d = self.check_calculous(other)
@@ -83,7 +83,7 @@ class FormalExp(object):
         d = add_in_dict(self._coef, d)
         d = remove_in_dict(d)
 
-        return [self.const_or_formal(d)]
+        return [self.const_or_poly(d)]
 
     def __radd__(self, other):
         return self + other
@@ -96,7 +96,7 @@ class FormalExp(object):
         d = {}
         for k,v in self._coef.items():
             d[k] = -v
-        return FormalExp(d)    
+        return Polynom(d)    
 
     def __mul__(self, other):
         d = self.check_calculous(other)
@@ -104,7 +104,15 @@ class FormalExp(object):
         d = convolution_dict(self._coef, d, op_key = self.op_key)
         d = remove_in_dict(d)
 
-        return [self.const_or_formal(d)]
+        return [self.const_or_poly(d)]
+
+    def __rmul__(self, other):
+        d = self.check_calculous(other)
+
+        d = convolution_dict(d, self._coef, op_key = self.op_key)
+        d = remove_in_dict(d)
+
+        return [self.const_or_poly(d)]
 
     def op_key(self, x,y):
         """Operation on keys for convolution_dict"""
@@ -112,16 +120,7 @@ class FormalExp(object):
             return x+y
         else:
             return x + "*" + y
-
     
-    def __rmul__(self, other):
-        d = self.check_calculous(other)
-
-        d = convolution_dict(d, self._coef, op_key = self.op_key)
-        d = remove_in_dict(d)
-
-        return [self.const_or_formal(d)]
-
     def __div__(self, other):
         # Will never be done :D
         pass
@@ -151,9 +150,9 @@ class FormalExp(object):
             return ans
 
 if __name__ == '__main__':
-    fe1 = FormalExp({"x": -1, "":-2})    
+    fe1 = Polynom({"x": -1, "":-2})    
     print(fe1)
-    fe2 = FormalExp({"x^12": 5, "":2})    
+    fe2 = Polynom({"x^12": 5, "":2})    
     print(fe2)
     fe3 = fe1 * fe2
     for s in fe3:
@@ -162,11 +161,11 @@ if __name__ == '__main__':
     for s in fe4:
         print(s)
 
-    fe = FormalExp(letter = "a")
+    fe = Polynom(letter = "a")
     fe_ = -2 * fe
     print(fe_[0])
 
-    fe = FormalExp(letter = "a")
+    fe = Polynom(letter = "a")
     fe_ = fe * (-2)
     print(fe_[0])
 

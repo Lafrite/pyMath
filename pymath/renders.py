@@ -3,7 +3,7 @@
 
 from .render import Render
 from .fraction import Fraction
-from .formal import FormalExp
+from .polynom import Polynom
 from .generic import first_elem
 
 # ------------------------
@@ -39,7 +39,7 @@ def texFrac(frac):
 
 def texMult(op1,op2):
     fe = first_elem(op2)
-    if type(fe) == FormalExp or fe.isalpha():
+    if type(fe) == Polynom or fe.isalpha():
         if type(op1) == list and op1[0] == "(":
             return ["(", op1[1:-1], op2, ")"]
         else:
@@ -50,7 +50,7 @@ def texMult(op1,op2):
 tex_infix = {"+": " + ", "-": " - ", "*": texMult , ":": ":", "^":"^"}
 tex_postfix = {"/": texSlash}
 tex_other = {"(": "(", ")": ")"}
-tex_type_render = {int: str, Fraction: texFrac, FormalExp: str}
+tex_type_render = {int: str, Fraction: texFrac, Polynom: str}
 
 tex_render = Render(tex_infix, tex_postfix, tex_other, type_render = tex_type_render)
 
