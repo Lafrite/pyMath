@@ -94,6 +94,42 @@ class Fraction(object):
 
         return steps
 
+    def __radd__(self, other):
+        if type(other) == Fraction:
+            #cool
+            number = other
+        else:
+            number = Fraction(other)
+
+        steps = []
+
+        if number._denom == self._denom:
+            com_denom = number._denom
+            num1 = number._num
+            num2 = self._num
+
+        else:
+            gcd_denom = gcd(number._denom, self._denom)
+            coef1 = self._denom // gcd_denom
+            coef2 = number._denom // gcd_denom
+
+            steps.append([number._num, coef1, "*", number._denom, coef1, "*", '/', self._num, coef2, "*", self._denom, coef2, "*", "/",'+']) 
+
+            com_denom = number._denom * coef1
+            num1 = number._num * coef1
+            num2 = self._num * coef2
+
+        steps.append([num1, num2, '+', com_denom, '/'])
+
+        num = num1 + num2
+
+        ans_frac = Fraction(num, com_denom)
+        steps.append(ans_frac)
+        steps += ans_frac.simplify()
+
+        return steps
+
+
     def __sub__(self, other):
         if type(other) == Fraction:
             #cool
@@ -129,6 +165,41 @@ class Fraction(object):
 
         return steps
 
+    def __rsub__(self, other):
+        if type(other) == Fraction:
+            #cool
+            number = other
+        else:
+            number = Fraction(other)
+
+        steps = []
+
+        if number._denom == self._denom:
+            com_denom = number._denom
+            num1 = number._num
+            num2 = self._num
+
+        else:
+            gcd_denom = gcd(number._denom, self._denom)
+            coef1 = self._denom // gcd_denom
+            coef2 = number._denom // gcd_denom
+
+            steps.append([number._num, coef1, "*", number._denom, coef1, "*", '/', self._num, coef2, "*", self._denom, coef2, "*", "/",'-']) 
+
+            com_denom = number._denom * coef1
+            num1 = number._num * coef1
+            num2 = self._num * coef2
+
+        steps.append([num1, num2, '-', com_denom, '/'])
+
+        num = num1 - num2
+
+        ans_frac = Fraction(num, com_denom)
+        steps.append(ans_frac)
+        steps += ans_frac.simplify()
+
+        return steps
+
     def __neg__(self):
         return [Fraction(-self._num,self._denom)]
     
@@ -140,9 +211,28 @@ class Fraction(object):
             number = Fraction(other)
 
         steps = []
-        #steps.append("( {num1} * {num2} ) / ( {denom1} * {denom2} )".format(num1 = self._num, num2 = number._num, denom1 = self._denom, denom2 = number._denom))
 
         steps.append([self._num, number._num, '*', self._denom, number._denom, '*', '/'])
+
+        num = self._num * number._num
+        denom = self._denom * number._denom
+
+        ans_frac = Fraction(num, denom)
+        steps.append(ans_frac)
+        steps += ans_frac.simplify()
+
+        return steps
+
+    def __rmul__(self, other):
+        if type(other) == Fraction:
+            #cool
+            number = other
+        else:
+            number = Fraction(other)
+
+        steps = []
+
+        steps.append([number._num, self._num, '*', number._denom, self._denom, '*', '/'])
 
         num = self._num * number._num
         denom = self._denom * number._denom
@@ -162,7 +252,22 @@ class Fraction(object):
 
         steps = []
         number = Fraction(number._denom, number._num)
+        steps.append([self, number, "/"])
         steps += self * number
+
+        return steps
+
+    def __rtruediv__(self, other):
+        if type(other) == Fraction:
+            #cool
+            number = other
+        else:
+            number = Fraction(other)
+
+        steps = []
+        self_inv = Fraction(self._denom, self._num)
+        steps.append([number, self_inv, "/"])
+        steps += number * self_inv
 
         return steps
 
@@ -197,10 +302,10 @@ if __name__ == '__main__':
     h = Fraction(-1,5)
     t = Fraction(-4,5)
     print("---------")
-    for i in (f - 1):
+    for i in (f / t):
         print(i)
     print("---------")
-    for i in (f + 1):
+    for i in (f / h):
         print(i)
     print("---------")
     for i in (f - g):
