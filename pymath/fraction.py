@@ -299,17 +299,17 @@ class Fraction(object):
 if __name__ == '__main__':
     f = Fraction(1, 12)
     g = Fraction(1, 12)
-    h = Fraction(-1,5)
-    t = Fraction(-4,5)
+    h = Fraction(1,-5)
+    t = Fraction(4,5)
     print("---------")
-    for i in (f / t):
+    for i in (1 + h):
         print(i)
     print("---------")
-    for i in (f / h):
-        print(i)
-    print("---------")
-    for i in (f - g):
-        print(i)
+    #for i in (f + t):
+    #    print(i)
+    #print("---------")
+    #for i in (f + g):
+    #    print(i)
     #print("---------")
     #for i in (f - g):
     #    print(i)
