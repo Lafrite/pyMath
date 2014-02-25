@@ -28,6 +28,7 @@ post2in_fix = Render(p2i_infix, p2i_postfix, p2i_other, join = False)
 # A latex render
 
 def texSlash(op1, op2):
+    """ Tex render for / """
     if not Render.isNumerande(op1) and op1[0] == "(" and op1[-1] == ")":
         op1 = op1[1:-1]
     if not Render.isNumerande(op2) and op2[0] == "(" and op2[-1] == ")":
@@ -35,11 +36,13 @@ def texSlash(op1, op2):
     return ["\\frac{" , op1 , "}{" , op2 , "}"]
 
 def texFrac(frac):
+    """ Tex render for Fractions"""
     return ["\\frac{" , str(frac._num) , "}{" , str(frac._denom) , "}"]
 
 def texMult(op1,op2):
+    """ Tex render for * """
     fe = first_elem(op2)
-    if type(fe) == Polynom or fe.isalpha():
+    if type(fe) != int and (type(fe) == Polynom or fe.isalpha()):
         if type(op1) == list and op1[0] == "(":
             return ["(", op1[1:-1], op2, ")"]
         else:
