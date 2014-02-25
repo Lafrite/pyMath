@@ -114,7 +114,8 @@ class Render(object):
         """
         # Si l'operande est negatif
         if self.isNumber(operande) \
-                and operande < 0:
+                and operande < 0 \
+                and posi == "after":
             return 1
             
         # Si c'est un polynom
