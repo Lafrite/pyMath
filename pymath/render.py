@@ -15,7 +15,7 @@ class Render(object):
 
     PRIORITY = {"^": 4,"*" : 3, "/": 3, ":": 3, "+": 2, "-":2, "(": 1}
 
-    def __init__(self, op_infix = {}, op_postfix = {}, other = {}, join = " ", type_render = {int: str, Fraction: str, Polynom: str}):
+    def __init__(self, op_infix = {}, op_postfix = {}, other = {}, join = " ", type_render = {str: str, int: str, Fraction: str, Polynom: str}):
         """Initiate the render
         
         @param op_infix: the dictionnary of infix operator with how they have to be render
@@ -117,7 +117,7 @@ class Render(object):
                 and operande < 0:
             return 1
             
-        # Si c'est un expression formelle
+        # Si c'est un polynom
         elif type(operande) == Polynom:
             if operator in ["*", "/", "^"]:
                 if len(operande) > 1 \
@@ -190,7 +190,8 @@ class Render(object):
         """
         return type(exp) == int \
                 or type(exp) == Fraction \
-                or type(exp) == Polynom
+                or type(exp) == Polynom \
+                or exp.isalpha()
 
     def isOperator(self, exp):
         """Check if the expression is in self.operators

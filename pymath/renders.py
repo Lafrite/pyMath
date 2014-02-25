@@ -53,7 +53,7 @@ def texMult(op1,op2):
 tex_infix = {"+": " + ", "-": " - ", "*": texMult , ":": ":", "^":"^"}
 tex_postfix = {"/": texSlash}
 tex_other = {"(": "(", ")": ")"}
-tex_type_render = {int: str, Fraction: texFrac, Polynom: str}
+tex_type_render = {str:str, int: str, Fraction: texFrac, Polynom: str}
 
 tex_render = Render(tex_infix, tex_postfix, tex_other, type_render = tex_type_render)
 
