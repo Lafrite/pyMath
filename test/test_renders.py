@@ -58,6 +58,45 @@ class TestTexRender(unittest.TestCase):
 class TesttxtRender(unittest.TestCase):
     """Testing functions from pymath.renders.txt_render"""
 
+    def test_type_render_int(self):
+        self.assertEqual(txt_render([2]), "2")
+
+    def test_type_render_str(self):
+        self.assertEqual(txt_render(["a"]), "a")
+
+    def test_type_render_fraction(self):
+        self.assertEqual(txt_render([Fraction(1,2)]), "1 / 2")
+
+    def test_type_render_polynom(self):
+        self.assertEqual(txt_render([Polynom({"": 1, "x": 3})]), "3x + 1")
+
+    def test_mult_interger(self):
+        exps = [ [2, 3, "*"], [2, -3, "*"], [-2, 3, "*"]]
+        wanted_render = [ "2 * 3", "2 * ( -3 )", "-2 * 3"]
+        for (i,e) in enumerate(exps):
+            rend = txt_render(e)
+            self.assertEqual(rend, wanted_render[i])
+
+    def test_mult_letter(self):
+        exps = [ [2, "a", "*"], ["a", 3, "*"], [-2, "a", "*"], ["a", -2, "*"]]
+        wanted_render = [ "2 a", "3 a", "-2 a", "-2 a"]
+        for (i,e) in enumerate(exps):
+            rend = txt_render(e)
+            self.assertEqual(rend, wanted_render[i])
+
+    def test_mult_fraction(self):
+        exps = [ [2, Fraction(1,2), "*"], [Fraction(1,2), 3, "*"]]
+        wanted_render = [ "2 * 1 / 2", "1 / 2 * 3"]
+        for (i,e) in enumerate(exps):
+            rend = txt_render(e)
+            self.assertEqual(rend, wanted_render[i])
+
+    def test_mult_exp(self):
+        pass
+
+    def test_slash(self):
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()
