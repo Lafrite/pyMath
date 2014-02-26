@@ -104,6 +104,34 @@ def first_elem(ll):
     else:
         return ll
 
+def last_elem(ll):
+    """Get the last element in imbricates lists
+    # TODO: Fonction pourrie mais j'ai pas le temps de faire mieux! |mar. janv. 28 22:32:22 CET 2014
+
+    :param list: list of lists of lists...
+    :returns: the last element
+
+    >>> last_elem(1)
+    1
+    >>> last_elem([1,2])
+    2
+    >>> last_elem([["abc"]])
+    'c'
+    >>> last_elem("abc")
+    'c'
+    >>> last_elem([[[1,2],[3,4]], [5,6]])
+    6
+    >>> last_elem([[["ab",2],[3,4]], [5,6]])
+    6
+
+    """
+    if hasattr(ll, '__contains__'):
+        if len(ll) == 1 and type(ll) == str:
+            return ll[-1]
+        else:
+            return last_elem(ll[-1])
+    else:
+        return ll
 
 
 def expand_list(list_list):
