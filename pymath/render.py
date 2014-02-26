@@ -74,7 +74,6 @@ class Render(object):
             else:
                 operandeStack.push(token)
 
-            
         # Manip pour gerer les cas de listes imbriquées dans d'autres listes
         infix_tokens = operandeStack.pop()
 
@@ -117,6 +116,11 @@ class Render(object):
                 and operande < 0 \
                 and posi == "after":
             return 1
+
+        # Pas de parenthèses si c'est une lettre ou une fraction
+        elif (type(operande) == str and operande.isalpha()) \
+                or type(operande) == Fraction:
+            return 0
             
         # Si c'est un polynom
         elif type(operande) == Polynom:
@@ -128,7 +132,7 @@ class Render(object):
                 return 0
 
         elif not self.isNumber(operande):
-            # Si c'est une grande expression ou un chiffre négatif
+            # Si c'est une grande expression
             stand_alone = self.get_main_op(operande)
             # Si la priorité de l'operande est plus faible que celle de l'opérateur
             minor_priority = self.PRIORITY[self.get_main_op(operande)] < self.PRIORITY[operator]
@@ -202,7 +206,7 @@ class Render(object):
 
         """
         return (type(exp) == str and exp in self.operators)
-        
+
 class flist(list):
     """Fake list- they are used to stock the main operation of an rendered expression"""
     pass

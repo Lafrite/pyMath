@@ -4,25 +4,43 @@
 from .render import Render
 from .fraction import Fraction
 from .polynom import Polynom
-from .generic import first_elem
-
-# ------------------------
-# A console render
-
-txt_infix = {"+": "+", "-": "-", "*": "*", "/" : "/", ":": ":", "^":"^"}
-txt_postfix = {}
-txt_other = {"(": "(", ")": ")"}
-
-txt_render = Render(txt_infix, txt_postfix, txt_other)
+from .generic import first_elem, last_elem
 
 # ------------------------
 # A infix to postfix list convertor
 
-p2i_infix = {"+": "+", "-": "-", "*": "*", "/" : "/", ":":":", "^":"^"}
+p2i_infix = {"+": "+", "-": "-", "*": "*", "/" : "/", ":": ":", "^":"^"}
 p2i_postfix = {}
 p2i_other = {"(": "(", ")": ")"}
 
 post2in_fix = Render(p2i_infix, p2i_postfix, p2i_other, join = False)
+
+# ------------------------
+# A console render
+
+def txtMult(op1,op2):
+    """ Tex render for *
+    Cases where \\times won't be displayed
+        * nbr  letter 
+        * nbr  (
+        * )(
+    """
+    first_nbr = type(op1) in [int, Fraction]
+    seg_letter = type(op2) == str and op2.isalpha()
+    first_par = (first_elem(op2) == "(")
+    seg_par = (last_elem(op1) == ")")
+
+    if (first_nbr and (seg_letter or seg_par)) \
+            or (first_par and seg_par):
+        return [op1, op2]
+    else:
+        return [op1, "*", op2]
+
+txt_infix = {"+": "+", "-": "-", "*": txtMult, "/" : "/", ":":":", "^":"^"}
+txt_postfix = {}
+txt_other = {"(": "(", ")": ")"}
+
+txt_render = Render(txt_infix, txt_postfix, txt_other)
 
 # ------------------------
 # A latex render
@@ -40,13 +58,20 @@ def texFrac(frac):
     return ["\\frac{" , str(frac._num) , "}{" , str(frac._denom) , "}"]
 
 def texMult(op1,op2):
-    """ Tex render for * """
-    fe = first_elem(op2)
-    if type(fe) != int and (type(fe) == Polynom or fe.isalpha()):
-        if type(op1) == list and op1[0] == "(":
-            return ["(", op1[1:-1], op2, ")"]
-        else:
-            return [op1, op2]
+    """ Tex render for *
+    Cases where \\times won't be displayed
+        * nbr  letter 
+        * nbr  (
+        * )(
+    """
+    first_nbr = type(op1) in [int, Fraction]
+    seg_letter = type(op2) == str and op2.isalpha()
+    first_par = (first_elem(op2) == "(")
+    seg_par = (last_elem(op1) == ")")
+
+    if (first_nbr and (seg_letter or seg_par)) \
+            or (first_par and seg_par):
+        return [op1, op2]
     else:
         return [op1, "\\times", op2]
 
@@ -60,12 +85,13 @@ tex_render = Render(tex_infix, tex_postfix, tex_other, type_render = tex_type_re
 
 
 if __name__ == '__main__':
-    exp = [2, 5, '^', 1, '-', 3, 4, '*', ':']
-    print(txt_render(exp))
-    exp = [2, 5, '^', 1, '-', 3, 4, '*', '/', 3, 5, '/', ':']
+    #exp = [2, 5, '^', 1, '-', 3, 4, '*', ':']
+    #print(txt_render(exp))
+    #exp = [2, 5, '^', 1, '-', 3, 4, '*', '/', 3, 5, '/', ':']
+    exp = [2, -3, "*"]
     print(tex_render(exp))
-    exp = [2, 5, '^', 1, '-', 3, 4, '*', '/', 3, '+']
-    print(post2in_fix(exp))
+    #exp = [2, 5, '^', 1, '-', 3, 4, '*', '/', 3, '+']
+    #print(post2in_fix(exp))
 
 
 

@@ -34,14 +34,14 @@ class TestTexRender(unittest.TestCase):
 
     def test_mult_letter(self):
         exps = [ [2, "a", "*"], ["a", 3, "*"], [-2, "a", "*"], ["a", -2, "*"]]
-        wanted_render = [ "2 a", "3 a", "-2 a", "-2 a"]
+        wanted_render = [ "2 a", "a \\times 3", "-2 a", "a \\times ( -2 )"]
         for (i,e) in enumerate(exps):
             rend = tex_render(e)
             self.assertEqual(rend, wanted_render[i])
 
     def test_mult_fraction(self):
         exps = [ [2, Fraction(1,2), "*"], [Fraction(1,2), 3, "*"]]
-        wanted_render = [ "2 \\times \\frac{1}{2}", "\\frac{1}{2} \\times 3"]
+        wanted_render = [ "2 \\times \\frac{ 1 }{ 2 }", "\\frac{ 1 }{ 2 } \\times 3"]
         for (i,e) in enumerate(exps):
             rend = tex_render(e)
             self.assertEqual(rend, wanted_render[i])
@@ -79,7 +79,7 @@ class TesttxtRender(unittest.TestCase):
 
     def test_mult_letter(self):
         exps = [ [2, "a", "*"], ["a", 3, "*"], [-2, "a", "*"], ["a", -2, "*"]]
-        wanted_render = [ "2 a", "3 a", "-2 a", "-2 a"]
+        wanted_render = [ "2 a", "a * 3", "-2 a", "a * ( -2 )"]
         for (i,e) in enumerate(exps):
             rend = txt_render(e)
             self.assertEqual(rend, wanted_render[i])
