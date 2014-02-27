@@ -2,6 +2,8 @@
 # encoding: utf-8
 
 
+__all__ = ['gcd']
+
 def gcd(a, b):
         """Compute gcd(a,b)
 

@@ -3,6 +3,8 @@
 
 from .arithmetic import gcd
 
+__all__ = ['Fraction']
+
 class Fraction(object):
     """Fractions!"""
 

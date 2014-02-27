@@ -5,6 +5,8 @@ from .generic import Stack,flatten_list
 from .fraction import Fraction
 from .polynom import Polynom
 
+__all__ = ['Render']
+
 class Render(object):
     """A class which aims to create render functions from three dictionnaries:
         - op_infix: dict of caracters or two argument functions

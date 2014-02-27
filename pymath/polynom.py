@@ -5,6 +5,8 @@ from .fraction import Fraction
 from .generic import add_in_dict, remove_in_dict, convolution_dict
 import re
 
+__all__ = ['Polynom']
+
 class Polynom(object):
     """A polynom (similare to Symbol in Sympy"""
 
