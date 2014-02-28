@@ -136,17 +136,10 @@ if __name__ == '__main__':
     #desc_rdExp(rdExp1)
     #rdExp2 = RdExpression(form)
     #desc_rdExp(rdExp2)
-    #form = "{a+a/10}x + {a} + 2*{b}"
+    #form = "{a+a/10}*4 + {a} + 2*{b}"
     #cond = ["{a} + {b} in [1, 2, 3, 4, 5]", "{a} not in [0,1]", "{b} not in [0,1]"]
     #rdExp3 = RdExpression(form)
     #desc_rdExp(rdExp3)
-
-    form1 = "{a**2}x^2 + {2*a*b}x + {b**2}"
-    cond1 = []
-    rdExp1 = RdExpression(form1, cond1, with_Exp = False)
-    desc_rdExp(rdExp1)
-    rdExp1 = RdExpression(form1, cond1)
-    desc_rdExp(rdExp1)
 
 
 
