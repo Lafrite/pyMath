@@ -186,8 +186,7 @@ class Render(object):
 
         """
         return type(exp) == int \
-                or type(exp) == Fraction \
-                or exp.isalpha()
+                or type(exp) == Fraction
 
     def isOperator(self, exp):
         """Check if the expression is in self.operators
