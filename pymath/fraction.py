@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from arithmetic import gcd
+from .arithmetic import gcd
+
+__all__ = ['Fraction']
 
 class Fraction(object):
     """Fractions!"""
@@ -22,6 +24,11 @@ class Fraction(object):
         :returns: steps to simplify the fraction or the fraction if there is nothing to do
         """
         steps = []
+
+        if self._num == 0:
+            steps.append(0)
+
+            return steps
 
         if self._denom < 0:
             n_frac = Fraction(-self._num, -self._denom)
@@ -50,6 +57,9 @@ class Fraction(object):
 
     def __repr__(self):
         return "< Fraction " + self.__str__() + ">"
+
+    def __float__(self):
+        return self._num / self._denom
     
     def __add__(self, other):
         if type(other) == Fraction:
@@ -70,15 +80,11 @@ class Fraction(object):
             coef1 = number._denom // gcd_denom
             coef2 = self._denom // gcd_denom
 
-            #steps.append("( {num1} * {coef1} ) / ( {den1} * {coef1} ) + ( {num2} * {coef2} ) / ( {den2} * {coef2} )".format(num1 = self._num, den1 = self._denom, coef1 = coef1, num2 = number._num, den2 = number._denom, coef2 = coef2)) 
-
             steps.append([self._num, coef1, "*", self._denom, coef1, "*", '/', number._num, coef2, "*", number._denom, coef2, "*", "/",'+']) 
 
             com_denom = self._denom * coef1
             num1 = self._num * coef1
             num2 = number._num * coef2
-
-        #steps.append("( {num1} + {num2} ) / {denom}".format(num1 = num1, num2 = num2, denom = com_denom))
 
         steps.append([num1, num2, '+', com_denom, '/'])
 
@@ -89,6 +95,42 @@ class Fraction(object):
         steps += ans_frac.simplify()
 
         return steps
+
+    def __radd__(self, other):
+        if type(other) == Fraction:
+            #cool
+            number = other
+        else:
+            number = Fraction(other)
+
+        steps = []
+
+        if number._denom == self._denom:
+            com_denom = number._denom
+            num1 = number._num
+            num2 = self._num
+
+        else:
+            gcd_denom = gcd(number._denom, self._denom)
+            coef1 = self._denom // gcd_denom
+            coef2 = number._denom // gcd_denom
+
+            steps.append([number._num, coef1, "*", number._denom, coef1, "*", '/', self._num, coef2, "*", self._denom, coef2, "*", "/",'+']) 
+
+            com_denom = number._denom * coef1
+            num1 = number._num * coef1
+            num2 = self._num * coef2
+
+        steps.append([num1, num2, '+', com_denom, '/'])
+
+        num = num1 + num2
+
+        ans_frac = Fraction(num, com_denom)
+        steps.append(ans_frac)
+        steps += ans_frac.simplify()
+
+        return steps
+
 
     def __sub__(self, other):
         if type(other) == Fraction:
@@ -109,14 +151,12 @@ class Fraction(object):
             coef1 = number._denom // gcd_denom
             coef2 = self._denom // gcd_denom
 
-            #steps.append("( {num1} * {coef1} ) / ( {den1} * {coef1} ) - ( {num2} * {coef2} ) / ( {den2} * {coef2} )".format(num1 = self._num, den1 = self._denom, coef1 = coef1, num2 = number._num, den2 = number._denom, coef2 = coef2)) 
             steps.append([self._num, coef1, "*", self._denom, coef1, "*", '/', number._num, coef2, "*", number._denom, coef2, "*", "/",'-']) 
 
             com_denom = self._denom * coef1
             num1 = self._num * coef1
             num2 = number._num * coef2
 
-        #steps.append("( {num1} - {num2} ) / {denom}".format(num1 = num1, num2 = num2, denom = com_denom))
         steps.append([num1, num2, '-', com_denom, '/'])
 
         num = num1 - num2
@@ -126,6 +166,44 @@ class Fraction(object):
         steps += ans_frac.simplify()
 
         return steps
+
+    def __rsub__(self, other):
+        if type(other) == Fraction:
+            #cool
+            number = other
+        else:
+            number = Fraction(other)
+
+        steps = []
+
+        if number._denom == self._denom:
+            com_denom = number._denom
+            num1 = number._num
+            num2 = self._num
+
+        else:
+            gcd_denom = gcd(number._denom, self._denom)
+            coef1 = self._denom // gcd_denom
+            coef2 = number._denom // gcd_denom
+
+            steps.append([number._num, coef1, "*", number._denom, coef1, "*", '/', self._num, coef2, "*", self._denom, coef2, "*", "/",'-']) 
+
+            com_denom = number._denom * coef1
+            num1 = number._num * coef1
+            num2 = self._num * coef2
+
+        steps.append([num1, num2, '-', com_denom, '/'])
+
+        num = num1 - num2
+
+        ans_frac = Fraction(num, com_denom)
+        steps.append(ans_frac)
+        steps += ans_frac.simplify()
+
+        return steps
+
+    def __neg__(self):
+        return [Fraction(-self._num,self._denom)]
     
     def __mul__(self, other):
         if type(other) == Fraction:
@@ -135,9 +213,28 @@ class Fraction(object):
             number = Fraction(other)
 
         steps = []
-        #steps.append("( {num1} * {num2} ) / ( {denom1} * {denom2} )".format(num1 = self._num, num2 = number._num, denom1 = self._denom, denom2 = number._denom))
 
         steps.append([self._num, number._num, '*', self._denom, number._denom, '*', '/'])
+
+        num = self._num * number._num
+        denom = self._denom * number._denom
+
+        ans_frac = Fraction(num, denom)
+        steps.append(ans_frac)
+        steps += ans_frac.simplify()
+
+        return steps
+
+    def __rmul__(self, other):
+        if type(other) == Fraction:
+            #cool
+            number = other
+        else:
+            number = Fraction(other)
+
+        steps = []
+
+        steps.append([number._num, self._num, '*', number._denom, self._denom, '*', '/'])
 
         num = self._num * number._num
         denom = self._denom * number._denom
@@ -157,17 +254,46 @@ class Fraction(object):
 
         steps = []
         number = Fraction(number._denom, number._num)
+        steps.append([self, number, "/"])
         steps += self * number
 
         return steps
 
+    def __rtruediv__(self, other):
+        if type(other) == Fraction:
+            #cool
+            number = other
+        else:
+            number = Fraction(other)
+
+        steps = []
+        self_inv = Fraction(self._denom, self._num)
+        steps.append([number, self_inv, "/"])
+        steps += number * self_inv
+
+        return steps
+
+    def __abs__(self):
+        return Fraction(abs(self._num), abs(self._denom))
+
+    def __eq__(self, other):
+        """ == """
+        if type(other) == Fraction:
+            number = other
+        else:
+            number = Fraction(other)
+
+        return self._num * number._denom == self._denom * number._num
+
     def __lt__(self, other):
+        """ < """
         if type(other) == Fraction:
             return (self._num / self._denom) < (other._num / other._denom)
         else:
             return (self._num / self._denom) < other
 
     def __le__(self, other):
+        """ <= """
         if type(other) == Fraction:
             return (self._num / self._denom) <= (other._num / other._denom)
         else:
@@ -178,17 +304,17 @@ class Fraction(object):
 if __name__ == '__main__':
     f = Fraction(1, 12)
     g = Fraction(1, 12)
-    h = Fraction(-1,5)
-    t = Fraction(-4,5)
+    h = Fraction(1,-5)
+    t = Fraction(4,5)
     print("---------")
-    for i in (f - 1):
+    for i in (1 + h):
         print(i)
     print("---------")
-    for i in (f + 1):
-        print(i)
-    print("---------")
-    for i in (f + g):
-        print(i)
+    #for i in (f + t):
+    #    print(i)
+    #print("---------")
+    #for i in (f + g):
+    #    print(i)
     #print("---------")
     #for i in (f - g):
     #    print(i)

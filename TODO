@@ -1,0 +1,9 @@
+# Todolist
+
+* Improve fix recognition (DONE)
+* More flexible expression parsing (DONE)
+* bug: expression can't handle -(-2)
+* Overload + - * for expression (DONE ~ no steps yet)
+* Expression should be able to simplify expression with ":"
+
+* Expression parents class and his children: Numerical_exp, toGenerate_exp and formal expression
