@@ -273,6 +273,9 @@ class Fraction(object):
 
         return steps
 
+    def __abs__(self):
+        return Fraction(abs(self._num), abs(self._denom))
+
     def __eq__(self, other):
         """ == """
         if type(other) == Fraction:
