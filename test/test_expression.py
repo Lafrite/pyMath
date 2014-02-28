@@ -48,6 +48,10 @@ class TestExpression(unittest.TestCase):
         tok = Expression.str2tokens(exp)
         self.assertEqual(tok, [-3, "*","(", 2, ")" ])
 
+    def test_str2tokens_error_float(self):
+        exp = "1 + 1.3"
+        self.assertRaises(ValueError, Expression.str2tokens, exp)
+
     def test_str2tokens_error(self):
         exp = "1 + $"
         self.assertRaises(ValueError, Expression.str2tokens, exp)

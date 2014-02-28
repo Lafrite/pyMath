@@ -150,6 +150,9 @@ class Expression(object):
                     tokens.append("*")
                 tokens.append(character)
 
+            elif character == ".":
+                raise ValueError("No float number please")
+
             elif character != " ":
                 raise ValueError("{} is an unvalid character".format(character))
 
