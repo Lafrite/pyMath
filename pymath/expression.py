@@ -111,7 +111,7 @@ class Expression(object):
     ## ---------------------
     ## String parsing
 
-    ## @classmethod ????
+    @classmethod
     def str2tokens(self, exp):
         """ Parse the expression, ie tranform a string into a list of tokens
 
