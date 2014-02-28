@@ -6,7 +6,6 @@ import unittest
 
 from pymath.renders import tex_render, txt_render
 from pymath.fraction import Fraction
-from pymath.polynom import Polynom
 
 
 
@@ -21,9 +20,6 @@ class TestTexRender(unittest.TestCase):
 
     def test_type_render_fraction(self):
         self.assertEqual(tex_render([Fraction(1,2)]), "\\frac{ 1 }{ 2 }")
-
-    def test_type_render_polynom(self):
-        self.assertEqual(tex_render([Polynom({"": 1, "x": 3})]), "3x + 1")
 
     def test_mult_interger(self):
         exps = [ [2, 3, "*"], [2, -3, "*"], [-2, 3, "*"]]
@@ -66,9 +62,6 @@ class TesttxtRender(unittest.TestCase):
 
     def test_type_render_fraction(self):
         self.assertEqual(txt_render([Fraction(1,2)]), "1 / 2")
-
-    def test_type_render_polynom(self):
-        self.assertEqual(txt_render([Polynom({"": 1, "x": 3})]), "3x + 1")
 
     def test_mult_interger(self):
         exps = [ [2, 3, "*"], [2, -3, "*"], [-2, 3, "*"]]

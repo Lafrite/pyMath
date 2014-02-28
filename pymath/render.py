@@ -3,7 +3,6 @@
 
 from .generic import Stack,flatten_list
 from .fraction import Fraction
-from .polynom import Polynom
 
 __all__ = ['Render']
 
@@ -17,7 +16,7 @@ class Render(object):
 
     PRIORITY = {"^": 4,"*" : 3, "/": 3, ":": 3, "+": 2, "-":2, "(": 1}
 
-    def __init__(self, op_infix = {}, op_postfix = {}, other = {}, join = " ", type_render = {str: str, int: str, Fraction: str, Polynom: str}):
+    def __init__(self, op_infix = {}, op_postfix = {}, other = {}, join = " ", type_render = {str: str, int: str, Fraction: str}):
         """Initiate the render
         
         @param op_infix: the dictionnary of infix operator with how they have to be render
@@ -124,15 +123,6 @@ class Render(object):
                 or type(operande) == Fraction:
             return 0
             
-        # Si c'est un polynom
-        elif type(operande) == Polynom:
-            if operator in ["*", "/", "^"]:
-                if len(operande) > 1 \
-                        or operande.master_coef() < 0:
-                    return 1
-            else:
-                return 0
-
         elif not self.isNumber(operande):
             # Si c'est une grande expression
             stand_alone = self.get_main_op(operande)
@@ -197,7 +187,6 @@ class Render(object):
         """
         return type(exp) == int \
                 or type(exp) == Fraction \
-                or type(exp) == Polynom \
                 or exp.isalpha()
 
     def isOperator(self, exp):

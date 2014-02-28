@@ -4,7 +4,6 @@
 from .generic import Stack, flatten_list, expand_list
 from .fraction import Fraction
 from .renders import txt_render, post2in_fix, tex_render
-from .polynom import Polynom
 
 __all__ = ['Expression']
 
@@ -141,30 +140,13 @@ class Expression(object):
                 else:
                     tokens.append(int(character))
 
-            elif character.isalpha():
-                # If "3x", ")x" or "yx"
-                if self.isNumber(tokens[-1]) \
-                        or tokens[-1] == ")" \
-                        or type(tokens[-1]) == Polynom:
-                    tokens.append("*")
-                    tokens.append(Polynom(letter = character))
-
-                # Special case for "-" at the begining of an expression or before "("
-                elif tokens[-1] == "-" \
-                        or str(tokens[-2]) in " (":
-                    tokens[-1] = - Polynom(letter = character)
-
-                else:
-                    tokens.append(Polynom(letter = character))
-
             elif character in "+-*/):^":
                 tokens.append(character)
 
             elif character in "(":
-                # If "3(", ")(" or "x("
+                # If "3(", ")("
                 if self.isNumber(tokens[-1]) \
-                        or tokens[-1] == ")" \
-                        or type(tokens[-1]) == Polynom:
+                        or tokens[-1] == ")" :
                     tokens.append("*")
                 tokens.append(character)
 
@@ -325,8 +307,7 @@ class Expression(object):
 
         """
         return type(exp) == int or \
-                type(exp) == Fraction or \
-                type(exp) == Polynom
+                type(exp) == Fraction 
 
     @staticmethod
     def isOperator(exp):
@@ -397,31 +378,8 @@ if __name__ == '__main__':
     #exp="-2*4(12 + 1)(3-12)"
     #test(exp)
 
-    exp="-2+a+(12 + 1)(3-12) / 34a"
-    #test(exp)
-    e = Expression(exp)
-    print(e.render(render = tex_render))
-
-    #exp="-2*b+a(12 + 1)(3-12)"
-    #test(exp)
 
     #exp="(-2+5)/(3*4)+1/12+5*5"
-    #test(exp)
-
-    # TODO: The next one doesn't work  |ven. janv. 17 14:56:58 CET 2014
-    #exp="-2*(-a)(12 + 1)(3-12)"
-    #e = Expression(exp)
-    #print(e)
-
-    exp="-2+a+(12 + 1)(3-12) : 34a"
-    #test(exp)
-
-    #exp="-2+a+(12 + 1)(3-12) : 34a"
-    ##test(exp)
-    #e = Expression(exp)
-    #print(e.render(render = tex_render))
-
-    #exp="-2*b+a(12 + 1)(3-12)"
     #test(exp)
 
     # TODO: The next one doesn't work  |ven. janv. 17 14:56:58 CET 2014

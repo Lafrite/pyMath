@@ -3,7 +3,6 @@
 
 from .render import Render
 from .fraction import Fraction
-from .polynom import Polynom
 from .generic import first_elem, last_elem
 
 __all__ = ['post2in_fix', 'tex_render', 'txt_render']
@@ -80,7 +79,7 @@ def texMult(op1,op2):
 tex_infix = {"+": " + ", "-": " - ", "*": texMult , ":": ":", "^":"^"}
 tex_postfix = {"/": texSlash}
 tex_other = {"(": "(", ")": ")"}
-tex_type_render = {str:str, int: str, Fraction: texFrac, Polynom: str}
+tex_type_render = {str:str, int: str, Fraction: texFrac}
 
 tex_render = Render(tex_infix, tex_postfix, tex_other, type_render = tex_type_render)
 
