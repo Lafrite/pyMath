@@ -6,6 +6,8 @@ from .expression import Expression
 from .renders import tex_render, txt_render
 import re
 
+from .arithmetic import gcd
+
 class RdExpression(object):
     """A generator of random expression builder"""
 
@@ -30,11 +32,17 @@ class RdExpression(object):
 
         """
         pattern = "\{(.*?)\}" #select inside {} non greedy way
-        varia = re.findall(pattern, self._form)
-        varia = set(varia)
-        self._2replaced = varia
 
-        return varia
+        varia_form = re.findall(pattern, self._form)
+        varia_form = set(varia_form)
+
+        varia_cond = set()
+        for c in self._conditions:
+            varia_cond = varia_cond | set(re.findall(pattern, c))
+        
+        self._2replaced = varia_cond | varia_form
+
+        return self._2replaced
         
     def get_letters(self):
         """Find letters in the form
@@ -96,13 +104,16 @@ class RdExpression(object):
         return Expression(exp)
 
     def gene_varia(self, val_min = -10, val_max = 10):
-        """RAndomly generates variables/letters
+        """Randomly generates variables/letters
+
+        Varia can't be equal to 0
 
         """
         for l in self._letters:
             self._gene_varia[l] = randint(val_min, val_max)
             while self._gene_varia[l] == 0:
                 self._gene_varia[l] = randint(val_min, val_max)
+
 
         for e in self._2replaced:
             self._gene_2replaced[e] = eval(e, globals(), self._gene_varia)
@@ -113,7 +124,7 @@ class RdExpression(object):
 
         """
         if self._conditions != []:
-            return eval(" and ".join(self._conditions).format(**self._gene_varia))
+            return eval(" and ".join(self._conditions).format(**self._gene_2replaced))
         else:
             return True
 
@@ -130,16 +141,22 @@ def desc_rdExp(rdExp):
 
 
 if __name__ == '__main__':
-    #form = "{a}*-14 / (2*{b}) : -23 / 4"
-    #cond = ["{a} + {b} in [1, 2, 3, 4, 5]", "{a} not in [0,1]", "{b} not in [0,1]"]
-    #rdExp1 = RdExpression(form, cond)
-    #desc_rdExp(rdExp1)
-    #rdExp2 = RdExpression(form)
-    #desc_rdExp(rdExp2)
-    #form = "{a+a/10}*4 + {a} + 2*{b}"
-    #cond = ["{a} + {b} in [1, 2, 3, 4, 5]", "{a} not in [0,1]", "{b} not in [0,1]"]
-    #rdExp3 = RdExpression(form)
-    #desc_rdExp(rdExp3)
+    form = "{a}*-14 / (2*{b}) : -23 / 4"
+    cond = ["{a} + {b} in [1, 2, 3, 4, 5]", "{a} not in [1]", "{b} not in [1]"]
+    rdExp1 = RdExpression(form, cond)
+    desc_rdExp(rdExp1)
+    rdExp2 = RdExpression(form)
+    desc_rdExp(rdExp2)
+
+    form = "{a+a*10}*4 + {a} + 2*{b}"
+    cond = ["{a} + {b} in [1, 2, 3, 4, 5]", "abs({a}) not in [1]", "{b} not in [1]", "gcd({a},{b}) == 1"]
+    rdExp3 = RdExpression(form, cond)
+    desc_rdExp(rdExp3)
+
+    form = "{a+a*10}*4 + {a} + 2*{b}"
+    cond = ["{a-b} + {b} in list(range(20))", "abs({a}) not in [1]", "{b} not in [1]", "gcd({a},{b}) == 1"]
+    rdExp3 = RdExpression(form, cond)
+    desc_rdExp(rdExp3)
 
 
 
