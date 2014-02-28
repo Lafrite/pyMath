@@ -72,15 +72,16 @@ Les opérations autorisées sont les opérations "classique": + - * / ^. L'utili
 ### Différents rendus
 Comme dit dans l'introduction, il y a deux types de rendus: un rendus texte (utilisé depuis le début) et un rendus latex. Voici un exemple de l'utilisation du rendu latex
 
-    >>> from pymath.renders import txt_render
+    >>> from pymath.renders import tex_render
     >>> exp = Expression("1 + 2 / 5")
     >>> for i in exp.simplify(render = tex_render):
     ...     print(i)
     ... 
-    ( 2  +  4 ) ( 3  -  ( 4 \times 2 ) )
-    6 \times ( 3  -  8 )
-    6 \times ( -5 )
-    -30
+    1  +  \frac{ 2 }{ 5 }
+    \frac{ 1 \times 5 }{ 1 \times 5 }  +  \frac{ 2 \times 1 }{ 5 \times 1 }
+    \frac{ 5  +  2 }{ 5 }
+    \frac{ 7 }{ 5 }
+
 
 ## Générer des expressions aléatoirement.
 
@@ -115,7 +116,7 @@ La méthode pour créer les valeurs avec des conditions est la méthode par reje
 Pour éviter de faire tourner la méthode par rejet trop longtemps, il est possible de faire des calculs avec les valeurs générées.
 
     >>> form = "{a} / {b} + {c} / {k*b}"
-    >>> cond = ["abs({b}) != 1", "{d} > 1", "{b} != {d}", "gcd({a},{b}) == 1", "gcd({c},{k*b}) == 1"]
+    >>> cond = ["abs({b}) != 1", "{k} > 1", "{b} != {d}", "gcd({a},{b}) == 1", "gcd({c},{k*b}) == 1"]
     >>> rd_frac_add = RdExpression(form, cond)
     >>> rd_frac_add()
     '\\frac{ -9 }{ 7 }  +  \\frac{ 1 }{ 28 }
