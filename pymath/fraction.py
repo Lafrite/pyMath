@@ -108,33 +108,7 @@ class Fraction(object):
     def __radd__(self, other):
         number = self.convert2fraction(other)
 
-        steps = []
-
-        if number._denom == self._denom:
-            com_denom = number._denom
-            num1 = number._num
-            num2 = self._num
-
-        else:
-            gcd_denom = gcd(number._denom, self._denom)
-            coef1 = self._denom // gcd_denom
-            coef2 = number._denom // gcd_denom
-
-            steps.append([number._num, coef1, "*", number._denom, coef1, "*", '/', self._num, coef2, "*", self._denom, coef2, "*", "/",'+']) 
-
-            com_denom = number._denom * coef1
-            num1 = number._num * coef1
-            num2 = self._num * coef2
-
-        steps.append([num1, num2, '+', com_denom, '/'])
-
-        num = num1 + num2
-
-        ans_frac = Fraction(num, com_denom)
-        steps.append(ans_frac)
-        steps += ans_frac.simplify()
-
-        return steps
+        return number + self
 
 
     def __sub__(self, other):
@@ -171,33 +145,7 @@ class Fraction(object):
     def __rsub__(self, other):
         number = self.convert2fraction(other)
 
-        steps = []
-
-        if number._denom == self._denom:
-            com_denom = number._denom
-            num1 = number._num
-            num2 = self._num
-
-        else:
-            gcd_denom = gcd(number._denom, self._denom)
-            coef1 = self._denom // gcd_denom
-            coef2 = number._denom // gcd_denom
-
-            steps.append([number._num, coef1, "*", number._denom, coef1, "*", '/', self._num, coef2, "*", self._denom, coef2, "*", "/",'-']) 
-
-            com_denom = number._denom * coef1
-            num1 = number._num * coef1
-            num2 = self._num * coef2
-
-        steps.append([num1, num2, '-', com_denom, '/'])
-
-        num = num1 - num2
-
-        ans_frac = Fraction(num, com_denom)
-        steps.append(ans_frac)
-        steps += ans_frac.simplify()
-
-        return steps
+        return number - self
 
     def __neg__(self):
         return [Fraction(-self._num,self._denom)]
@@ -221,18 +169,7 @@ class Fraction(object):
     def __rmul__(self, other):
         number = self.convert2fraction(other)
 
-        steps = []
-
-        steps.append([number._num, self._num, '*', number._denom, self._denom, '*', '/'])
-
-        num = self._num * number._num
-        denom = self._denom * number._denom
-
-        ans_frac = Fraction(num, denom)
-        steps.append(ans_frac)
-        steps += ans_frac.simplify()
-
-        return steps
+        return number * self
 
     def __truediv__(self, other):
         number = self.convert2fraction(other)
@@ -247,12 +184,7 @@ class Fraction(object):
     def __rtruediv__(self, other):
         number = self.convert2fraction(other)
 
-        steps = []
-        self_inv = Fraction(self._denom, self._num)
-        steps.append([number, self_inv, "/"])
-        steps += number * self_inv
-
-        return steps
+        return number / self
 
     def __abs__(self):
         return Fraction(abs(self._num), abs(self._denom))
@@ -285,32 +217,43 @@ if __name__ == '__main__':
     h = Fraction(1,-5)
     t = Fraction(4,5)
     print("---------")
+    print("1 + ", str(h))
     for i in (1 + h):
         print(i)
     print("---------")
-    #for i in (f + t):
-    #    print(i)
-    #print("---------")
-    #for i in (f + g):
-    #    print(i)
-    #print("---------")
-    #for i in (f - g):
-    #    print(i)
-    #print("---------")
-    #for i in (f * g):
-    #    print(i)
-    #print("---------")
-    #for i in (h + t):
-    #    print(i)
-    #print("---------")
-    #for i in (h - t):
-    #    print(i)
-    #print("---------")
-    #for i in (h * t):
-    #    print(i)
-    #print("---------")
-    #for i in (h / t):
-    #    print(i)
+    print(str(f) , "+", str(t))
+    for i in (f + t):
+        print(i)
+    print("---------")
+    print(str(f) , "+", str(g))
+    for i in (f + g):
+        print(i)
+    print("---------")
+    print(str(f) , "-", str(g))
+    for i in (f - g):
+        print(i)
+    print("---------")
+    print(str(f) , "*", str(g))
+    for i in (f * g):
+        print(i)
+    print("---------")
+    print(str(h) , "+", str(t))
+    for i in (h + t):
+        print(i)
+    print("---------")
+    print(str(h) , "-", str(t))
+    for i in (h - t):
+        print(i)
+    print("---------")
+    print(str(h) , "*", str(t))
+    for i in (h * t):
+        print(i)
+    print("---------")
+
+    # TODO: Bug!! |mer. mai 28 18:48:54 CEST 2014
+    print(str(h) , "/", str(t))
+    for i in (h / t):
+        print(i)
 
     #print(f.simplify())
 
