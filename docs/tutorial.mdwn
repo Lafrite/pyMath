@@ -32,16 +32,16 @@ On peut ensuite afficher l'expression avec un *print* (pour un rendu en mode tex
 
 Et si l'on souhaite un rendu en latex:
 
-    >>> from pymath.renders import tex_render
-    >>> exp.render(render = tex_render)
+    >>> from pymath.renders import tex
+    >>> exp.render(render = tex)
     1 + 2 \times 3
 
 ### Simplification des expressions
 Une fois les expressions créées, elles peuvent se réduire en expliquant les étapes et en respectant les règles de priorités. Les exemples suivants seront données avec un rendu texte.
 
-    >>> from pymath.renders import txt_render
+    >>> from pymath.renders import txt
     >>> exp = Expression("1 + 2 * 3")
-    >>> for i in exp.simplify(render = txt_render):
+    >>> for i in exp.simplify(render = txt):
     ...     print(i)
     ... 
     1 + 2 * 3
@@ -52,7 +52,7 @@ Une fois les expressions créées, elles peuvent se réduire en expliquant les �
 Les opérations autorisées sont les opérations "classique": + - * / ^. L'utilisation des parenthèses est aussi gérée.
 
     >>> exp = Expression("1 + 2 / 5")
-    >>> for i in exp.simplify(render = txt_render):
+    >>> for i in exp.simplify(render = txt):
     ...     print(i)
     ... 
     1 + 2 / 5
@@ -61,7 +61,7 @@ Les opérations autorisées sont les opérations "classique": + - * / ^. L'utili
     7 / 5
 
     >>> exp = Expression("(2 + 4)(3 - 4 * 2)")
-    >>> for i in exp.simplify(render = txt_render):
+    >>> for i in exp.simplify(render = txt):
     ...     print(i)
     ... 
     ( 2 + 4 ) ( 3 - ( 4 * 2 ) )
@@ -72,9 +72,9 @@ Les opérations autorisées sont les opérations "classique": + - * / ^. L'utili
 ### Différents rendus
 Comme dit dans l'introduction, il y a deux types de rendus: un rendus texte (utilisé depuis le début) et un rendus latex. Voici un exemple de l'utilisation du rendu latex
 
-    >>> from pymath.renders import tex_render
+    >>> from pymath.renders import tex
     >>> exp = Expression("1 + 2 / 5")
-    >>> for i in exp.simplify(render = tex_render):
+    >>> for i in exp.simplify(render = tex):
     ...     print(i)
     ... 
     1  +  \frac{ 2 }{ 5 }
@@ -130,7 +130,7 @@ Le rendu des expressions se fait avec la classe Expression présentée plus haut
     >>> exp = rd_frac_add.raw_exp()
     >>> print(exp)
     -2 / 5 + -8 / 35
-    >>> for i in exp.simplify(render = txt_render):
+    >>> for i in exp.simplify(render = txt):
     ...     print(i)
     ... 
     -2 / 5 + -8 / 35
