@@ -152,10 +152,27 @@ class Fraction(object):
 
         steps = []
 
-        steps.append([self._num, number._num, '*', self._denom, number._denom, '*', '/'])
+        gcd1 = gcd(self._num, number._denom) 
+        if gcd1 != 1:
+            num1 = [int(self._num/ gcd1), gcd1, "*"]
+            denom2 = [int(number._denom/ gcd1), gcd1, "*"] 
+        else:
+            num1 = [self._num]
+            denom2 = [number._denom]
 
-        num = self._num * number._num
-        denom = self._denom * number._denom
+        gcd2 = gcd(self._denom, number._num) 
+        if gcd2 != 1:
+            num2 = [int(number._num/ gcd2), gcd2, "*"]
+            denom1 = [int(self._denom/ gcd2), gcd2, "*"] 
+        else:
+            num2 = [number._num]
+            denom1 = [self._denom]
+
+
+        steps.append(num1 +  num2 + [ '*'] +  denom1 +  denom2 + ['*', '/'])
+
+        num = int(self._num * number._num / (gcd1 * gcd2))
+        denom = int(self._denom * number._denom / (gcd1 * gcd2))
 
         ans_frac = Fraction(num, denom)
         steps.append(ans_frac)
@@ -214,7 +231,7 @@ if __name__ == '__main__':
     f = Fraction(1, 12)
     g = Fraction(1, 12)
     h = Fraction(1,-5)
-    t = Fraction(4,5)
+    t = Fraction(10,3)
     print("---------")
     print("1 + ", str(h))
     for i in (1 + h):
