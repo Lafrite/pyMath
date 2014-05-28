@@ -33,14 +33,16 @@ class Fraction(object):
         if self._denom < 0:
             n_frac = Fraction(-self._num, -self._denom)
             steps.append(n_frac)
+        else: 
+            n_frac = self
 
-        gcd_ = gcd(abs(self._num), abs(self._denom))
-        if self._num == self._denom:
+        gcd_ = gcd(abs(n_frac._num), abs(n_frac._denom))
+        if n_frac._num == n_frac._denom:
             n_frac = Fraction(1,1)
             steps.append(n_frac)
 
         elif gcd_ != 1:
-            n_frac = Fraction(self._num // gcd_ , self._denom // gcd_)
+            n_frac = Fraction(n_frac._num // gcd_ , n_frac._denom // gcd_)
             steps.append([n_frac._num, gcd_, '*', n_frac._denom, gcd_, '*', '/' ])
 
             steps.append(n_frac)
@@ -60,12 +62,7 @@ class Fraction(object):
         return self._num / self._denom
 
     def convert2fraction(self, other):
-        """ Convert a number into a fraction
-
-        :param other: a number
-        :returns: the same number but viewed as a fraction
-
-        """
+        """ Convert a other into a fraction """
         if type(other) == Fraction:
             #cool
             number = other
@@ -148,7 +145,7 @@ class Fraction(object):
         return number - self
 
     def __neg__(self):
-        return [Fraction(-self._num,self._denom)]
+        return Fraction(-self._num,self._denom).simplify()
     
     def __mul__(self, other):
         number = self.convert2fraction(other)
@@ -176,7 +173,7 @@ class Fraction(object):
 
         steps = []
         number = Fraction(number._denom, number._num)
-        steps.append([self, number, "/"])
+        steps.append([self, number, "*"])
         steps += self * number
 
         return steps
@@ -251,8 +248,10 @@ if __name__ == '__main__':
     for i in (h * t):
         print(i)
     print("---------")
-
-    # TODO: Bug!! |mer. mai 28 18:48:54 CEST 2014
+    print("-", str(h) )
+    for i in (-h):
+        print(i)
+    print("---------")
     print(str(h) , "/", str(t))
     for i in (h / t):
         print(i)
