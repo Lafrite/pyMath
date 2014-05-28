@@ -41,10 +41,8 @@ class Fraction(object):
 
         elif gcd_ != 1:
             n_frac = Fraction(self._num // gcd_ , self._denom // gcd_)
-            #steps.append("( {reste1} * {gcd} ) / ( {reste2} * {gcd} )".format(reste1 = n_frac._num, reste2 = n_frac._denom, gcd = gcd_))
             steps.append([n_frac._num, gcd_, '*', n_frac._denom, gcd_, '*', '/' ])
 
-            # Certainement le truc le plus moche que j'ai jamais fait... On ne met que des strings dans steps puis au dernier moment on met une fraction. C'est moche de ma part
             steps.append(n_frac)
 
         return steps
@@ -60,13 +58,24 @@ class Fraction(object):
 
     def __float__(self):
         return self._num / self._denom
-    
-    def __add__(self, other):
+
+    def convert2fraction(self, other):
+        """ Convert a number into a fraction
+
+        :param other: a number
+        :returns: the same number but viewed as a fraction
+
+        """
         if type(other) == Fraction:
             #cool
             number = other
         else:
             number = Fraction(other)
+
+        return number
+    
+    def __add__(self, other):
+        number = self.convert2fraction(other)
 
         steps = []
 
@@ -97,11 +106,7 @@ class Fraction(object):
         return steps
 
     def __radd__(self, other):
-        if type(other) == Fraction:
-            #cool
-            number = other
-        else:
-            number = Fraction(other)
+        number = self.convert2fraction(other)
 
         steps = []
 
@@ -133,11 +138,7 @@ class Fraction(object):
 
 
     def __sub__(self, other):
-        if type(other) == Fraction:
-            #cool
-            number = other
-        else:
-            number = Fraction(other)
+        number = self.convert2fraction(other)
 
         steps = []
 
@@ -168,11 +169,7 @@ class Fraction(object):
         return steps
 
     def __rsub__(self, other):
-        if type(other) == Fraction:
-            #cool
-            number = other
-        else:
-            number = Fraction(other)
+        number = self.convert2fraction(other)
 
         steps = []
 
@@ -206,11 +203,7 @@ class Fraction(object):
         return [Fraction(-self._num,self._denom)]
     
     def __mul__(self, other):
-        if type(other) == Fraction:
-            #cool
-            number = other
-        else:
-            number = Fraction(other)
+        number = self.convert2fraction(other)
 
         steps = []
 
@@ -226,11 +219,7 @@ class Fraction(object):
         return steps
 
     def __rmul__(self, other):
-        if type(other) == Fraction:
-            #cool
-            number = other
-        else:
-            number = Fraction(other)
+        number = self.convert2fraction(other)
 
         steps = []
 
@@ -246,11 +235,7 @@ class Fraction(object):
         return steps
 
     def __truediv__(self, other):
-        if type(other) == Fraction:
-            #cool
-            number = other
-        else:
-            number = Fraction(other)
+        number = self.convert2fraction(other)
 
         steps = []
         number = Fraction(number._denom, number._num)
@@ -260,11 +245,7 @@ class Fraction(object):
         return steps
 
     def __rtruediv__(self, other):
-        if type(other) == Fraction:
-            #cool
-            number = other
-        else:
-            number = Fraction(other)
+        number = self.convert2fraction(other)
 
         steps = []
         self_inv = Fraction(self._denom, self._num)
@@ -278,10 +259,7 @@ class Fraction(object):
 
     def __eq__(self, other):
         """ == """
-        if type(other) == Fraction:
-            number = other
-        else:
-            number = Fraction(other)
+        number = self.convert2fraction(other)
 
         return self._num * number._denom == self._denom * number._num
 
