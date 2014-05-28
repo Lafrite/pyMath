@@ -197,17 +197,19 @@ class Fraction(object):
 
     def __lt__(self, other):
         """ < """
-        if type(other) == Fraction:
-            return (self._num / self._denom) < (other._num / other._denom)
-        else:
-            return (self._num / self._denom) < other
+        return float(self) < float(other)
 
     def __le__(self, other):
         """ <= """
-        if type(other) == Fraction:
-            return (self._num / self._denom) <= (other._num / other._denom)
-        else:
-            return (self._num / self._denom) <= other
+        return float(self) <= float(other)
+
+    def __gt__(self, other):
+        """ > """
+        return float(self) > float(other)
+
+    def __ge__(self, other):
+        """ >= """
+        return float(self) >= float(other)
 
 
 
