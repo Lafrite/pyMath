@@ -8,7 +8,7 @@ import unittest
 from pymath.expression import Expression
 from pymath.fraction import Fraction
 from pymath.generic import first_elem
-from pymath.renders import txt_render
+from pymath.renders import txt
 
 
 class TestExpression(unittest.TestCase):

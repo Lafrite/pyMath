@@ -3,7 +3,7 @@
 
 from random import randint
 from .expression import Expression
-from .renders import tex_render, txt_render
+from .renders import tex, txt
 import re
 
 from .arithmetic import gcd
@@ -60,7 +60,7 @@ class RdExpression(object):
         return varia
 
 
-    def __call__(self, val_min = -10, val_max = 10, render = tex_render):
+    def __call__(self, val_min = -10, val_max = 10, render = tex):
         """RdExpression once it is initiate act like a function which create random expressions.
 
         :param val_min: minimum value random generation
@@ -134,7 +134,7 @@ def desc_rdExp(rdExp):
     print("Conditions: ",rdExp._conditions)
     print("Letters: ", rdExp._letters)
     print("2replaced: ", rdExp._2replaced)
-    print("Call : ", rdExp(render = tex_render))
+    print("Call : ", rdExp(render = tex))
     print("Gene varia: ", rdExp._gene_varia)
     print("Gene 2replaced: ", rdExp._gene_2replaced)
     print('')

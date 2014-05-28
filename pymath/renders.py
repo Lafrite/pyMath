@@ -5,7 +5,7 @@ from .render import Render
 from .fraction import Fraction
 from .generic import first_elem, last_elem
 
-__all__ = ['post2in_fix', 'tex_render', 'txt_render']
+__all__ = ['post2in_fix', 'tex', 'txt']
 
 # ------------------------
 # A infix to postfix list convertor
@@ -41,7 +41,7 @@ txt_infix = {"+": "+", "-": "-", "*": txtMult, "/" : "/", ":":":", "^":"^"}
 txt_postfix = {}
 txt_other = {"(": "(", ")": ")"}
 
-txt_render = Render(txt_infix, txt_postfix, txt_other)
+txt = Render(txt_infix, txt_postfix, txt_other)
 
 # ------------------------
 # A latex render
@@ -81,16 +81,16 @@ tex_postfix = {"/": texSlash}
 tex_other = {"(": "(", ")": ")"}
 tex_type_render = {str:str, int: str, Fraction: texFrac}
 
-tex_render = Render(tex_infix, tex_postfix, tex_other, type_render = tex_type_render)
+tex = Render(tex_infix, tex_postfix, tex_other, type_render = tex_type_render)
 
 
 
 if __name__ == '__main__':
     #exp = [2, 5, '^', 1, '-', 3, 4, '*', ':']
-    #print(txt_render(exp))
+    #print(txt(exp))
     #exp = [2, 5, '^', 1, '-', 3, 4, '*', '/', 3, 5, '/', ':']
     exp = [2, -3, "*"]
-    print(tex_render(exp))
+    print(tex(exp))
     #exp = [2, 5, '^', 1, '-', 3, 4, '*', '/', 3, '+']
     #print(post2in_fix(exp))
 

@@ -4,42 +4,42 @@
 
 import unittest
 
-from pymath.renders import tex_render, txt_render
+from pymath.renders import tex, txt
 from pymath.fraction import Fraction
 
 
 
 class TestTexRender(unittest.TestCase):
-    """Testing functions from pymath.renders.tex_render"""
+    """Testing functions from pymath.renders.tex"""
 
     def test_type_render_int(self):
-        self.assertEqual(tex_render([2]), "2")
+        self.assertEqual(tex([2]), "2")
 
     def test_type_render_str(self):
-        self.assertEqual(tex_render(["a"]), "a")
+        self.assertEqual(tex(["a"]), "a")
 
     def test_type_render_fraction(self):
-        self.assertEqual(tex_render([Fraction(1,2)]), "\\frac{ 1 }{ 2 }")
+        self.assertEqual(tex([Fraction(1,2)]), "\\frac{ 1 }{ 2 }")
 
     def test_mult_interger(self):
         exps = [ [2, 3, "*"], [2, -3, "*"], [-2, 3, "*"]]
         wanted_render = [ "2 \\times 3", "2 \\times ( -3 )", "-2 \\times 3"]
         for (i,e) in enumerate(exps):
-            rend = tex_render(e)
+            rend = tex(e)
             self.assertEqual(rend, wanted_render[i])
 
     def test_mult_letter(self):
         exps = [ [2, "a", "*"], ["a", 3, "*"], [-2, "a", "*"], ["a", -2, "*"]]
         wanted_render = [ "2 a", "a \\times 3", "-2 a", "a \\times ( -2 )"]
         for (i,e) in enumerate(exps):
-            rend = tex_render(e)
+            rend = tex(e)
             self.assertEqual(rend, wanted_render[i])
 
     def test_mult_fraction(self):
         exps = [ [2, Fraction(1,2), "*"], [Fraction(1,2), 3, "*"]]
         wanted_render = [ "2 \\times \\frac{ 1 }{ 2 }", "\\frac{ 1 }{ 2 } \\times 3"]
         for (i,e) in enumerate(exps):
-            rend = tex_render(e)
+            rend = tex(e)
             self.assertEqual(rend, wanted_render[i])
 
     def test_mult_exp(self):
@@ -52,36 +52,36 @@ class TestTexRender(unittest.TestCase):
 
 
 class TesttxtRender(unittest.TestCase):
-    """Testing functions from pymath.renders.txt_render"""
+    """Testing functions from pymath.renders.txt"""
 
     def test_type_render_int(self):
-        self.assertEqual(txt_render([2]), "2")
+        self.assertEqual(txt([2]), "2")
 
     def test_type_render_str(self):
-        self.assertEqual(txt_render(["a"]), "a")
+        self.assertEqual(txt(["a"]), "a")
 
     def test_type_render_fraction(self):
-        self.assertEqual(txt_render([Fraction(1,2)]), "1 / 2")
+        self.assertEqual(txt([Fraction(1,2)]), "1 / 2")
 
     def test_mult_interger(self):
         exps = [ [2, 3, "*"], [2, -3, "*"], [-2, 3, "*"]]
         wanted_render = [ "2 * 3", "2 * ( -3 )", "-2 * 3"]
         for (i,e) in enumerate(exps):
-            rend = txt_render(e)
+            rend = txt(e)
             self.assertEqual(rend, wanted_render[i])
 
     def test_mult_letter(self):
         exps = [ [2, "a", "*"], ["a", 3, "*"], [-2, "a", "*"], ["a", -2, "*"]]
         wanted_render = [ "2 a", "a * 3", "-2 a", "a * ( -2 )"]
         for (i,e) in enumerate(exps):
-            rend = txt_render(e)
+            rend = txt(e)
             self.assertEqual(rend, wanted_render[i])
 
     def test_mult_fraction(self):
         exps = [ [2, Fraction(1,2), "*"], [Fraction(1,2), 3, "*"]]
         wanted_render = [ "2 * 1 / 2", "1 / 2 * 3"]
         for (i,e) in enumerate(exps):
-            rend = txt_render(e)
+            rend = txt(e)
             self.assertEqual(rend, wanted_render[i])
 
     def test_mult_exp(self):

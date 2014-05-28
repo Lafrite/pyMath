@@ -3,7 +3,7 @@
 
 from .generic import Stack, flatten_list, expand_list
 from .fraction import Fraction
-from .renders import txt_render, post2in_fix, tex_render
+from .renders import txt, post2in_fix, tex
 
 __all__ = ['Expression']
 
@@ -29,8 +29,8 @@ class Expression(object):
         self.feed_fix() # Determine le fix et range la liste dans self.[fix]_tokens
 
     def __str__(self):
-        """Overload str as it aim to be use in console the render is txt_render"""
-        return txt_render(self.postfix_tokens)
+        """Overload str as it aim to be use in console the render is txt"""
+        return txt(self.postfix_tokens)
 
     def render(self, render = lambda  x:str(x)):
         """ Same as __str__ but accept render as argument
@@ -326,8 +326,8 @@ class Expression(object):
 def test(exp):
     a = Expression(exp)
     #for i in a.simplify():
-    #for i in a.simplify(render = txt_render):
-    for i in a.simplify(render = tex_render):
+    #for i in a.simplify(render = txt):
+    for i in a.simplify(render = tex):
         print(i)
 
     print("\n")
