@@ -211,9 +211,7 @@ class Fraction(object):
         return steps
 
     def __rmul__(self, other):
-        number = self.convert2fraction(other)
-
-        return number * self
+        return self * other
 
     def __truediv__(self, other):
         if other == 0:
