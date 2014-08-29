@@ -9,19 +9,33 @@ import re
 from .arithmetic import gcd
 
 class RdExpression(object):
-    """A generator of random expression builder"""
+    """
+    A generator of random expression builder
 
-    def __init__(self, form, conditions = [], with_Exp = True):
+    Two forms are available:
+        - exp: return the expression through Expression class (default)
+        - raw: return the expression as a raw string
+    This can be set globally with
+
+        RdExpression.FORM
+
+    or temporary with 
+        - "raw_exp" or "raw_str" methods 
+    
+    """
+
+    FORM = "exp"
+
+    def __init__(self, form, conditions = []):
         """Initiate the generator
 
         :param form: the form of the expression (/!\ variables need to be in brackets {})
         :param conditions: condition on variables (/!\ variables need to be in brackets {})
-        :param with_Exp: If True, __call__ return an expression rendered through Expression class. If False, keep form and replace inside.
 
         """
         self._form = form
         self._conditions = conditions
-        self._with_Exp = with_Exp
+
         self._letters = self.get_letters()
         self._gene_varia = {}
         self._gene_2replaced= {}
@@ -60,7 +74,7 @@ class RdExpression(object):
         return varia
 
 
-    def __call__(self, val_min = -10, val_max = 10, render = tex):
+    def __call__(self, val_min = -10, val_max = 10):
         """RdExpression once it is initiate act like a function which create random expressions.
 
         :param val_min: minimum value random generation
@@ -69,10 +83,12 @@ class RdExpression(object):
         :returns: an formated random expression 
 
         """
-        if self._with_Exp:
-            return render(self.raw_exp(val_min, val_max).postfix_tokens)
-        else:
+        if self.FORM == "exp":
+            return self.raw_exp(val_min, val_max)
+        elif self.FORM == "raw":
             return self.raw_str(val_min, val_max)
+        else:
+            raise ValueError(self.FORM , " is an undefined form for self.FORM")
 
     def raw_str(self, val_min = -10, val_max = 10):
         """Return raw string (don't use Expression for rendering or parsing)
@@ -134,13 +150,16 @@ def desc_rdExp(rdExp):
     print("Conditions: ",rdExp._conditions)
     print("Letters: ", rdExp._letters)
     print("2replaced: ", rdExp._2replaced)
-    print("Call : ", rdExp(render = tex))
+    print("Call : ", rdExp())
     print("Gene varia: ", rdExp._gene_varia)
     print("Gene 2replaced: ", rdExp._gene_2replaced)
     print('')
 
 
 if __name__ == '__main__':
+    # Adapt render to consol display
+    Expression.STR_RENDER = txt
+
     form = "{a}*-14 / (2*{b}) : -23 / 4"
     cond = ["{a} + {b} in [1, 2, 3, 4, 5]", "{a} not in [1]", "{b} not in [1]"]
     rdExp1 = RdExpression(form, cond)

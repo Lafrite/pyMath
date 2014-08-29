@@ -11,6 +11,7 @@ class Expression(object):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
 
     PRIORITY = {"^": 5, "*" : 3, "/": 4, ":": 3, "+": 2, "-":2, "(": 1}
+    STR_RENDER = tex
 
     def __init__(self, exp):
         """ Initiate the expression
@@ -29,8 +30,11 @@ class Expression(object):
         self.feed_fix() # Determine le fix et range la liste dans self.[fix]_tokens
 
     def __str__(self):
-        """Overload str as it aim to be use in console the render is txt"""
-        return txt(self.postfix_tokens)
+        """
+        Overload str
+        If you want to changer render set Expression.RENDER
+        """
+        return self.STR_RENDER(self.postfix_tokens)
 
     def render(self, render = lambda  x:str(x)):
         """ Same as __str__ but accept render as argument
