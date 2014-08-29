@@ -47,24 +47,20 @@ class Expression(object):
     ## ---------------------
     ## Mechanism functions
 
-    def simplify(self, render = lambda x:str(x)):
-        """ Generator which return steps for computing the expression
-
-        :param render: function which render the list of token (postfix form now) to string
-
-        """
+    def simplify(self):
+        """ Generator which return steps for computing the expression  """
         if not self.can_go_further():
-            yield render(self.postfix_tokens) 
+            yield self.STR_RENDER(self.postfix_tokens) 
         else:
             self.compute_exp() 
             old_s = ''
             for s in self.steps:
-                new_s = render(s)
+                new_s = self.STR_RENDER(s)
                 # Astuce pour éviter d'avoir deux fois la même étape (par exemple pour la transfo d'une division en fraction)
                 if new_s != old_s:
                     old_s = new_s
                     yield new_s
-            for s in self.child.simplify(render = render):
+            for s in self.child.simplify():
                 if old_s != s:
                     yield s
 
@@ -329,9 +325,7 @@ class Expression(object):
 
 def test(exp):
     a = Expression(exp)
-    #for i in a.simplify():
-    #for i in a.simplify(render = txt):
-    for i in a.simplify(render = tex):
+    for i in a.simplify():
         print(i)
 
     print("\n")

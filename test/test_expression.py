@@ -8,7 +8,7 @@ import unittest
 from pymath.expression import Expression
 from pymath.fraction import Fraction
 from pymath.generic import first_elem
-from pymath.renders import txt
+from pymath.renders import txt, tex
 
 
 class TestExpression(unittest.TestCase):
@@ -76,12 +76,15 @@ class TestExpression(unittest.TestCase):
 
     def test_simplify_frac(self):
         exp = Expression("1/2 - 4")
+        Expression.STR_RENDER = lambda _,x : str(x)
         steps = ["[1, 2, '/', 4, '-']", \
                 "[< Fraction 1 / 2>, 4, '-']", \
                 "[1, 1, '*', 2, 1, '*', '/', 4, 2, '*', 1, 2, '*', '/', '-']", \
                 "[1, 8, '-', 2, '/']", \
                 '[< Fraction -7 / 2>]']
         self.assertEqual(steps, list(exp.simplify()))
+
+        Expression.STR_RENDER = tex
 
 
 if __name__ == '__main__':

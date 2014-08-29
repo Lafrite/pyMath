@@ -25,23 +25,39 @@ Un expression peut être initialisée de deux façons différentes: à partir d'
     >>> exp = Expression("1 + 2 * 3")
     >>> exp = Expression([1, "+", 2, "*", 3])
 
-On peut ensuite afficher l'expression avec un *print* (pour un rendu en mode texte).
+On peut ensuite afficher l'expression avec un *print*.
 
+    >>> print(exp)
+    1 + 2 \times 3
+
+Et si l'on souhaite un rendu plus adapté à la console:
+
+    >>> from pymath.renders import txt
+    >>> exp.render(render = txt)
+    1 + 2 * 3
+
+Ou encore
+
+    >>> from pymath.renders import txt
+    >>> Expression.STR_RENDER = txt
     >>> print(exp)
     1 + 2 * 3
 
-Et si l'on souhaite un rendu en latex:
+/!\ Il ne faut pas faire
 
-    >>> from pymath.renders import tex
-    >>> exp.render(render = tex)
-    1 + 2 \times 3
+    >>> exp.STR_RENDER = txt
+
+car le changement ne se propagera pas à toute la classe. Ce qui posera problème quand on utilisera la méthode *simplify*(les sous expressions auront l'ancien STR_RENDER).
 
 ### Simplification des expressions
 Une fois les expressions créées, elles peuvent se réduire en expliquant les étapes et en respectant les règles de priorités. Les exemples suivants seront données avec un rendu texte.
 
+    >>> from pymath.expression import Expression
     >>> from pymath.renders import txt
+    >>> Expression.STR_RENDER = txt
+
     >>> exp = Expression("1 + 2 * 3")
-    >>> for i in exp.simplify(render = txt):
+    >>> for i in exp.simplify():
     ...     print(i)
     ... 
     1 + 2 * 3
@@ -52,7 +68,7 @@ Une fois les expressions créées, elles peuvent se réduire en expliquant les �
 Les opérations autorisées sont les opérations "classique": + - * / ^. L'utilisation des parenthèses est aussi gérée.
 
     >>> exp = Expression("1 + 2 / 5")
-    >>> for i in exp.simplify(render = txt):
+    >>> for i in exp.simplify():
     ...     print(i)
     ... 
     1 + 2 / 5
@@ -70,11 +86,10 @@ Les opérations autorisées sont les opérations "classique": + - * / ^. L'utili
     -30
 
 ### Différents rendus
-Comme dit dans l'introduction, il y a deux types de rendus: un rendus texte (utilisé depuis le début) et un rendus latex. Voici un exemple de l'utilisation du rendu latex
+Comme dit dans l'introduction, il y a deux types de rendus: un rendus texte (utilisé depuis le début) et un rendus latex. Voici un exemple de l'utilisation du rendu latex (par défaut)
 
-    >>> from pymath.renders import tex
     >>> exp = Expression("1 + 2 / 5")
-    >>> for i in exp.simplify(render = tex):
+    >>> for i in exp.simplify():
     ...     print(i)
     ... 
     1  +  \frac{ 2 }{ 5 }
@@ -94,12 +109,16 @@ Pour créer une expression il faut au moins une chose: la forme de l'expression.
 
     >>> form = "2* {a} + 3"
     >>> rd_exp = RdExpression(form)
-    >>> rd_exp()
+    >>> e = rd_exp()
+    >>> type(e)
+    pymath.expression.Expression
+    >>> print(e)
     '2 \\times 9  +  3'
     >>> rd_exp(30, 40)
     '2 \\times 31  +  3'
 
-On remarque que ici le rendu est directement en latex (je ne sais d'ailleurs pas si c'est une très bonne idée que le rendu par défaut ne soit pas le même qu'avec expression...).
+On remarque que ici que rd_exp renvoie une expression. Cela permettra qu'ensuite on puisse simplifier ou manipuler les expressions
+ On verra plus tard comment se passer de cette classe pour par exemple créer des expressions avec des fonctions non implémentées dans Expression.
 
 ### Créer une expression avec conditions
 Parfois il peut être nécessaire d'imposer des conditions sur les éléments à générer pour créer des exercices spécifiques.
@@ -107,7 +126,7 @@ Parfois il peut être nécessaire d'imposer des conditions sur les éléments à
     >>> form = "{a} / {b} + {c} / {d}"
     >>> cond = ["abs({b}) != 1", "{d} > 1", "{b} != {d}", "gcd({a},{b}) == 1", "gcd({c},{d}) == 1"]
     >>> rd_frac_add = RdExpression(form, cond)
-    >>> rd_frac_add()
+    >>> print(rd_frac_add())
     '\\frac{ 4 }{ 5 }  +  \\frac{ 9 }{ 7 }'
 
 La méthode pour créer les valeurs avec des conditions est la méthode par rejet. Elle n'est pas très efficace et rien n'est encore prévu dans le cas où aucune valeur n'est possible. 
@@ -118,35 +137,30 @@ Pour éviter de faire tourner la méthode par rejet trop longtemps, il est possi
     >>> form = "{a} / {b} + {c} / {k*b}"
     >>> cond = ["abs({b}) != 1", "{k} > 1", "{b} != {d}", "gcd({a},{b}) == 1", "gcd({c},{k*b}) == 1"]
     >>> rd_frac_add = RdExpression(form, cond)
-    >>> rd_frac_add()
+    >>> print(rd_frac_add())
     '\\frac{ -9 }{ 7 }  +  \\frac{ 1 }{ 28 }
 
 ### Rendu des expressions
-Le rendu des expressions se fait avec la classe Expression présentée plus haut. C'est pratique car cela permet de profiter des rendus automatiques en latex. Mais cela ne permet par de réutiliser facilement l'expression (pour une correction par exemple) et cela gène quand on veut utiliser des choses que Expression ne sait pas gérer.
+On peut vouloir ne pas passer passer par la classe Expression pour obtenir notre expression (si l'on veut utiliser la racine carré par exemple). Pour cela il va falloir changer la forme du rendu
 
+    >>> RdExpression.FORM = "raw"
     >>> form = "{a} / {b} + {c} / {k*b}"
     >>> cond = ["abs({b}) != 1", "{d} > 1", "{b} != {d}", "gcd({a},{b}) == 1", "gcd({c},{k*b}) == 1"]
     >>> rd_frac_add = RdExpression(form, cond)
-    >>> exp = rd_frac_add.raw_exp()
+    >>> exp = rd_frac_add()
+    >>> type(exp)
+    str
     >>> print(exp)
     -2 / 5 + -8 / 35
-    >>> for i in exp.simplify(render = txt):
-    ...     print(i)
-    ... 
-    -2 / 5 + -8 / 35
-    -2 / 5 + ( -8 / 35 )
-    ( -2 * 7 ) / ( 5 * 7 ) + ( -8 * 1 ) / ( 35 * 1 )
-    ( -14 + ( -8 ) ) / 35
-    -22 / 35
     
     >>> form = "{a**2}x^2 + {2*a*b} x + {b**2}"
     >>> rd_id_rmq = RdExpression(form, with_Exp = False)
-    >>> rd_id_rmq()
+    >>> print(rd_id_rmq())
     '100x^2 + -180 x + 81'
     >>> rd_id_rmq()
     '49x^2 + 42 x + 9'
 
-On remarque le défaut d'utiliser *with_Exp* le rendu est moins bien fait (dans l'exemple, il n'y a pas de parenthèses autour du -180).
+On remarque le défaut d'utiliser cette forme, le rendu est moins bien fait (dans l'exemple, il n'y a pas de parenthèses autour du -8).
 
 
 
