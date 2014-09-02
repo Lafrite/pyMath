@@ -37,8 +37,8 @@ class Fraction(object):
             n_frac = self
 
         gcd_ = gcd(abs(n_frac._num), abs(n_frac._denom))
-        if n_frac._num == n_frac._denom:
-            n_frac = Fraction(1,1)
+        if gcd_ == n_frac._denom:
+            n_frac = n_frac._num // gcd_
             steps.append(n_frac)
 
         elif gcd_ != 1:

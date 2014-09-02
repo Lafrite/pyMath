@@ -331,6 +331,7 @@ def test(exp):
     print("\n")
 
 if __name__ == '__main__':
+    Expression.STR_RENDER = txt
     #exp = "2 ^ 3 * 5"
     #test(exp)
 
