@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from .generic import Stack, flatten_list, expand_list
+from .generic import Stack, flatten_list, expand_list, Operator
 from .fraction import Fraction
 from .renders import txt, post2in_fix, tex
 
@@ -248,24 +248,41 @@ class Expression(object):
         >>> Expression.in2post_fix(['(', 2, '+', 5, '-', 1, ')', '/', '(', 3, '*', 4, ')'])
         [2, 5, '+', 1, '-', 3, 4, '*', '/']
         """
+        # Stack where operator will be stocked
         opStack = Stack()
+        # final postfix list of tokens
         postfixList = []
+        # Nbr of tokens to compute in postfixList
+        nbr_token_in_postfix = 0
 
-        for token in infix_tokens:
+        for (pos_token,token) in enumerate(infix_tokens):
             if token == "(":
                 opStack.push(token)
+                nbr_token_in_postfix -= 1
             elif token == ")":
-                topToken = opStack.pop()
-                while topToken != "(":
-                    postfixList.append(topToken)
-                    topToken = opStack.pop()
+                op = opStack.pop()
+                while op != "(":
+                    postfixList.append(op)
+                    nbr_token_in_postfix -= (op.arrity - 1)
+                    op = opStack.pop()
+
+                nbr_token_in_postfix += 1
+
             elif cls.isOperator(token):
                 # On doit ajouter la condition == str sinon python ne veut pas tester l'appartenance à la chaine de caractère. 
                 while (not opStack.isEmpty()) and (cls.PRIORITY[opStack.peek()] >= cls.PRIORITY[token]):
-                    postfixList.append(opStack.pop())
-                opStack.push(token)
+                    op = opStack.pop()
+                    postfixList.append(op)
+                    nbr_token_in_postfix -= (op.arrity - 1)
+
+                # la max est là dans le cas où l'expression commence par "("
+                opStack.push(Operator(token, max(1,nbr_token_in_postfix + 1)))
             else:
                 postfixList.append(token)
+                nbr_token_in_postfix += 1
+
+            ## Pour voir ce qu'il se passe dans cette procédure
+            #print(str(postfixList), " | ", str(opStack), " | ", str(infix_tokens[(pos_token+1):]), " | ", str(nbr_token_in_postfix))
 
         while not opStack.isEmpty():
             postfixList.append(opStack.pop())

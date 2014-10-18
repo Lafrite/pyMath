@@ -57,6 +57,16 @@ class Stack(object):
     def __add__(self, addList):
         return self.items + addList
 
+class Operator(str):
+
+    """The operator class, is a string (representation of the operator) with its arrity (?!? - arrite)"""
+
+    def __new__(cls, operator,  arrity = 2):
+        op = str.__new__(cls, operator)
+        op.arrity = arrity
+        return op
+
+
 
 def flatten_list(a, result=None):
     """Flattens a nested list.
