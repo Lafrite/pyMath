@@ -248,9 +248,9 @@ class Expression(object):
         >>> Expression.in2post_fix(['(', 2, '+', 5, '-', 1, ')', '/', '(', 3, '*', 4, ')'])
         [2, 5, '+', 1, '-', 3, 4, '*', '/']
         >>> Expression.in2post_fix(['-', '(', '-', 2, ')'])
-        [2, 5, '+', 1, '-', 3, 4, '*', '/']
+        [2, '-', '-']
         >>> Expression.in2post_fix(['-', '(', '-', 2, '+', 3, "*", 4, ')'])
-        [2, 5, '+', 1, '-', 3, 4, '*', '/']
+        [2, '-', 3, 4, '*', '+', '-']
         """
         # Stack where operator will be stocked
         opStack = Stack()
@@ -262,8 +262,8 @@ class Expression(object):
 
         for (pos_token,token) in enumerate(infix_tokens):
 
-            # Pour voir ce qu'il se passe dans cette procédure
-            print(str(postfix_tokens), " | ", str(opStack), " | ", str(infix_tokens[(pos_token+1):]), " | ", str(arity_Stack))
+            # # Pour voir ce qu'il se passe dans cette procédure
+            # print(str(postfix_tokens), " | ", str(opStack), " | ", str(infix_tokens[(pos_token+1):]), " | ", str(arity_Stack))
             if token == "(":
                 opStack.push(token)
                 # Set next arity counter
@@ -271,10 +271,7 @@ class Expression(object):
             elif token == ")":
                 op = opStack.pop()
                 while op != "(":
-                    #print(str(op), " -> ", op.arity)
                     postfix_tokens.append(op)
-                    #arity = arity_Stack.pop()
-                    #arity_Stack.push(arity - (op.arity + 1))
                     op = opStack.pop()
 
                 # Go back to old arity 
@@ -289,15 +286,9 @@ class Expression(object):
                     op = opStack.pop()
                     postfix_tokens.append(op)
 
-                    ## decrease arity
-                    #arity = arity_Stack.pop()
-                    #arity_Stack.push(arity - (op.arity - 1))
-
-                    #print(str(op), " -> ", op.arity)
-
                 arity = arity_Stack.pop() 
                 opStack.push(Operator(token, arity + 1))
-                print("--", token, " -> ", str(arity + 1))
+                # print("--", token, " -> ", str(arity + 1))
                 # Reset arity to 0 in case there is other operators (the real operation would be "-op.arity + 1")
                 arity_Stack.push(0)
             else:
@@ -309,16 +300,11 @@ class Expression(object):
             op = opStack.pop()
             postfix_tokens.append(op)
 
-            # decrease arity
-            arity = arity_Stack.pop()
-            arity_Stack.push(arity - (op.arity - 1))
+            # # Pour voir ce qu'il se passe dans cette procédure
+            # print(str(postfix_tokens), " | ", str(opStack), " | ", str(infix_tokens[(pos_token+1):]), " | ", str(arity_Stack))
 
-            #print(str(op), " -> ", op.arity)
-
-            print(str(postfix_tokens), " | ", str(opStack), " | ", str(infix_tokens[(pos_token+1):]), " | ", str(arity_Stack))
-
-        #if arity_Stack != 1:
-        #    raise ValueError("No float number please")
+        if arity_Stack.peek() != 1:
+            raise ValueError("Unvalid expression. The arity Stack is ", str(arity_Stack))
 
         return postfix_tokens
 
