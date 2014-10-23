@@ -247,47 +247,80 @@ class Expression(object):
 
         >>> Expression.in2post_fix(['(', 2, '+', 5, '-', 1, ')', '/', '(', 3, '*', 4, ')'])
         [2, 5, '+', 1, '-', 3, 4, '*', '/']
+        >>> Expression.in2post_fix(['-', '(', '-', 2, ')'])
+        [2, 5, '+', 1, '-', 3, 4, '*', '/']
+        >>> Expression.in2post_fix(['-', '(', '-', 2, '+', 3, "*", 4, ')'])
+        [2, 5, '+', 1, '-', 3, 4, '*', '/']
         """
         # Stack where operator will be stocked
         opStack = Stack()
         # final postfix list of tokens
-        postfixList = []
-        # Nbr of tokens to compute in postfixList
-        nbr_token_in_postfix = 0
+        postfix_tokens = []
+        # stack with the nbr of tokens still to compute in postfix_tokens
+        arity_Stack = Stack()
+        arity_Stack.push(0)
 
         for (pos_token,token) in enumerate(infix_tokens):
+
+            # Pour voir ce qu'il se passe dans cette procédure
+            print(str(postfix_tokens), " | ", str(opStack), " | ", str(infix_tokens[(pos_token+1):]), " | ", str(arity_Stack))
             if token == "(":
                 opStack.push(token)
-                nbr_token_in_postfix -= 1
+                # Set next arity counter
+                arity_Stack.push(0)
             elif token == ")":
                 op = opStack.pop()
                 while op != "(":
-                    postfixList.append(op)
-                    nbr_token_in_postfix -= (op.arrity - 1)
+                    #print(str(op), " -> ", op.arity)
+                    postfix_tokens.append(op)
+                    #arity = arity_Stack.pop()
+                    #arity_Stack.push(arity - (op.arity + 1))
                     op = opStack.pop()
 
-                nbr_token_in_postfix += 1
+                # Go back to old arity 
+                arity_Stack.pop()
+                # Raise the arity
+                arity = arity_Stack.pop()
+                arity_Stack.push(arity + 1)
 
             elif cls.isOperator(token):
                 # On doit ajouter la condition == str sinon python ne veut pas tester l'appartenance à la chaine de caractère. 
                 while (not opStack.isEmpty()) and (cls.PRIORITY[opStack.peek()] >= cls.PRIORITY[token]):
                     op = opStack.pop()
-                    postfixList.append(op)
-                    nbr_token_in_postfix -= (op.arrity - 1)
+                    postfix_tokens.append(op)
 
-                # la max est là dans le cas où l'expression commence par "("
-                opStack.push(Operator(token, max(1,nbr_token_in_postfix + 1)))
+                    ## decrease arity
+                    #arity = arity_Stack.pop()
+                    #arity_Stack.push(arity - (op.arity - 1))
+
+                    #print(str(op), " -> ", op.arity)
+
+                arity = arity_Stack.pop() 
+                opStack.push(Operator(token, arity + 1))
+                print("--", token, " -> ", str(arity + 1))
+                # Reset arity to 0 in case there is other operators (the real operation would be "-op.arity + 1")
+                arity_Stack.push(0)
             else:
-                postfixList.append(token)
-                nbr_token_in_postfix += 1
-
-            ## Pour voir ce qu'il se passe dans cette procédure
-            #print(str(postfixList), " | ", str(opStack), " | ", str(infix_tokens[(pos_token+1):]), " | ", str(nbr_token_in_postfix))
+                postfix_tokens.append(token)
+                arity = arity_Stack.pop()
+                arity_Stack.push(arity + 1)
 
         while not opStack.isEmpty():
-            postfixList.append(opStack.pop())
+            op = opStack.pop()
+            postfix_tokens.append(op)
 
-        return postfixList
+            # decrease arity
+            arity = arity_Stack.pop()
+            arity_Stack.push(arity - (op.arity - 1))
+
+            #print(str(op), " -> ", op.arity)
+
+            print(str(postfix_tokens), " | ", str(opStack), " | ", str(infix_tokens[(pos_token+1):]), " | ", str(arity_Stack))
+
+        #if arity_Stack != 1:
+        #    raise ValueError("No float number please")
+
+        return postfix_tokens
 
     ## ---------------------
     ## Computing the expression

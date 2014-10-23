@@ -59,11 +59,11 @@ class Stack(object):
 
 class Operator(str):
 
-    """The operator class, is a string (representation of the operator) with its arrity (?!? - arrite)"""
+    """The operator class, is a string (representation of the operator) with its arity (?!? - arrite)"""
 
-    def __new__(cls, operator,  arrity = 2):
+    def __new__(cls, operator,  arity = 2):
         op = str.__new__(cls, operator)
-        op.arrity = arrity
+        op.arity = arity
         return op
 
 
