@@ -2,6 +2,8 @@
 # encoding: utf-8
 
 
+from .fraction import Fraction
+
 class Operator(str):
 
     """The operator class, is a string (representation of the operator) with its arity"""
@@ -30,7 +32,7 @@ class Operator(str):
         elif self.arity == 2:
             # C'est moche mais je veux que ça marche...
             if str(self) == "/":
-                ans = [Fraction(op1, op2)]
+                ans = [Fraction(args[0], args[1])]
                 ans += ans[0].simplify()
                 return ans
             else:

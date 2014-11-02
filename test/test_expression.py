@@ -56,18 +56,6 @@ class TestExpression(unittest.TestCase):
         exp = "1 + $"
         self.assertRaises(ValueError, Expression.str2tokens, exp)
 
-    def test_doMath(self):
-        ops = [\
-                {"op": ("+", 1 , 2), "res" : 3}, \
-                {"op": ("-", 1 , 2), "res" : -1}, \
-                {"op": ("*", 1 , 2), "res" : 2}, \
-                {"op": ("/", 1 , 2), "res" : Fraction(1,2)}, \
-                {"op": ("^", 1 , 2), "res" : 1}, \
-                ]
-        for op in ops:
-            res = first_elem(Expression.doMath(*op["op"]))
-            self.assertAlmostEqual(res, op["res"])
-
     def test_isNumber(self):
         pass
 
