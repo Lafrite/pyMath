@@ -123,9 +123,7 @@ class Expression(object):
         if len(steps[:-1]) > 0:
             self.steps += [flatten_list(s) for s in steps[:-1]]
 
-        print("self.steps -> ", self.steps)
         self.child = Expression(steps[-1])
-        print("self.child -> ", self.child)
 
     ## ---------------------
     ## String parsing
@@ -359,8 +357,7 @@ def test(exp):
     print("\n")
 
 if __name__ == '__main__':
-    #Expression.STR_RENDER = txt
-    Expression.STR_RENDER = lambda x: str(x)
+    Expression.STR_RENDER = txt
     exp = "2 ^ 3 * 5"
     test(exp)
 

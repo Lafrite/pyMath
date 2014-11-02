@@ -3,6 +3,7 @@
 
 from .generic import Stack,flatten_list
 from .fraction import Fraction
+from .operator import Operator
 
 __all__ = ['Render']
 
@@ -195,7 +196,7 @@ class Render(object):
         :returns: boolean
 
         """
-        return (type(exp) == str and exp in self.operators)
+        return (type(exp) == Operator and str(exp) in self.operators)
 
 class flist(list):
     """Fake list- they are used to stock the main operation of an rendered expression"""
