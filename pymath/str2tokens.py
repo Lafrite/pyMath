@@ -50,8 +50,11 @@ def str2in_tokens(exp):
             else:
                 tokens.append(int(character))
 
-        elif character in "+-*/):^":
+        elif character in "+-*/:^":
             tokens.append(Operator(character))
+
+        elif character == ")":
+            tokens.append(character)
 
         elif character in "(":
             # If "3(", ")("
@@ -152,8 +155,12 @@ def isOperator(exp):
 
     """
     
-    return type(exp) == Operator
     #return (type(exp) == str and exp in "+-*/:^")
+    try:
+        exp.isOperator
+    except AttributeError:
+        return 0
+    return 1
 
 def isNumber(exp):
     """Check if the expression can be a number
@@ -162,7 +169,14 @@ def isNumber(exp):
     :returns: True if the expression can be a number and false otherwise
 
     """
-    return type(exp) == int
+    try:
+        exp.isNumber
+    except AttributeError:
+        if type(exp) == int:
+            return 1
+        else:
+            return 0
+    return  1
 
 if __name__ == '__main__':
     #a, s, m, d, p = Operator("+"), Operator("-"), Operator("*"), Operator("/"), Operator("^")

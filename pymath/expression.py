@@ -2,33 +2,26 @@
 # encoding: utf-8
 
 from .generic import Stack, flatten_list, expand_list
-from .operator import Operator
-from .fraction import Fraction
 from .renders import txt, post2in_fix, tex
+from .str2tokens import str2tokens, isNumber, isOperator
 
 __all__ = ['Expression']
 
 class Expression(object):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
 
-    PRIORITY = {"^": 5, "*" : 3, "/": 4, ":": 3, "+": 2, "-":2, "(": 1}
     STR_RENDER = tex
 
     def __init__(self, exp):
         """ Initiate the expression
 
-        :param exp: the expression. It can be a string or a list of tokens. It can be infix or postfix expression
+        :param exp: the expression. It can be a string or a list of postfix tokens.
         """
         if type(exp) == str:
             self._exp = exp
-            self.tokens = self.str2tokens(exp) # les tokens seront alors stockés dans self.tokens temporairement
+            self.postfix_tokens = str2tokens(exp) # les tokens seront alors stockés dans self.tokens temporairement
         elif type(exp) == list:
-            self.tokens = exp
-
-        self._infix_tokens = None
-        self._postfix_tokens = None
-
-        self.feed_fix() # Determine le fix et range la liste dans self.[fix]_tokens
+            self.postfix_tokens = exp
 
     def __str__(self):
         """
@@ -69,7 +62,7 @@ class Expression(object):
         """Check whether it's a last step or not. If not create self.child the next expression.
         :returns: 1 if it's not the last step, 0 otherwise
         """
-        if len(self.tokens) == 1:
+        if len(self.postfix_tokens) == 1:
             return 0
         else:
             return 1
@@ -82,9 +75,9 @@ class Expression(object):
         tmpTokenList = []
 
         while len(tokenList) > 2: 
-            # on va chercher les motifs du genre A B +, quad l'operateur est d'arité 2, pour les calculer 
-            if self.isNumber(tokenList[0]) and self.isNumber(tokenList[1]) \
-                    and type(tokenList[2]) == Operator and tokenList[2].arity == 2 :
+            # on va chercher les motifs du genre A B +, quand l'operateur est d'arité 2, pour les calculer 
+            if isNumber(tokenList[0]) and isNumber(tokenList[1]) \
+                    and isOperator(tokenList[2]) and tokenList[2].arity == 2 :
                 
                 # S'il y a une opération à faire
                 op1 = tokenList[0]
@@ -98,8 +91,9 @@ class Expression(object):
                 # Comme on vient de faire le calcul, on peut détruire aussi les deux prochains termes
                 del tokenList[0:3]
 
-            elif self.isNumber(tokenList[0]) \
-                    and type(tokenList[1]) == Operator and tokenList[1].arity == 1 :
+            # Et les motifs du gens - A, quand l'operateur est d'arité 1
+            elif isNumber(tokenList[0]) \
+                    and isOperator(tokenList[1]) and tokenList[2].arity == 1:
                 
                 # S'il y a une opération à faire
                 op1 = tokenList[0]
@@ -124,180 +118,6 @@ class Expression(object):
             self.steps += [flatten_list(s) for s in steps[:-1]]
 
         self.child = Expression(steps[-1])
-
-
-    ## ---------------------
-    ## "fix" recognition
-
-    #@classmethod
-    #def get_fix(self, tokens):
-    #    """ Give the "fix" of an expression
-    #    [A, +, B] -> infix, or if there is parenthesis it is infix
-    #    [+, A, B] -> prefix
-    #    [A, B, +] -> postfix
-    #    /!\ does not verify if the expression is correct/computable!
-
-    #    :param exp: the expression (list of token)
-    #    :returns: the "fix" (infix, postfix, prefix)
-
-    #    """
-    #    if self.isOperator(tokens[0]):
-    #        return "prefix"
-    #    elif "(" in tokens:
-    #        return "infix"
-    #    elif not self.isOperator(tokens[0]) and not self.isOperator(tokens[1]):
-    #        return "postfix"
-    #    else:
-    #        return "infix"
-
-    #def feed_fix(self):
-    #    """ Recognize the fix of self.tokens and stock tokens in self.[fix]_tokens """
-    #    if len(self.tokens) > 1:
-    #        fix = self.get_fix(self.tokens)
-    #    else:
-    #        fix = "postfix" # Completement arbitraire mais on s'en fiche!
-
-    #    setattr(self, fix+"_tokens", self.tokens)
-
-
-    # ----------------------
-    # Expressions - tokens manipulation
-
-    @property
-    def infix_tokens(self):
-        """ Return infix list of tokens. Verify if it has already been computed and compute it if not
-
-        :returns: infix list of tokens
-        """
-        if self._infix_tokens:
-            return self._infix_tokens
-
-        elif self._postfix_tokens:
-            self._infix_tokens = post2in_fix(self._postfix_tokens)
-            return self._infix_tokens
-
-        else:
-            raise ValueError("Unkown fix")
-
-    @infix_tokens.setter
-    def infix_tokens(self, val):
-        self._infix_tokens = val
-
-    @property
-    def postfix_tokens(self):
-        """ Return postfix list of tokens. Verify if it has already been computed and compute it if not
-
-        :returns: postfix list of tokens
-        """
-        if self._postfix_tokens:
-            return self._postfix_tokens
-
-        elif self._infix_tokens:
-            self._postfix_tokens = self.in2post_fix(self._infix_tokens)
-            return self._postfix_tokens
-
-        else:
-            raise ValueError("Unkown fix")
-
-    @postfix_tokens.setter
-    def postfix_tokens(self, val):
-        self._postfix_tokens = val
-
-    # ----------------------
-    # "fix" tranformations
-
-    @classmethod
-    def in2post_fix(cls, infix_tokens):
-        """ From the infix_tokens list compute the corresponding postfix_tokens list
-        
-        @param infix_tokens: the infix list of tokens to transform into postfix form.
-        @return: the corresponding postfix list of tokens.
-
-        >>> Expression.in2post_fix(['(', 2, '+', 5, '-', 1, ')', '/', '(', 3, '*', 4, ')'])
-        [2, 5, '+', 1, '-', 3, 4, '*', '/']
-        >>> Expression.in2post_fix(['-', '(', '-', 2, ')'])
-        [2, '-', '-']
-        >>> Expression.in2post_fix(['-', '(', '-', 2, '+', 3, "*", 4, ')'])
-        [2, '-', 3, 4, '*', '+', '-']
-        """
-        # Stack where operator will be stocked
-        opStack = Stack()
-        # final postfix list of tokens
-        postfix_tokens = []
-        # stack with the nbr of tokens still to compute in postfix_tokens
-        arity_Stack = Stack()
-        arity_Stack.push(0)
-
-        for (pos_token,token) in enumerate(infix_tokens):
-
-            # # Pour voir ce qu'il se passe dans cette procédure
-            # print(str(postfix_tokens), " | ", str(opStack), " | ", str(infix_tokens[(pos_token+1):]), " | ", str(arity_Stack))
-            if token == "(":
-                opStack.push(token)
-                # Set next arity counter
-                arity_Stack.push(0)
-            elif token == ")":
-                op = opStack.pop()
-                while op != "(":
-                    postfix_tokens.append(op)
-                    op = opStack.pop()
-
-                # Go back to old arity 
-                arity_Stack.pop()
-                # Raise the arity
-                arity = arity_Stack.pop()
-                arity_Stack.push(arity + 1)
-
-            elif cls.isOperator(token):
-                while (not opStack.isEmpty()) and (cls.PRIORITY[opStack.peek()] >= cls.PRIORITY[token]):
-                    op = opStack.pop()
-                    postfix_tokens.append(op)
-
-                arity = arity_Stack.pop() 
-                opStack.push(Operator(token, arity + 1))
-                # print("--", token, " -> ", str(arity + 1))
-                # Reset arity to 0 in case there is other operators (the real operation would be "-op.arity + 1")
-                arity_Stack.push(0)
-            else:
-                postfix_tokens.append(token)
-                arity = arity_Stack.pop()
-                arity_Stack.push(arity + 1)
-
-        while not opStack.isEmpty():
-            op = opStack.pop()
-            postfix_tokens.append(op)
-
-            # # Pour voir ce qu'il se passe dans cette procédure
-            # print(str(postfix_tokens), " | ", str(opStack), " | ", str(infix_tokens[(pos_token+1):]), " | ", str(arity_Stack))
-
-        if arity_Stack.peek() != 1:
-            raise ValueError("Unvalid expression. The arity Stack is ", str(arity_Stack))
-
-        return postfix_tokens
-
-    ## ---------------------
-    ## Recognize numbers and operators
-
-    @staticmethod
-    def isNumber(exp):
-        """Check if the expression can be a number
-
-        :param exp: an expression
-        :returns: True if the expression can be a number and false otherwise
-
-        """
-        return type(exp) == int or \
-                type(exp) == Fraction 
-
-    @staticmethod
-    def isOperator(exp):
-        """Check if the expression is an opération in "+-*/:^"
-
-        :param exp: an expression
-        :returns: boolean
-
-        """
-        return (type(exp) == str and exp in "+-*/:^")
 
 
 def test(exp):
@@ -370,8 +190,8 @@ if __name__ == '__main__':
     #exp="-(-2)"
     #test(exp)
 
-    import doctest
-    doctest.testmod()
+    #import doctest
+    #doctest.testmod()
 
 # -----------------------------
 # Reglages pour 'vim'

@@ -16,7 +16,6 @@ class TestExpression(unittest.TestCase):
 
     def test_init_from_str(self):
         exp = Expression("2 + 3")
-        self.assertEqual(exp.infix_tokens, [2, "+", 3])
         self.assertEqual(exp.postfix_tokens, [2, 3, "+"])
 
     def test_init_from_exp(self):
@@ -28,33 +27,6 @@ class TestExpression(unittest.TestCase):
     def test_postfix_tokens(self):
         pass
 
-    def test_str2tokens_big_num(self):
-        exp = "123 + 3"
-        tok = Expression.str2tokens(exp)
-        self.assertEqual(tok, [123, "+", 3])
-
-    def test_str2tokens_beg_minus(self):
-        exp = "-123 + 3"
-        tok = Expression.str2tokens(exp)
-        self.assertEqual(tok, [-123, "+", 3])
-
-    def test_str2tokens_time_lack(self):
-        exp = "(-3)(2)"
-        tok = Expression.str2tokens(exp)
-        self.assertEqual(tok, ["(", -3, ")", "*","(", 2, ")" ])
-
-    def test_str2tokens_time_lack2(self):
-        exp = "-3(2)"
-        tok = Expression.str2tokens(exp)
-        self.assertEqual(tok, [-3, "*","(", 2, ")" ])
-
-    def test_str2tokens_error_float(self):
-        exp = "1 + 1.3"
-        self.assertRaises(ValueError, Expression.str2tokens, exp)
-
-    def test_str2tokens_error(self):
-        exp = "1 + $"
-        self.assertRaises(ValueError, Expression.str2tokens, exp)
 
     def test_isNumber(self):
         pass

@@ -18,6 +18,8 @@ class Fraction(object):
         self._num = num
         self._denom = denom
 
+        self.isNumber = 1
+
     def simplify(self):
         """Simplify the fraction 
 

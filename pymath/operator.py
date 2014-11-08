@@ -26,6 +26,8 @@ class Operator(str):
         op.priority = cls.PRIORITY[operator]
         op.actions = cls.OPERATIONS[operator][arity]
 
+        op.isOperator = 1
+
         return op
 
     def __call__(self, *args):
