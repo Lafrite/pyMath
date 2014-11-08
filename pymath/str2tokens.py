@@ -1,9 +1,24 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from .operator import Operator
+from .generic import Stack
 
+def str2tokens(exp):
+    """ Parse the string into tokens then turn it into postfix form
+    
+    >>> str2tokens('2+3*4')
+    [2, 3, 4, '*', '+']
+    
+    >>> str2tokens('2*3+4')
+    [2, 3, '*', 4, '+']
+    """
+    in_tokens = str2in_tokens(exp)
+    post_tokens = in2post_fix(in_tokens)
 
-def str2tokens(self, exp):
+    return post_tokens
+
+def str2in_tokens(exp):
     """ Parse the expression, ie tranform a string into a list of tokens
 
     /!\ float are not availiable yet!
@@ -11,6 +26,10 @@ def str2tokens(self, exp):
     :param exp: The expression (a string)
     :returns: list of token
 
+    >>> str2tokens('2+3*4')
+    ['2', '+', '3', '*', '4']
+    >>> str2tokens('2*3+4')
+    ['2', '*', '3', '+', '4']
     """
     tokens = ['']
 
@@ -32,13 +51,14 @@ def str2tokens(self, exp):
                 tokens.append(int(character))
 
         elif character in "+-*/):^":
-            tokens.append(character)
+            tokens.append(Operator(character))
 
         elif character in "(":
             # If "3(", ")("
-            if self.isNumber(tokens[-1]) \
+            if isNumber(tokens[-1]) \
                     or tokens[-1] == ")" :
-                tokens.append("*")
+                        #tokens.append(Operator("*"))
+                tokens.append(Operator("*"))
             tokens.append(character)
 
         elif character == ".":
@@ -51,41 +71,108 @@ def str2tokens(self, exp):
 
 
 
-def in2post_fix(cls, infix_tokens):
+def in2post_fix(infix_tokens):
     """ From the infix_tokens list compute the corresponding postfix_tokens list
     
     @param infix_tokens: the infix list of tokens to transform into postfix form.
     @return: the corresponding postfix list of tokens.
 
-    >>> .in2post_fix(['(', 2, '+', 5, '-', 1, ')', '/', '(', 3, '*', 4, ')'])
-    [2, 5, '+', 1, '-', 3, 4, '*', '/']
-    """
-    opStack = Stack()
-    postfixList = []
+    >>> a, s, m, d, p = Operator("+"), Operator("-"), Operator("*"), Operator("/"), Operator("^")
 
-    for token in infix_tokens:
+    >>> in2post_fix(['(', 2, '+', 5, '-', 1, ')', '/', '(', 3, '*', 4, ')'])
+    [2, 5, '+', 1, '-', 3, 4, '*', '/']
+    >>> in2post_fix(['-', '(', '-', 2, ')'])
+    [2, '-', '-']
+    >>> in2post_fix(['-', '(', '-', 2, '+', 3, '*', 4, ')'])
+    [2, '-', 3, 4, '*', '+', '-']
+    """
+    # Stack where operator will be stocked
+    opStack = Stack()
+    # final postfix list of tokens
+    postfix_tokens = []
+    # stack with the nbr of tokens still to compute in postfix_tokens
+    arity_Stack = Stack()
+    arity_Stack.push(0)
+
+    for (pos_token,token) in enumerate(infix_tokens):
+
+        ## Pour voir ce qu'il se passe dans cette procédure
+        #print(str(postfix_tokens), " | ", str(opStack), " | ", str(infix_tokens[(pos_token+1):]), " | ", str(arity_Stack))
         if token == "(":
             opStack.push(token)
+            # Set next arity counter
+            arity_Stack.push(0)
         elif token == ")":
-            topToken = opStack.pop()
-            while topToken != "(":
-                postfixList.append(topToken)
-                topToken = opStack.pop()
-        elif cls.isOperator(token):
-            # On doit ajouter la condition == str sinon python ne veut pas tester l'appartenance à la chaine de caractère. 
-            while (not opStack.isEmpty()) and (cls.PRIORITY[opStack.peek()] >= cls.PRIORITY[token]):
-                postfixList.append(opStack.pop())
+            op = opStack.pop()
+            while op != "(":
+                postfix_tokens.append(op)
+                op = opStack.pop()
+
+            # Go back to old arity 
+            arity_Stack.pop()
+            # Raise the arity
+            arity = arity_Stack.pop()
+            arity_Stack.push(arity + 1)
+
+        elif isOperator(token):
+            while (not opStack.isEmpty()) and (opStack.peek().priority >= token.priority):
+                op = opStack.pop()
+                postfix_tokens.append(op)
+
+            arity = arity_Stack.pop() 
+            
+            token.arity = arity + 1
             opStack.push(token)
+            # print("--", token, " -> ", str(arity + 1))
+            # Reset arity to 0 in case there is other operators (the real operation would be "-op.arity + 1")
+            arity_Stack.push(0)
         else:
-            postfixList.append(token)
+            postfix_tokens.append(token)
+            arity = arity_Stack.pop()
+            arity_Stack.push(arity + 1)
 
     while not opStack.isEmpty():
-        postfixList.append(opStack.pop())
+        op = opStack.pop()
+        postfix_tokens.append(op)
 
-    return postfixList
+        # # Pour voir ce qu'il se passe dans cette procédure
+        # print(str(postfix_tokens), " | ", str(opStack), " | ", str(infix_tokens[(pos_token+1):]), " | ", str(arity_Stack))
+
+    if arity_Stack.peek() != 1:
+        raise ValueError("Unvalid expression. The arity Stack is ", str(arity_Stack))
+
+    return postfix_tokens
 
 
+def isOperator(exp):
+    """Check if the expression is an opération in "+-*/:^"
 
+    :param exp: an expression
+    :returns: boolean
+
+    """
+    
+    return type(exp) == Operator
+    #return (type(exp) == str and exp in "+-*/:^")
+
+def isNumber(exp):
+    """Check if the expression can be a number
+
+    :param exp: an expression
+    :returns: True if the expression can be a number and false otherwise
+
+    """
+    return type(exp) == int
+
+if __name__ == '__main__':
+    #a, s, m, d, p = Operator("+"), Operator("-"), Operator("*"), Operator("/"), Operator("^")
+    #in_tokens = str2in_tokens("2+3*4")
+    #print("\t in_tokens :" + str(in_tokens))
+    #
+    #print(in2post_fix(in_tokens))
+
+    import doctest
+    doctest.testmod()
 
 
 # -----------------------------

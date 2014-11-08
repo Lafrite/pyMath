@@ -8,7 +8,8 @@ class Operator(str):
 
     """The operator class, is a string (representation of the operator) with its arity"""
 
-    OPERATORS = { \
+    PRIORITY = {"^": 5, "/": 4, "*" : 3, ":": 3, "+": 2, "-":2, "(": 1}
+    OPERATIONS = { \
             "+": ["", "", ("__add__","__radd__")],\
             "-": ["", "__neg__", ("__sub__", "__rsub__")], \
             "*": ["", "", ("__mul__", "__rmul__")], \
@@ -20,7 +21,10 @@ class Operator(str):
         op = str.__new__(cls, operator)
         op.arity = arity
 
-        op.actions = cls.OPERATORS[operator][arity]
+        # TODO: Add op.visibility |sam. nov.  8 17:00:08 CET 2014
+
+        op.priority = cls.PRIORITY[operator]
+        op.actions = cls.OPERATIONS[operator][arity]
 
         return op
 
