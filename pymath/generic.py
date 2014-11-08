@@ -57,7 +57,6 @@ class Stack(object):
     def __add__(self, addList):
         return self.items + addList
 
-
 def flatten_list(a, result=None):
     """Flattens a nested list.
 

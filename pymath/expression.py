@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 from .generic import Stack, flatten_list, expand_list
+from .operator import Operator
 from .fraction import Fraction
 from .renders import txt, post2in_fix, tex
 
@@ -81,20 +82,36 @@ class Expression(object):
         tmpTokenList = []
 
         while len(tokenList) > 2: 
-            # on va chercher les motifs du genre A B + pour les calculer
-            if self.isNumber(tokenList[0]) and self.isNumber(tokenList[1]) and self.isOperator(tokenList[2]):
+            # on va chercher les motifs du genre A B +, quad l'operateur est d'arité 2, pour les calculer 
+            if self.isNumber(tokenList[0]) and self.isNumber(tokenList[1]) \
+                    and type(tokenList[2]) == Operator and tokenList[2].arity == 2 :
                 
                 # S'il y a une opération à faire
                 op1 = tokenList[0]
                 op2 = tokenList[1]
-                token = tokenList[2]
+                operator = tokenList[2]
 
-                res = self.doMath(token, op1, op2)
+                res = operator(op1, op2)
 
                 tmpTokenList.append(res)
 
                 # Comme on vient de faire le calcul, on peut détruire aussi les deux prochains termes
                 del tokenList[0:3]
+
+            elif self.isNumber(tokenList[0]) \
+                    and type(tokenList[1]) == Operator and tokenList[1].arity == 1 :
+                
+                # S'il y a une opération à faire
+                op1 = tokenList[0]
+                operator = tokenList[1]
+
+                res = operator(op1)
+
+                tmpTokenList.append(res)
+
+                # Comme on vient de faire le calcul, on peut détruire aussi les deux prochains termes
+                del tokenList[0:2]
+
             else:
                 tmpTokenList.append(tokenList[0])
 
@@ -190,31 +207,73 @@ class Expression(object):
     # "fix" tranformations
 
     @classmethod
-    ## ---------------------
-    ## Computing the expression
+    def in2post_fix(cls, infix_tokens):
+        """ From the infix_tokens list compute the corresponding postfix_tokens list
+        
+        @param infix_tokens: the infix list of tokens to transform into postfix form.
+        @return: the corresponding postfix list of tokens.
 
-    @staticmethod
-    def doMath(op, op1, op2):
-        """Compute "op1 op op2" or create a fraction
-
-        :param op: operator
-        :param op1: first operande
-        :param op2: second operande
-        :returns: string representing the result
-
+        >>> Expression.in2post_fix(['(', 2, '+', 5, '-', 1, ')', '/', '(', 3, '*', 4, ')'])
+        [2, 5, '+', 1, '-', 3, 4, '*', '/']
+        >>> Expression.in2post_fix(['-', '(', '-', 2, ')'])
+        [2, '-', '-']
+        >>> Expression.in2post_fix(['-', '(', '-', 2, '+', 3, "*", 4, ')'])
+        [2, '-', 3, 4, '*', '+', '-']
         """
-        if op == "/":
-            ans = [Fraction(op1, op2)]
-            ans += ans[0].simplify()
-            return ans
-        else:
-            if type(op2) != int:
-                operations = {"+": "__radd__", "-": "__rsub__", "*": "__rmul__"}
-                return getattr(op2,operations[op])(op1)
-            else:
-                operations = {"+": "__add__", "-": "__sub__", "*": "__mul__", "^": "__pow__"}
-                return getattr(op1,operations[op])(op2)
+        # Stack where operator will be stocked
+        opStack = Stack()
+        # final postfix list of tokens
+        postfix_tokens = []
+        # stack with the nbr of tokens still to compute in postfix_tokens
+        arity_Stack = Stack()
+        arity_Stack.push(0)
 
+        for (pos_token,token) in enumerate(infix_tokens):
+
+            # # Pour voir ce qu'il se passe dans cette procédure
+            # print(str(postfix_tokens), " | ", str(opStack), " | ", str(infix_tokens[(pos_token+1):]), " | ", str(arity_Stack))
+            if token == "(":
+                opStack.push(token)
+                # Set next arity counter
+                arity_Stack.push(0)
+            elif token == ")":
+                op = opStack.pop()
+                while op != "(":
+                    postfix_tokens.append(op)
+                    op = opStack.pop()
+
+                # Go back to old arity 
+                arity_Stack.pop()
+                # Raise the arity
+                arity = arity_Stack.pop()
+                arity_Stack.push(arity + 1)
+
+            elif cls.isOperator(token):
+                while (not opStack.isEmpty()) and (cls.PRIORITY[opStack.peek()] >= cls.PRIORITY[token]):
+                    op = opStack.pop()
+                    postfix_tokens.append(op)
+
+                arity = arity_Stack.pop() 
+                opStack.push(Operator(token, arity + 1))
+                # print("--", token, " -> ", str(arity + 1))
+                # Reset arity to 0 in case there is other operators (the real operation would be "-op.arity + 1")
+                arity_Stack.push(0)
+            else:
+                postfix_tokens.append(token)
+                arity = arity_Stack.pop()
+                arity_Stack.push(arity + 1)
+
+        while not opStack.isEmpty():
+            op = opStack.pop()
+            postfix_tokens.append(op)
+
+            # # Pour voir ce qu'il se passe dans cette procédure
+            # print(str(postfix_tokens), " | ", str(opStack), " | ", str(infix_tokens[(pos_token+1):]), " | ", str(arity_Stack))
+
+        if arity_Stack.peek() != 1:
+            raise ValueError("Unvalid expression. The arity Stack is ", str(arity_Stack))
+
+        return postfix_tokens
 
     ## ---------------------
     ## Recognize numbers and operators
@@ -250,11 +309,11 @@ def test(exp):
 
 if __name__ == '__main__':
     Expression.STR_RENDER = txt
-    #exp = "2 ^ 3 * 5"
-    #test(exp)
+    exp = "2 ^ 3 * 5"
+    test(exp)
 
-    #exp = "1 + 3 * 5"
-    #test(exp)
+    exp = "1 + 3 * 5"
+    test(exp)
 
     #exp = "2 * 3 * 3 * 5"
     #test(exp)
