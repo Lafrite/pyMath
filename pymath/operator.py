@@ -95,7 +95,9 @@ class Operator(str):
         #vive le inline? ...
         replacement = {"op"+str(i+1): ' '.join([str(o) if type(o)==int else o for o in self.add_parenthesis(op)]) for (i,op) in enumerate(args)}
         
-        return self._txt.format(**replacement)
+        ans = self._txt.format(**replacement)
+        ans = save_mainOp(ans, self)
+        return ans
 
     def __tex__(self, *args):
         """Tex rendering for the operator
@@ -124,7 +126,10 @@ class Operator(str):
         '- ( 2 + 3 )'
         """
         replacement = {"op"+str(i+1): ' '.join([str(o) if type(o)==int else o for o in self.add_parenthesis(op)]) for (i,op) in enumerate(args)}
-        return self._tex.format(**replacement)
+        
+        ans = self._tex.format(**replacement)
+        ans = save_mainOp(ans, self)
+        return ans
 
     def __p2i__(self, *args):
         """Fix list transformation for the operator
@@ -153,12 +158,15 @@ class Operator(str):
         if self.arity == 1:
             # TODO: Marche juste avec -, il faudra voir quand il y aura d'autres operateurs unitaires |dim. nov.  9 09:24:53 CET 2014
             op1 = self.add_parenthesis(args[0])
-            return flatten_list([self, op1])
+            ans = flatten_list([self, op1])
 
         elif self.arity == 2:
             op1 = self.add_parenthesis(args[0])
             op2 = self.add_parenthesis(args[1])
-            return flatten_list([op1, self, op2])
+            ans = flatten_list([op1, self, op2])
+        
+        ans = save_mainOp(ans, self)
+        return ans
 
     def add_parenthesis(self, op):
         """ Add parenthesis if necessary """
