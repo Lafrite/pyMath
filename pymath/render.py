@@ -1,41 +1,20 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from .generic import Stack,flatten_list
-from .fraction import Fraction
-from .operator import Operator
+from .generic import Stack,isOperator
 
-__all__ = ['Render']
+__all__ = ['txt', 'tex', 'p2i']
 
 class Render(object):
-    """A class which aims to create render functions from three dictionnaries:
-        - op_infix: dict of caracters or two argument functions
-        - op_postfix: dict of 2 arguments functions
-        - other: dict of caracters
-    Those three dictionnaries while define how a postfix expression will be transform into a string.
-    """
+    """ Create functions which know how to render postfix tokens lists """
 
-    PRIORITY = {"^": 4,"*" : 3, "/": 3, ":": 3, "+": 2, "-":2, "(": 1}
-
-    def __init__(self, op_infix = {}, op_postfix = {}, other = {}, join = " ", type_render = {str: str, int: str, Fraction: str}):
+    def __init__(self, render):
         """Initiate the render
         
-        @param op_infix: the dictionnary of infix operator with how they have to be render
-        @param op_postfix: the dictionnary of postfix operator with how they have to be render
-        @param other: other caracters like parenthesis.
-        @param raw: the caracter for joining the list of tokens (if False then it returns the list of tokens)
-        @param type_render: how to render number (str or tex for fractions for example)
+        :param render: function which take an operator and return a function to render the operator with his operands
         """
+        self.render = render
 
-        self.op_infix = op_infix
-        self.op_postfix = op_postfix
-        self.other = other
-        # TODO: there may be issues with PRIORITY if a sign does not appear in PRIORITY
-
-        self.join = join
-        self.type_render = type_render
-
-        self.operators = list(self.op_infix.keys()) + list(self.op_postfix.keys()) + list(self.other.keys())
 
     def __call__(self, postfix_tokens):
         """Make the object acting like a function
@@ -45,162 +24,41 @@ class Render(object):
 
         """
         operandeStack = Stack()
-
-        
         for token in postfix_tokens:
-            if self.isOperator(token):
-
-                op2 = operandeStack.pop()
-                if self.needPar(op2, token, "after"):
-                    op2 = [self.other["("] ,  op2 , self.other[")"]]
-
-                op1 = operandeStack.pop()
-                if self.needPar(op1, token, "before"):
-                    op1 = [self.other["("] ,  op1 , self.other[")"]]
-
-                if token in self.op_infix:
-                    if type(self.op_infix[token]) == str:
-                        res = flist([op1 , self.op_infix[token] ,  op2])
-                    else:
-                        res = flist([self.op_infix[token](op1, op2)])
-
-
-                elif token in self.op_postfix:
-                    res = flist([self.op_postfix[token](op1, op2)])
-
-                # Trick to remember the main op when the render will be done!
-                res.mainOp = token
-
-                operandeStack.push(res)
-
+            
+            if isOperator(token):
+                if token.arity == 1:
+                    
+                    op1 = operandeStack.pop()
+                    
+                    operandeStack.push(self.render(token)(op1))
+                elif token.arity == 2:
+                    op1 = operandeStack.pop()
+                    op2 = operandeStack.pop()
+                    # Switch op1 and op2 to respect order
+                    operandeStack.push(self.render(token)(op2, op1))
             else:
                 operandeStack.push(token)
 
-        # Manip pour gerer les cas de listes imbriquées dans d'autres listes
-        infix_tokens = operandeStack.pop()
+        return operandeStack.pop()
 
-        if type(infix_tokens) == list or type(infix_tokens) == flist:
-            infix_tokens = flatten_list(infix_tokens)
-        elif self.isNumerande(infix_tokens):
-            infix_tokens = [infix_tokens]
+txt = Render(lambda x:x.__txt__)
+tex = Render(lambda x:x.__tex__)
+p2i = Render(lambda x:x.__p2i__)
 
-        if self.join:
-            return self.join.join(flatten_list([self.render_from_type(t) for t in infix_tokens]))
-        else:
-            return infix_tokens
+if __name__ == '__main__':
+    from .operator import Operator
+    mul = Operator("*", 2)
+    add = Operator("+", 2)
+    sub1 = Operator("-", 1)
+    div = Operator("/", 1)
+    exp = [ 2, 3, add, 4, mul]
+    print(exp)
+    print("txt(exp) :" + str(txt(exp)))
+    print("tex(exp) :" + str(tex(exp)))
+    print("p2i(exp) :" + str(p2i(exp)))
+    
 
-    def render_from_type(self, op):
-        """ If the op is a numerande, it transforms it with type_render conditions
-
-        :param op: the operator
-        :returns: the op transformed if it's necessary
-
-        """
-        if self.isNumerande(op):
-            return self.type_render[type(op)](op)
-        else:
-            return op
-
-
-    # ---------------------
-    # Tools for placing parenthesis in infix notation
-
-    def needPar(self, operande, operator, posi = "after"):
-        """Says whether or not the operande needs parenthesis
-
-        :param operande: the operande
-        :param operator: the operator
-        :param posi: "after"(default) if the operande will be after the operator, "before" othewise
-        :returns: bollean
-        """
-        # Si l'operande est negatif
-        if self.isNumber(operande) \
-                and operande < 0 \
-                and posi == "after":
-            return 1
-
-        # Pas de parenthèses si c'est une lettre ou une fraction
-        elif (type(operande) == str and operande.isalpha()) \
-                or type(operande) == Fraction:
-            return 0
-            
-        elif not self.isNumber(operande):
-            # Si c'est une grande expression
-            stand_alone = self.get_main_op(operande)
-            # Si la priorité de l'operande est plus faible que celle de l'opérateur
-            minor_priority = self.PRIORITY[self.get_main_op(operande)] < self.PRIORITY[operator]
-            # Si l'opérateur est - ou / pour after ou / ou ^ pour before
-            special = (operator in "-/" and posi == "after") or (operator in "/^" and posi == "before")
-
-            return stand_alone and (minor_priority or special)
-        else:
-            return 0
-
-    def get_main_op(self, tokens):
-        """Getting the main operation of the list of tokens
-
-        :param exp: the list of tokens
-        :returns: the main operation (+, -, * or /) or 0 if the expression is only one element
-
-        """
-        if hasattr(tokens, "mainOp"):
-            return tokens.mainOp
-
-        if len(tokens) == 1:
-            # Si l'expression n'est qu'un élément
-            return 0
-
-        parStack = Stack()
-        main_op = []
-
-        for token in tokens:
-            if token == "(":
-                parStack.push(token)
-            elif token == ")":
-                parStack.pop()
-            elif self.isOperator(token) and parStack.isEmpty():
-                main_op.append(token)
-
-        return min(main_op, key = lambda s: self.PRIORITY[s])
-
-    ## ---------------------
-    ## Recognize numbers and operators
-
-    @staticmethod
-    def isNumber( exp):
-        """Check if the expression can be a number which means int or Fraction
-
-        :param exp: an expression
-        :returns: True if the expression can be a number and false otherwise
-
-        """
-        return type(exp) == int \
-                or type(exp) == Fraction
-        #return type(exp) == int or type(exp) == Fraction
-
-    @staticmethod
-    def isNumerande(exp):
-        """Check if the expression can be a numerande (not an operator)
-
-        :param exp: an expression
-        :returns: True if the expression can be a number and false otherwise
-
-        """
-        return type(exp) == int \
-                or type(exp) == Fraction
-
-    def isOperator(self, exp):
-        """Check if the expression is in self.operators
-
-        :param exp: an expression
-        :returns: boolean
-
-        """
-        return (type(exp) == Operator and str(exp) in self.operators)
-
-class flist(list):
-    """Fake list- they are used to stock the main operation of an rendered expression"""
-    pass
 
 
     
