@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 from .operator import Operator
-from .generic import Stack
+from .generic import Stack, isOperator, isNumber
 
 def str2tokens(exp):
     """ Parse the string into tokens then turn it into postfix form
@@ -147,36 +147,6 @@ def in2post_fix(infix_tokens):
     return postfix_tokens
 
 
-def isOperator(exp):
-    """Check if the expression is an opération in "+-*/:^"
-
-    :param exp: an expression
-    :returns: boolean
-
-    """
-    
-    #return (type(exp) == str and exp in "+-*/:^")
-    try:
-        exp.isOperator
-    except AttributeError:
-        return 0
-    return 1
-
-def isNumber(exp):
-    """Check if the expression can be a number
-
-    :param exp: an expression
-    :returns: True if the expression can be a number and false otherwise
-
-    """
-    try:
-        exp.isNumber
-    except AttributeError:
-        if type(exp) == int:
-            return 1
-        else:
-            return 0
-    return  1
 
 if __name__ == '__main__':
     #a, s, m, d, p = Operator("+"), Operator("-"), Operator("*"), Operator("/"), Operator("^")

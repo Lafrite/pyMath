@@ -4,7 +4,7 @@
 
 import unittest
 
-from pymath.renders import tex, txt
+from pymath.render import tex, txt,p2i
 from pymath.fraction import Fraction
 from pymath.operator import Operator 
 
@@ -43,8 +43,24 @@ class TestTexRender(unittest.TestCase):
             rend = tex(e)
             self.assertEqual(rend, wanted_render[i])
 
-    def test_mult_exp(self):
-        pass
+    def test_parentheses(self):
+        mul = Operator("*", 2)
+        add = Operator("+", 2)
+        exps = [\
+            [ 2, 3, add, 4, mul],\
+            [ 2, 3, mul, 4, add],\
+            [ 2, 3, 4, mul, add],\
+            [ 2, 3, 4, add, add],\
+            ]
+        wanted_render = [\
+                '( 2 + 3 ) \\times 4',\
+                '2 \\times 3 + 4',\
+                '2 + 3 \\times 4',\
+                '2 + 3 + 4',\
+                ]
+        for (i,e) in enumerate(exps):
+            rend = tex(e)
+            self.assertEqual(rend, wanted_render[i])
 
     def test_slash(self):
         pass
@@ -91,8 +107,24 @@ class TesttxtRender(unittest.TestCase):
             rend = txt(e)
             self.assertEqual(rend, wanted_render[i])
 
-    def test_mult_exp(self):
-        pass
+    def test_parentheses(self):
+        mul = Operator("*", 2)
+        add = Operator("+", 2)
+        exps = [\
+            [ 2, 3, add, 4, mul],\
+            [ 2, 3, mul, 4, add],\
+            [ 2, 3, 4, mul, add],\
+            [ 2, 3, 4, add, add],\
+            ]
+        wanted_render = [\
+                '( 2 + 3 ) * 4',\
+                '2 * 3 + 4',\
+                '2 + 3 * 4',\
+                '2 + 3 + 4',\
+                ]
+        for (i,e) in enumerate(exps):
+            rend = txt(e)
+            self.assertEqual(rend, wanted_render[i])
 
     def test_slash(self):
         pass

@@ -243,6 +243,37 @@ def convolution_dict(D1, D2, op = lambda x,y:x*y,\
 
     return new_dict
 
+def isOperator(exp):
+    """Check if the expression is an opération in "+-*/:^"
+
+    :param exp: an expression
+    :returns: boolean
+
+    """
+    
+    #return (type(exp) == str and exp in "+-*/:^")
+    try:
+        exp.isOperator
+    except AttributeError:
+        return 0
+    return 1
+
+def isNumber(exp):
+    """Check if the expression can be a number
+
+    :param exp: an expression
+    :returns: True if the expression can be a number and false otherwise
+
+    """
+    try:
+        exp.isNumber
+    except AttributeError:
+        if type(exp) == int:
+            return 1
+        else:
+            return 0
+    return  1
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

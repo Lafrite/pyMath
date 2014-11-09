@@ -60,6 +60,15 @@ class Fraction(object):
     def __repr__(self):
         return "< Fraction " + self.__str__() + ">"
 
+    def __txt__(self):
+        return str(self)
+
+    def __tex__(self):
+        if self._denom == 1:
+            return str(self._num)
+        else:
+            return "\\frac{{ {a} }}{{ {b} }}".format(a = self._num, b = self._denom)
+
     def __float__(self):
         return self._num / self._denom
 

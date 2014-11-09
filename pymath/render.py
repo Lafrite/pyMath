@@ -38,13 +38,36 @@ class Render(object):
                     # Switch op1 and op2 to respect order
                     operandeStack.push(self.render(token)(op2, op1))
             else:
-                operandeStack.push(token)
+                operandeStack.push(self.render(token)())
 
         return operandeStack.pop()
 
-txt = Render(lambda x:x.__txt__)
-tex = Render(lambda x:x.__tex__)
-p2i = Render(lambda x:x.__p2i__)
+def txt_render(token):
+    def render(*args):
+        try:
+            return getattr(token, '__txt__')(*args)
+        except AttributeError:
+            return str(token)
+    return render
+
+txt = Render(txt_render)
+def tex_render(token):
+    def render(*args):
+        try:
+            return getattr(token, '__tex__')(*args)
+        except AttributeError:
+            return str(token)
+    return render
+tex = Render(tex_render)
+
+def p2i_render(token):
+    def render(*args):
+        try:
+            return getattr(token, '__p2i__')(*args)
+        except AttributeError:
+            return list(token)
+    return render
+p2i = Render(p2i_render)
 
 if __name__ == '__main__':
     from .operator import Operator

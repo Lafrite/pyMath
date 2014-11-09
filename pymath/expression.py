@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from .generic import Stack, flatten_list, expand_list
+from .generic import Stack, flatten_list, expand_list, isNumber, isOperator
 from .renders import txt, post2in_fix, tex
-from .str2tokens import str2tokens, isNumber, isOperator
+from .str2tokens import str2tokens
 
 __all__ = ['Expression']
 
