@@ -1,0 +1,43 @@
+# Explication sur la logique des classes
+
+## Les types
+Ce sont les objects que l'on s'autorise à manipuler dans les expressions. 
+Ces objets doivent pouvoir être afficher en *txt* ou en *tex* avec les méthodes
+    * *__txt__*: affichage en mode text
+    * *__tex__*: affichage pour une compilation latex
+
+### Operator
+Cette classe regroupe les operateurs. Que l'on s'autorise à utiliser. On y accède à partir de deux caractérisiques le symbole et l'arité.
+
+Liste des attributs mportants:
+    * arity: nombre d'opérande accepté
+    * priority: où se place l'opérateur dans la règles des priorités parmis les autres opérateurs
+    * isOperator: permet de vérifier que c'est bien un opérateur
+Liste des méthodes importantes:
+    * *__call__*: Permet d'effectuer le calcul sur deux opérandes
+    * *__txt__*: affichage en mode text
+    * *__tex__*: affichage pour une compilation latex
+
+### Number
+Tous les types de "nombres" que l'on va vouloir manipuler. On va essayer de rester le plus proche de la construction mathématiques de ces objets. 
+
+Par défaut, on travaillera avec des anneaux ce qui permettra de construire ensuite le corps des fractions et l'anneau des polynomes (quitte à quotienter) associé.
+
+Pour définir ces anneaux, il faudra contre avoir les méthodes suivantes:
+    * *__add__*
+    * *__radd__*
+    ...
+
+#### Fractions
+
+#### Polynomes
+
+#### Quotient de polynomes (racines)
+
+
+## Expression
+
+
+## Render
+
+
