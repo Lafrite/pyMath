@@ -21,7 +21,9 @@ class Expression(object):
             #self._exp = exp
             self.postfix_tokens = str2tokens(exp) # les tokens seront alors stockés dans self.tokens temporairement
         elif type(exp) == list:
-            self.postfix_tokens = exp
+            self.postfix_tokens = flatten_list([tok.postfix_tokens if self.isExpression(tok) else tok for tok in exp])
+
+        self._isExpression = 1
 
     def __str__(self):
         """
@@ -91,9 +93,9 @@ class Expression(object):
                 # Comme on vient de faire le calcul, on peut détruire aussi les deux prochains termes
                 del tokenList[0:3]
 
-            # Et les motifs du gens - A, quand l'operateur est d'arité 1
+            # Et les motifs du gens A -, quand l'operateur est d'arité 1
             elif isNumber(tokenList[0]) \
-                    and isOperator(tokenList[1]) and tokenList[2].arity == 1:
+                    and isOperator(tokenList[1]) and tokenList[1].arity == 1:
                 
                 # S'il y a une opération à faire
                 op1 = tokenList[0]
@@ -119,23 +121,33 @@ class Expression(object):
 
         self.child = Expression(steps[-1])
 
+    def isExpression(self, other):
+        try:
+            other._isExpression
+        except AttributeError:
+                return 0
+        return  1
+
+
 
 def test(exp):
     a = Expression(exp)
     print(a)
-    #for i in a.simplify():
-    #    print(i)
+    for i in a.simplify():
+        print(i)
 
     print("\n")
 
 if __name__ == '__main__':
     Expression.STR_RENDER = txt
-    exp = "2 ^ 3 * 5"
+    exp1 = "2 ^ 3 * 5"
+    test(exp1)
+
+    from pymath.operator import op
+    exp = [2, 3, op.pw, 5, op.mul]
     test(exp)
 
-    from pymath.operator import add, pw, mul
-    exp = [2, 3, pw, 5, mul]
-    test(exp)
+    test([Expression(exp1), Expression(exp), op.add])
 
     exp = "1 + 3 * 5"
     test(exp)

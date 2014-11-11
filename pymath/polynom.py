@@ -146,7 +146,7 @@ class Polynom(object):
 
     def isPolynom(self, other):
         try:
-            exp._isPolynom
+            other._isPolynom
         except AttributeError:
                 return 0
         return  1
@@ -248,7 +248,7 @@ class Polynom(object):
                 if a == 0 or b == 0:
                     elem = 0
                 else:
-                    elem = [a, b, "*"]
+                    elem = Expression([a, b, op.mul])
                 try:
                     if coefs[i+j]==0:
                         coefs[i+j] = elem
@@ -259,20 +259,15 @@ class Polynom(object):
 
         p = Polynom(coefs)
         steps.append(p)
-
+        
         steps += p.simplify()
+        
         return steps
 
     def __rmul__(self, other):
         o_poly = self.conv2poly(other)
 
         return o_poly.__mul__(self)
-    
-    def __div__(self, other):
-        pass
-    
-    def __truediv__(self, other):
-        pass
 
 
 def test(p,q):
@@ -304,20 +299,20 @@ if __name__ == '__main__':
     from .fraction import Fraction
     p = Polynom([1, -2 ])
     q = Polynom([4, 7])
-    #test(p,q)
+    test(p,q)
 
     q = Polynom([0, Fraction(1,2), 0, Fraction(-4,3)])
     #test(p,q)
 
     p = Polynom([1, 1, 1 ])
-    print(p)
+    #print(p)
 
 
     #print("-- Poly étrange --")
-    p = Polynom([1, [2, 3], 4], "x")
-    print(repr(p))
-    for i in p.simplify():
-        print(i)
+    #p = Polynom([1, [2, 3], 4], "x")
+    #print(repr(p))
+    #for i in p.simplify():
+    #    print(i)
     #print("-- Poly étrange --")
     #p = Polynom([1, [[2, 3, "*"], [4,5,"*"]], 4], "x")
     #print(repr(p))
