@@ -65,17 +65,13 @@ def p2i_render(token):
         try:
             return getattr(token, '__p2i__')(*args)
         except AttributeError:
-            return list(token)
+            return token
     return render
 p2i = Render(p2i_render)
 
 if __name__ == '__main__':
-    from .operator import Operator
-    mul = Operator("*", 2)
-    add = Operator("+", 2)
-    sub1 = Operator("-", 1)
-    div = Operator("/", 1)
-    exp = [ 2, 3, add, 4, mul]
+    from .operator import op
+    exp = [ 2, 3, op.add, 4, op.mul]
     print(exp)
     print("txt(exp) :" + str(txt(exp)))
     print("tex(exp) :" + str(tex(exp)))

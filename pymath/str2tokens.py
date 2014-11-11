@@ -161,12 +161,10 @@ if __name__ == '__main__':
     #
     #print(in2post_fix(in_tokens))
 
-    #a, s, m, d, p = Operator("+"), Operator("-"), Operator("*"), Operator("/"), Operator("^")
-    #s1 = Operator("-", 1)
-    #par = Operator("(")
-    #print(in2post_fix([par, 2, a, 5, s, 1, ')', d, par, 3, m, 4, ')']))
-    #print(in2post_fix([s1, par, s1, 2, ')']))
-    #print(in2post_fix([s1, par, s1, 2, a, 3, m, 4, ')']))
+    from .operator import op
+    print(in2post_fix([op.par, 2, op.add, 5, op.sub, 1, ')', op.div, op.par, 3, op.mul, 4, ')']))
+    print(in2post_fix([op.sub1, op.par, op.sub1, 2, ')']))
+    print(in2post_fix([op.sub1, op.par, op.sub1, 2, op.add, 3, op.mul, 4, ')']))
 
     import doctest
     doctest.testmod()
