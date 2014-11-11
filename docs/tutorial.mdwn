@@ -23,7 +23,8 @@ Actuellement le module pour faire calculer python comme un collégien est *pymat
 Un expression peut être initialisée de deux façons différentes: à partir d'une chaine de caractère ou à partir de la liste des termes.
 
     >>> exp = Expression("1 + 2 * 3")
-    >>> exp = Expression([1, "+", 2, "*", 3])
+    >>> from pymath.operator import pw, mul
+    >>> exp = [2, 3, pw, 5, mul]
 
 On peut ensuite afficher l'expression avec un *print*.
 
@@ -32,7 +33,7 @@ On peut ensuite afficher l'expression avec un *print*.
 
 Et si l'on souhaite un rendu plus adapté à la console:
 
-    >>> from pymath.renders import txt
+    >>> from pymath.render import txt
     >>> exp.render(render = txt)
     1 + 2 * 3
 
@@ -113,9 +114,9 @@ Pour créer une expression il faut au moins une chose: la forme de l'expression.
     >>> type(e)
     pymath.expression.Expression
     >>> print(e)
-    '2 \\times 9  +  3'
-    >>> rd_exp(30, 40)
-    '2 \\times 31  +  3'
+    '2 \times 9  +  3'
+    >>> print(rd_exp(30, 40))
+    '2 \times 31  +  3'
 
 On remarque que ici que rd_exp renvoie une expression. Cela permettra qu'ensuite on puisse simplifier ou manipuler les expressions
  On verra plus tard comment se passer de cette classe pour par exemple créer des expressions avec des fonctions non implémentées dans Expression.
@@ -127,7 +128,7 @@ Parfois il peut être nécessaire d'imposer des conditions sur les éléments à
     >>> cond = ["abs({b}) != 1", "{d} > 1", "{b} != {d}", "gcd({a},{b}) == 1", "gcd({c},{d}) == 1"]
     >>> rd_frac_add = RdExpression(form, cond)
     >>> print(rd_frac_add())
-    '\\frac{ 4 }{ 5 }  +  \\frac{ 9 }{ 7 }'
+    '\frac{ 4 }{ 5 }  +  \frac{ 9 }{ 7 }'
 
 La méthode pour créer les valeurs avec des conditions est la méthode par rejet. Elle n'est pas très efficace et rien n'est encore prévu dans le cas où aucune valeur n'est possible. 
 
@@ -138,10 +139,10 @@ Pour éviter de faire tourner la méthode par rejet trop longtemps, il est possi
     >>> cond = ["abs({b}) != 1", "{k} > 1", "{b} != {d}", "gcd({a},{b}) == 1", "gcd({c},{k*b}) == 1"]
     >>> rd_frac_add = RdExpression(form, cond)
     >>> print(rd_frac_add())
-    '\\frac{ -9 }{ 7 }  +  \\frac{ 1 }{ 28 }
+    '\frac{ -9 }{ 7 }  +  \frac{ 1 }{ 28 }
 
 ### Rendu des expressions
-On peut vouloir ne pas passer passer par la classe Expression pour obtenir notre expression (si l'on veut utiliser la racine carré par exemple). Pour cela il va falloir changer la forme du rendu
+On peut vouloir ne pas passer par la classe Expression pour obtenir notre expression (si l'on veut utiliser la racine carré par exemple, ou pour créer n'importe quoi qui ne fait pas intervenir d'expression). Pour cela il va falloir changer la forme du rendu
 
     >>> RdExpression.FORM = "raw"
     >>> form = "{a} / {b} + {c} / {k*b}"
@@ -161,7 +162,3 @@ On peut vouloir ne pas passer passer par la classe Expression pour obtenir notre
     '49x^2 + 42 x + 9'
 
 On remarque le défaut d'utiliser cette forme, le rendu est moins bien fait (dans l'exemple, il n'y a pas de parenthèses autour du -8).
-
-
-
- 
