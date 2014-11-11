@@ -18,16 +18,28 @@ class Expression(object):
         :param exp: the expression. It can be a string or a list of postfix tokens.
         """
         if type(exp) == str:
-            self._exp = exp
+            #self._exp = exp
+            print("\t type(exp) :" + str(type(exp)))
+            
             self.postfix_tokens = str2tokens(exp) # les tokens seront alors stockés dans self.tokens temporairement
         elif type(exp) == list:
+            print("\t type(exp) :" + str(type(exp)))
             self.postfix_tokens = exp
+
+        print("\t self.postfix_tokens :" + str(self.postfix_tokens))
+        
 
     def __str__(self):
         """
         Overload str
         If you want to changer render set Expression.RENDER
         """
+        print("\t self.STR_RENDER :" + str(self.STR_RENDER))
+        print("\t self.postfix_tokens :" + str(self.postfix_tokens))
+        print("\t self.STR_RENDER(self.postfix_tokens) :" + str(self.STR_RENDER(self.postfix_tokens)))
+        
+        
+        
         return self.STR_RENDER(self.postfix_tokens)
 
     def render(self, render = lambda  x:str(x)):
@@ -122,14 +134,19 @@ class Expression(object):
 
 def test(exp):
     a = Expression(exp)
-    for i in a.simplify():
-        print(i)
+    print(a)
+    #for i in a.simplify():
+    #    print(i)
 
     print("\n")
 
 if __name__ == '__main__':
     Expression.STR_RENDER = txt
     exp = "2 ^ 3 * 5"
+    test(exp)
+
+    from pymath.operator import add, pw, mul
+    exp = [2, 3, pw, 5, mul]
     test(exp)
 
     exp = "1 + 3 * 5"

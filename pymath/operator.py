@@ -183,6 +183,13 @@ class Operator(str):
         return flatten_list([op])
 
 
+add  = Operator("+")
+sub  = Operator("-")
+mul  = Operator("*")
+div  = Operator("/")
+pw   = Operator("^")
+sub1 = Operator("-", 1)
+par = Operator("(")
 
 def save_mainOp(obj, mainOp):
     """Create a temporary class build over built-in type to stock the main operation of a calculus
