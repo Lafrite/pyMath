@@ -2,6 +2,8 @@
 # encoding: utf-8
 
 
+from itertools import zip_longest
+
 class Stack(object):
     """Docstring for Stack """
 
@@ -242,6 +244,27 @@ def convolution_dict(D1, D2, op = lambda x,y:x*y,\
                 new_dict[key] = op(D1[k1],D2[k2])
 
     return new_dict
+
+def spe_zip(l1,l2):
+    """Zip two lists, if a list is longer, only it's element are taken
+    
+    >>> spe_zip([1,2], [3,4])
+    [[1, 3], [2, 4]]
+    >>> spe_zip([1,2], [3,4,5])
+    [[1, 3], [2, 4], 5]
+    """
+
+    tmp = list(zip_longest(l1,l2))
+    ans = []
+    for i in tmp:
+        if None in i:
+            j = [a for a in i if i != None][-1]
+        else:
+            j = list(i)
+        ans.append(j)
+    return ans
+
+
 
 def isOperator(exp):
     """Check if the expression is an opération in "+-*/:^"

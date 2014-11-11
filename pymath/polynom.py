@@ -2,9 +2,9 @@
 # encoding: utf-8
 
 
-from pymath.fraction import Fraction
-from pymath.expression import Expression
-from pymath.generic import mix_list, sum_postfix, expand_list 
+from .expression import Expression
+from .generic import spe_zip, sum_postfix, expand_list, isNumber
+from .render import txt
 
 __all__ = ["Polynom"]
 
@@ -16,11 +16,11 @@ class Polynom(object):
     def __init__(self, coef = [1], letter = "x" ):
         """Initiate the polynom
 
-        :param coef: coefficients of the polynom (ascending degree sorted) - can be a list of list of coefficients.
-            3 possibles type of list:
-                - [a,b,..] simple list of coefficients. [1,2] designate 1 + 2x
-                - [a, [c,b],...] list of coefficients with x^i repeated. [1,[2,3],4) designate 1 + 2x + 3x + 4x^2
-                - [a, [b,c,"+"],...] list of coefficients with arithmetic expression (postfix form) in. [1, [2,3,"+"], 4] designate 1 + (2+3)x + 4x^2
+        :param coef: coefficients of the polynom (ascending degree sorted)
+            3 possibles type of coefficent:
+                - a : simple "number". [1,2] designate 1 + 2x
+                - [a,b,c]: list of coeficient for same degree. [1,[2,3],4] designate 1 + 2x + 3x + 4x^2
+                - a: a Expression. [1, Expression("2+3"), 4] designate 1 + (2+3)x + 4x^2
         :param letter: the string describing the unknown
 
         """
@@ -32,6 +32,8 @@ class Polynom(object):
             self.mainOp = "*"
         else:
             self.mainOp = "+"
+
+        self._isPolynom
 
     def feed_coef(self, l_coef):
         """Feed coef of the polynom. Manage differently whether it's a number or an expression
@@ -64,7 +66,6 @@ class Polynom(object):
 
     def __str__(self):
         # TODO: Voir si on peut utiliser un render |sam. juin 14 08:56:16 CEST 2014
-        from .renders import txt
         return txt(self.get_postfix())
 
     def __repr__(self):
@@ -78,6 +79,7 @@ class Polynom(object):
         :returns: postfix tokens of coef
 
         """
+        # TODO: Couille certaine avec txt à qui il fait donner des opérateurs tout beau! |mar. nov. 11 13:08:35 CET 2014
         ans =[] 
         if a == 0:
             return ans
@@ -125,15 +127,22 @@ class Polynom(object):
 
         return self._postfix
 
-    def convert_into_poly(self, other):
-        """Convert anything (int and fract) into a polynom """
-        if type(other) in [int, Fraction]:
+    def conv2poly(self, other):
+        """Convert anything number into a polynom"""
+        if isNumber(other) and not self.isPolynom(other):
             return Polynom([other])
-        elif type(other) == Polynom:
+        elif self.isPolynom(other):
             return other
         else:
             raise ValueError(type(other) + " can't be converted into a polynom")
 
+    def isPolynom(self, other):
+        try:
+            exp._isPolynom
+        except AttributeError:
+                return 0
+        return  1
+    
     def reduce(self):
         """Compute coefficients which have same degree
 
@@ -142,13 +151,12 @@ class Polynom(object):
         steps = []
         for a in self._coef:
             coef_steps = []
-            if type(a) == list and str(a[-1]) in "+-*^":
+            if type(a) == Expression:
                 # case coef is an arithmetic expression
-                exp = Expression(a)
-                coef_steps = list(exp.simplify(render = lambda x:x))
+                coef_steps = list(a.simplify(render = lambda x:x))
                 
                 steps.append(coef_steps)
-            elif type(a) == list and str(a[-1]) not in "+-*^":
+            elif type(a) == list:
                 # case need to repeat the x^i
                 if [i for i in a if type(i) == list] != []:
                     # first we simplify arithmetic exp
@@ -189,19 +197,15 @@ class Polynom(object):
 
 
     def __eq__(self, other):
-        if type(other) in [int, Fraction, Polynom] or other.isnumeric():
-            o_poly = self.convert_into_poly(other)
-
-            return self._coef == o_poly._coef
-        else:
-            return 0
+        o_poly = self.conv2poly(other)
+        return self._coef == o_poly._coef
 
     def __add__(self, other):
         steps = []
 
-        o_poly = self.convert_into_poly(other)
+        o_poly = self.conv2poly(other)
 
-        n_coef = mix_list(self._coef, o_poly._coef)
+        n_coef = spe_zip(self._coef, o_poly._coef)
         p = Polynom(n_coef)
         steps.append(p)
 
@@ -215,19 +219,19 @@ class Polynom(object):
         return Polynom([-i for i in self._coef], letter = self._letter)
 
     def __sub__(self, other):
-        o_poly = self.convert_into_poly(other)
+        o_poly = self.conv2poly(other)
         o_poly = -o_poly
 
         return self.__add__(o_poly)
 
     def __rsub__(self, other):
-        o_poly = self.convert_into_poly(other)
+        o_poly = self.conv2poly(other)
         
         return o_poly.__sub__(-self)
     
     def __mul__(self, other):
         steps = []
-        o_poly = self.convert_into_poly(other)
+        o_poly = self.conv2poly(other)
 
         coefs = []
         for (i,a) in enumerate(self._coef):
@@ -251,7 +255,7 @@ class Polynom(object):
         return steps
 
     def __rmul__(self, other):
-        o_poly = self.convert_into_poly(other)
+        o_poly = self.conv2poly(other)
 
         return o_poly.__mul__(self)
     
