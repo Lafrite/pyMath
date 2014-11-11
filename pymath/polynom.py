@@ -176,8 +176,10 @@ class Polynom(object):
             coefs_steps.append(coef_steps)
 
         # On retourne la matrice
+        ans = []
         for coefs in transpose_fill(coefs_steps):
-            yield Polynom(coefs, self._letter)
+            ans.append(Polynom(coefs, self._letter))
+        return ans
 
     @staticmethod
     def postfix_add(numbers):

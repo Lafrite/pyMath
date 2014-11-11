@@ -17,11 +17,11 @@ class TestPolynom(unittest.TestCase):
     def test_init_multi(self):
         p = Polynom([1, [2, 3], 4], "x")
 
-    def test_init_arith(self):
-        p = Polynom([1, [2, 3, "+"], 4], "x")
+    #def test_init_arith(self):
+    #    p = Polynom([1, [2, 3, "+"], 4], "x")
 
-    def test_init_arith_2(self):
-        p = Polynom([1, [[2, 3, "*"],3], 4], "x")
+    #def test_init_arith_2(self):
+    #    p = Polynom([1, [[2, 3, "*"],3], 4], "x")
 
     def test_deg(self):
         pass
@@ -49,47 +49,47 @@ class TestPolynom(unittest.TestCase):
     #    ans = "1 + 2 x - 2 x + 3 x^2"
     #    self.assertEqual(ans, str(p))
 
-    def test_get_postfix(self):
+    def test_postfix(self):
         p = Polynom([1,2,3])
         #ans = [1, 2, "x", "*", "+", 3, "x", 2, "^", "*", "+"]
         ans = [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+']
-        self.assertEqual(ans, p.get_postfix())
+        self.assertEqual(ans, p.postfix)
 
-    def test_get_postfix_monom(self):
+    def test_postfix_monom(self):
         p = Polynom([0,2])
         ans = [2, "x", "*"]
-        self.assertEqual(ans, p.get_postfix())
+        self.assertEqual(ans, p.postfix)
 
-    def test_get_postfix_0_coef(self):
+    def test_postfix_0_coef(self):
         p = Polynom([0,2,0,4])
         #ans = [2, "x", "*", 4, "x", 3, "^", "*", "+"]
         ans = [4, 'x', 3, '^', '*', 2, 'x', '*', '+']
-        self.assertEqual(ans, p.get_postfix())
+        self.assertEqual(ans, p.postfix)
 
-    def test_get_postfix_1_coef(self):
+    def test_postfix_1_coef(self):
         p = Polynom([0,1,1])
         #ans = ["x", "x", 2, "^", "+"]
         ans = ["x", 2, "^", "x", "+"]
-        self.assertEqual(ans, p.get_postfix())
+        self.assertEqual(ans, p.postfix)
 
-    def test_get_postfix_neg_coef(self):
+    def test_postfix_neg_coef(self):
         # TODO: Choix arbitraire (vis à vis des + et des -) il faudra faire en fonction de render |sam. juin 14 09:45:55 CEST 2014
         p = Polynom([-1,-2,-3])
         #ans = [-1, -2, "x", "*", "+", -3, "x", 2, "^", "*", "+"]
         ans = [-3, 'x', 2, '^', '*', -2, 'x', '*', '+', -1, '+']
-        self.assertEqual(ans, p.get_postfix())
+        self.assertEqual(ans, p.postfix)
 
-    def test_get_postfix_multi_coef(self):
+    def test_postfix_multi_coef(self):
         p = Polynom([1,[2, 3],4])
         #ans = [1, 2, "x", "*", "+", 3, "x", "*", "+", 4, "x", 2, "^", "*", "+"]
         ans = [4, 'x', 2, '^', '*', 2, 'x', '*', '+', 3, 'x', '*', '+', 1, '+']
-        self.assertEqual(ans, p.get_postfix())
+        self.assertEqual(ans, p.postfix)
 
-    def test_get_postfix_arithm_coef(self):
+    def test_postfix_arithm_coef(self):
         p = Polynom([1,[2, 3, "+"],4])
         #ans = [1, 2, 3, "+", "x", "*", "+", 4, "x", 2, "^", "*", "+"]
         ans = [4, 'x', 2, '^', '*', 2, 3, '+', 'x', '*', '+', 1, '+']
-        self.assertEqual(ans, p.get_postfix())
+        self.assertEqual(ans, p.postfix)
 
     def test_reduce_nilpo(self):
         p = Polynom([1, 2, 3])
