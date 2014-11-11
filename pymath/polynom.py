@@ -3,8 +3,11 @@
 
 
 from .expression import Expression
-from .generic import spe_zip, sum_postfix, expand_list, isNumber
+from .operator import op
+from .generic import spe_zip, expand_list, isNumber, transpose_fill, flatten_list
+#from .generic import spe_zip, sum_postfix, expand_list, isNumber
 from .render import txt
+from itertools import chain
 
 __all__ = ["Polynom"]
 
@@ -23,6 +26,14 @@ class Polynom(object):
                 - a: a Expression. [1, Expression("2+3"), 4] designate 1 + (2+3)x + 4x^2
         :param letter: the string describing the unknown
 
+        >>> Polynom([1,2,3]).mainOp
+        '+'
+        >>> Polynom([1]).mainOp
+        '*'
+        >>> Polynom([1,2, 3])._letter
+        'x'
+        >>> Polynom([1, 2, 3], "y")._letter
+        'y'
         """
         self.feed_coef(coef)
         self._letter = letter
@@ -33,7 +44,7 @@ class Polynom(object):
         else:
             self.mainOp = "+"
 
-        self._isPolynom
+        self._isPolynom = 1
 
     def feed_coef(self, l_coef):
         """Feed coef of the polynom. Manage differently whether it's a number or an expression
@@ -52,12 +63,22 @@ class Polynom(object):
 
         :returns: the degree of the polynom
 
+        >>> Polynom([1, 2, 3]).get_degree()
+        2
+        >>> Polynom([1]).get_degree()
+        0
         """
         return len(self._coef) - 1
 
     def is_monom(self):
         """is the polynom a monom (only one coefficent)
+
         :returns: 1 if yes 0 otherwise
+
+        >>> Polynom([1, 2, 3]).is_monom()
+        0
+        >>> Polynom([1]).is_monom()
+        1
         """
         if len([i for i in self._coef if i != 0])==1:
             return 1
@@ -65,8 +86,7 @@ class Polynom(object):
             return 0
 
     def __str__(self):
-        # TODO: Voir si on peut utiliser un render |sam. juin 14 08:56:16 CEST 2014
-        return txt(self.get_postfix())
+        return txt(self.postfix)
 
     def __repr__(self):
         return  "< Polynom " + str(self._coef) + ">"
@@ -74,7 +94,7 @@ class Polynom(object):
     def coef_postfix(self, a, i):
         """Return the postfix display of a coeficient
 
-        :param a: value for the coeficient (/!\ as a list)
+        :param a: value for the coeficient (/!\ as a postfix list)
         :param i: power
         :returns: postfix tokens of coef
 
@@ -86,46 +106,34 @@ class Polynom(object):
         if i == 0:
             ans = a
         elif i == 1:
-            ans = a * (a!=[1]) + [self._letter] + ["*"] *  (a!=[1]) 
+            ans = a * (a!=[1]) + [self._letter] + [op.mul] *  (a!=[1]) 
         else:
-            ans = a * (a!=[1]) + [self._letter, i, "^"] + ["*"] *  (a!=[1]) 
+            ans = a * (a!=[1]) + [self._letter, i, op.pw] + [op.mul] *  (a!=[1]) 
 
         return ans
 
-    def get_postfix(self):
+    @property
+    def postfix(self):
         """Return the postfix form of the polynom
 
         :returns: the postfix list of polynom's tokens
 
         """
-        self._postfix = []
-        first_elem = 1
+        postfix = []
         for (i,a) in list(enumerate(self._coef))[::-1]:
-            if type(a) == list and str(a[-1]) in "+-*^/":
+            if type(a) == Expression:
                 # case coef is an arithmetic expression
-                self._postfix += self.coef_postfix(a,i)
-                if not first_elem:
-                    self._postfix.append("+")
-                first_elem = 0
+                postfix.append(self.coef_postfix(a.postfix_tokens,i))
 
-            elif type(a) == list and str(a[-1]) not in "+-*^/":
+            elif type(a) == list:
                 # case need to repeat the x^i
                 for b in a:
-                    if type(b) == list:
-                        self._postfix += self.coef_postfix(b,i)
-                    else:
-                        self._postfix += self.coef_postfix([b],i)
-                    if not first_elem:
-                        self._postfix.append("+")
-                    first_elem = 0
+                    postfix.append(self.coef_postfix([b],i))
 
             elif a != 0:
-                self._postfix += self.coef_postfix([a],i)
-                if not first_elem:
-                    self._postfix.append("+")
-                first_elem = 0
+                    postfix.append(self.coef_postfix([a],i))
 
-        return self._postfix
+        return flatten_list(self.postfix_add(postfix))
 
     def conv2poly(self, other):
         """Convert anything number into a polynom"""
@@ -149,52 +157,53 @@ class Polynom(object):
         :returns: new Polynom with numbers coefficients
         """
         steps = []
-        for a in self._coef:
+        # gather steps for every coeficients
+        coefs_steps = []
+        for coef in self._coef:
             coef_steps = []
-            if type(a) == Expression:
-                # case coef is an arithmetic expression
-                coef_steps = list(a.simplify(render = lambda x:x))
-                
-                steps.append(coef_steps)
-            elif type(a) == list:
-                # case need to repeat the x^i
-                if [i for i in a if type(i) == list] != []:
-                    # first we simplify arithmetic exp
-                    # Et hop un coup de sorcelerie!
-                    elem = [list(Expression(i).simplify(render = lambda x:self.list_or_num(x))) if type(i) == list else i for i in a ]
-
-                    elem = expand_list(elem)
-                    coef_steps += elem
-                    exp = elem[-1]
-
-                else:
-                    exp = a
-
-                exp = sum_postfix(exp)
-                exp = Expression(exp)
-                
-                coef_steps += list(exp.simplify(render = lambda x:x))
-                
-                steps.append(coef_steps)
+            if type(coef) != Expression:
+                # On converti en postfix avec une addition
+                postfix_add = self.postfix_add(coef)
+                # On converti en Expression
+                coef_exp = Expression(postfix_add)
             else:
-                steps.append(a)
+                coef_exp = coef
 
-        steps = expand_list(steps)
-        
-        return [Polynom(s) for s in steps]
+            # On fait réduire l'expression puis on ajoute dans steps
+            coef_steps = list(coef_exp.simplify(render = lambda x:Expression(x)))
+
+            # On ajoute toutes ces étapes
+            coefs_steps.append(coef_steps)
+
+        # On retourne la matrice
+        for coefs in transpose_fill(coefs_steps):
+            yield Polynom(coefs, self._letter)
 
     @staticmethod
-    def list_or_num(x):
-        if len(x) == 1:
-            return x[0]
+    def postfix_add(numbers):
+        """Convert a list of numbers into a postfix addition
+        
+        :numbers: list of numbers
+        :returns: Postfix list of succecive attition of number
+
+        >>> Polynom.postfix_add([1])
+        [1]
+        >>> Polynom.postfix_add([1, 2])
+        [1, 2, '+']
+        >>> Polynom.postfix_add([1, 2, 3])
+        [1, 2, '+', 3, '+']
+        >>> Polynom.postfix_add(1)
+        [1]
+        """
+        if not type(numbers) == list:
+            return [numbers]
         else:
-            return x
-
-
+            ans = [[a, op.add] if i!=0 else [a] for (i,a) in enumerate(numbers)]
+            return list(chain.from_iterable(ans))
+            
     def simplify(self):
         """Same as reduce """
         return self.reduce()
-
 
     def __eq__(self, other):
         o_poly = self.conv2poly(other)
@@ -275,23 +284,24 @@ def test(p,q):
     print("\n Plus ------")
     for i in (p + q):
         #print(repr(i))
-        #print("\t", str(i.get_postfix()))
+        #print("\t", str(i.postfix))
         print(i)
 
     print("\n Moins ------")
     for i in (p - q):
         #print(repr(i))
-        #print("\t", str(i.get_postfix()))
+        #print("\t", str(i.postfix))
         print(i)
 
     print("\n Multiplier ------")
     for i in (p * q):
         #print(repr(i))
-        #print("\t", str(i.get_postfix()))
+        #print("\t", str(i.postfix))
         print(i)
     
 
 if __name__ == '__main__':
+    from .fraction import Fraction
     p = Polynom([1, -2 ])
     q = Polynom([4, 7])
     #test(p,q)
@@ -304,16 +314,19 @@ if __name__ == '__main__':
 
 
     #print("-- Poly étrange --")
-    #p = Polynom([1, [[2, 3, "*"],3], 4], "x")
-    #print(repr(p))
-    #for i in p.simplify():
-    #    print(repr(i))
+    p = Polynom([1, [2, 3], 4], "x")
+    print(repr(p))
+    for i in p.simplify():
+        print(i)
     #print("-- Poly étrange --")
     #p = Polynom([1, [[2, 3, "*"], [4,5,"*"]], 4], "x")
     #print(repr(p))
     #print(p)
     #for i in p.simplify():
     #    print(repr(i))
+
+    import doctest
+    doctest.testmod()
 
 
 # -----------------------------

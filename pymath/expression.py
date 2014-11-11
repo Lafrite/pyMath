@@ -41,15 +41,15 @@ class Expression(object):
     ## ---------------------
     ## Mechanism functions
 
-    def simplify(self):
+    def simplify(self, render=STR_RENDER):
         """ Generator which return steps for computing the expression  """
         if not self.can_go_further():
-            yield self.STR_RENDER(self.postfix_tokens) 
+            yield render(self.postfix_tokens) 
         else:
             self.compute_exp() 
             old_s = ''
             for s in self.steps:
-                new_s = self.STR_RENDER(s)
+                new_s = render(s)
                 # Astuce pour éviter d'avoir deux fois la même étape (par exemple pour la transfo d'une division en fraction)
                 if new_s != old_s:
                     old_s = new_s

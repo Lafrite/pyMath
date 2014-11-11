@@ -264,7 +264,23 @@ def spe_zip(l1,l2):
         ans.append(j)
     return ans
 
+def transpose_fill(list_lists):
+    """Transpose a list of list and if inside list have not the same length, fill with last token
+    
+    :list_lists: a list of list to transpose
+    :returns: generator which generate lines of the transposed matrix
 
+    >>> Polynom.transpose_fill([[1], [2, 3], [4, 5, 6]])
+    [[1, 2, 4] , [1, 3, 5], [1, 3, 6]]
+    """
+    for i in range(max([len(l) for l in list_lists])):
+        col = []
+        for l in list_lists:
+            try:
+                col.append(l[i])
+            except IndexError:
+                col.append(l[-1])
+        yield col
 
 def isOperator(exp):
     """Check if the expression is an opération in "+-*/:^"
