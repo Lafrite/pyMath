@@ -21,18 +21,9 @@ class TestExpression(unittest.TestCase):
     def test_init_from_exp(self):
         pass
 
-    def test_infix_tokens(self):
-        pass
-
-    def test_postfix_tokens(self):
-        pass
-
-
-    def test_isNumber(self):
-        pass
-
-    def test_isOperator(self):
-        pass
+    def test_list(self):
+        exp = Expression([2, 3, "+"])
+        self.assertEqual(exp.postfix_tokens, [2, 3, "+"])
 
     def test_simplify_frac(self):
         exp = Expression("1/2 - 4")

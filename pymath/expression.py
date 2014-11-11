@@ -19,27 +19,15 @@ class Expression(object):
         """
         if type(exp) == str:
             #self._exp = exp
-            print("\t type(exp) :" + str(type(exp)))
-            
             self.postfix_tokens = str2tokens(exp) # les tokens seront alors stockés dans self.tokens temporairement
         elif type(exp) == list:
-            print("\t type(exp) :" + str(type(exp)))
             self.postfix_tokens = exp
-
-        print("\t self.postfix_tokens :" + str(self.postfix_tokens))
-        
 
     def __str__(self):
         """
         Overload str
         If you want to changer render set Expression.RENDER
         """
-        print("\t self.STR_RENDER :" + str(self.STR_RENDER))
-        print("\t self.postfix_tokens :" + str(self.postfix_tokens))
-        print("\t self.STR_RENDER(self.postfix_tokens) :" + str(self.STR_RENDER(self.postfix_tokens)))
-        
-        
-        
         return self.STR_RENDER(self.postfix_tokens)
 
     def render(self, render = lambda  x:str(x)):
