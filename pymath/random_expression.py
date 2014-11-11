@@ -3,7 +3,7 @@
 
 from random import randint
 from .expression import Expression
-from .renders import tex, txt
+from .render import tex, txt
 import re
 
 from .arithmetic import gcd
