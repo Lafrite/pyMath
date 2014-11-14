@@ -297,11 +297,11 @@ def test(p,q):
         #print("\t", str(i.postfix))
         print(i)
 
-    #print("\n Multiplier ------")
-    #for i in (p * q):
-    #    #print(repr(i))
-    #    #print("\t", str(i.postfix))
-    #    print(i)
+    print("\n Multiplier ------")
+    for i in (p * q):
+        #print(repr(i))
+        #print("\t", str(i.postfix))
+        print(i)
     
 
 if __name__ == '__main__':
