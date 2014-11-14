@@ -169,7 +169,8 @@ class Fraction(object):
         return number - self
 
     def __neg__(self):
-        return Fraction(-self._num,self._denom).simplify()
+        f = Fraction(-self._num, self._denom)
+        return [f] + f.simplify()
     
     def __mul__(self, other):
         steps = []

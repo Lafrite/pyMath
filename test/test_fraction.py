@@ -61,7 +61,19 @@ class TestFraction(unittest.TestCase):
                     self.assertEqual(res, ans[i][j])
 
     def test_neg(self):
-        pass
+        ans = [ Fraction(-1,3), \
+            Fraction(-2,3), \
+            Fraction(-4,5), \
+            Fraction(1, 3), \
+            Fraction(1,3), \
+            -1
+            ]
+        for (j, f) in enumerate(self.listAgainst):
+            res = -f
+            if type(res) == list:
+                self.assertEqual(res[-1], ans[j])
+            else:
+                self.assertEqual(res, ans[j])
 
     def test_mul(self):
         ans = [[Fraction(1, 9), Fraction(2,9), Fraction(4, 15), Fraction(-1,9), Fraction(-1,9), Fraction(1,3)], \
