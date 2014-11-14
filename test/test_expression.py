@@ -26,16 +26,33 @@ class TestExpression(unittest.TestCase):
         self.assertEqual(exp.postfix_tokens, [2, 3, "+"])
 
     def test_simplify_frac(self):
+        render = lambda x : str(x)
         exp = Expression("1/2 - 4")
-        Expression.STR_RENDER = lambda _,x : str(x)
         steps = ["[1, 2, '/', 4, '-']", \
                 "[< Fraction 1 / 2>, 4, '-']", \
                 "[1, 1, '*', 2, 1, '*', '/', 4, 2, '*', 1, 2, '*', '/', '-']", \
                 "[1, 8, '-', 2, '/']", \
                 '[< Fraction -7 / 2>]']
-        self.assertEqual(steps, list(exp.simplify()))
+        self.assertEqual(steps, list(exp.simplify(render = render)))
 
         Expression.STR_RENDER = tex
+
+    def test_add_exp(self):
+        e = Expression("12- 4")
+        f = Expression("4 + 1")
+        g = e + f
+        self.assertEqual(g.postfix_tokens, [12, 4, '-', 4, 1, "+", "+"])
+
+    def test_mul_exp(self):
+        e = Expression("12- 4")
+        f = Expression("4 + 1")
+        g = e * f
+        self.assertEqual(g.postfix_tokens, [12, 4, '-', 4, 1, "+", "*"])
+
+    def test_neg_exp(self):
+        e = Expression("12- 4")
+        g = -e 
+        self.assertEqual(g.postfix_tokens, [12, 4, '-', '-'])
 
 
 if __name__ == '__main__':

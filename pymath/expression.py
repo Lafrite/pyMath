@@ -4,6 +4,7 @@
 from .generic import Stack, flatten_list, expand_list, isNumber, isOperator
 from .render import txt, tex
 from .str2tokens import str2tokens
+from .operator import op
 
 __all__ = ['Expression']
 
@@ -134,7 +135,52 @@ class Expression(object):
     # -----------
     # Some math manipulations
 
+    def operate(self, other, operator):
+        if type(other) == Expression:
+            return Expression(self.postfix_tokens + other.postfix_tokens + [operator])
+        elif type(other) == list:
+            return Expression(self.postfix_tokens + other + [operator])
+        else:
+            return Expression(self.postfix_tokens + [other] + [operator])
+    
+    def roperate(self, other, operator):
+        if type(other) == Expression:
+            return Expression(other.postfix_tokens + self.postfix_tokens + [operator])
+        elif type(other) == list:
+            return Expression(other + self.postfix_tokens + [operator])
+        else:
+            return Expression([other] + self.postfix_tokens + [operator])
 
+    def __add__(self, other):
+        return self.operate(other, op.add)
+
+    def __radd__(self, other):
+        return self.roperate(other, op.add)
+
+    def __sub__(self, other):
+        return self.operate(other, op.sub)
+
+    def __rsub__(self, other):
+        return self.roperate(other, op.sub)
+
+    def __mul__(self, other):
+        return self.operate(other, op.mul)
+
+    def __rmul__(self, other):
+        return self.roperate(other, op.mul)
+
+    def __div__(self, other):
+        return self.operate(other, op.div)
+
+    def __rdiv__(self, other):
+        return self.roperate(other, op.div)
+
+    def __pow__(self, other):
+        return self.operate(other, op.pow)
+
+    def __neg__(self):
+        return Expression(self.postfix_tokens + [op.sub1])
+    
 
 def test(exp):
     a = Expression(exp)
@@ -156,7 +202,9 @@ if __name__ == '__main__':
     test([Expression(exp1), Expression(exp), op.add])
 
     exp = "1 + 3 * 5"
-    test(exp)
+    e = Expression(exp)
+    f = -e
+    print(f)
 
     #exp = "2 * 3 * 3 * 5"
     #test(exp)
