@@ -2,7 +2,6 @@
 # encoding: utf-8
 
 
-from .fraction import Fraction
 from .generic import flatten_list, isNumber
 
 class Operator(str):
@@ -59,6 +58,8 @@ class Operator(str):
         elif self.arity == 2:
             # C'est moche mais je veux que ça marche...
             if str(self) == "/":
+                # TODO: faudra changer ça c'est pas beau! |ven. nov. 14 16:13:49 CET 2014
+                from .fraction import Fraction
                 ans = [Fraction(args[0], args[1])]
                 ans += ans[0].simplify()
                 return ans

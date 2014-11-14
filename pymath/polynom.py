@@ -101,15 +101,15 @@ class Polynom(object):
         """
         # TODO: Couille certaine avec txt à qui il fait donner des opérateurs tout beau! |mar. nov. 11 13:08:35 CET 2014
         ans =[] 
-        if a == 0:
-            return ans
-        if i == 0:
+        if a == [0]:
+            pass
+        elif i == 0:
             ans = a
         elif i == 1:
             ans = a * (a!=[1]) + [self._letter] + [op.mul] *  (a!=[1]) 
         else:
             ans = a * (a!=[1]) + [self._letter, i, op.pw] + [op.mul] *  (a!=[1]) 
-
+        
         return ans
 
     @property
@@ -123,15 +123,21 @@ class Polynom(object):
         for (i,a) in list(enumerate(self._coef))[::-1]:
             if type(a) == Expression:
                 # case coef is an arithmetic expression
-                postfix.append(self.coef_postfix(a.postfix_tokens,i))
+                c = self.coef_postfix(a.postfix_tokens,i)
+                if c != []:
+                    postfix.append(c)
 
             elif type(a) == list:
                 # case need to repeat the x^i
                 for b in a:
-                    postfix.append(self.coef_postfix([b],i))
+                    c = self.coef_postfix([b],i)
+                    if c != []:
+                        postfix.append(c)
 
             elif a != 0:
-                    postfix.append(self.coef_postfix([a],i))
+                c = self.coef_postfix([a],i)
+                if c != []:
+                    postfix.append(c)
 
         return flatten_list(self.postfix_add(postfix))
 
@@ -179,6 +185,7 @@ class Polynom(object):
         ans = []
         for coefs in transpose_fill(coefs_steps):
             ans.append(Polynom(coefs, self._letter))
+            
         return ans
 
     @staticmethod
@@ -290,11 +297,11 @@ def test(p,q):
         #print("\t", str(i.postfix))
         print(i)
 
-    print("\n Multiplier ------")
-    for i in (p * q):
-        #print(repr(i))
-        #print("\t", str(i.postfix))
-        print(i)
+    #print("\n Multiplier ------")
+    #for i in (p * q):
+    #    #print(repr(i))
+    #    #print("\t", str(i.postfix))
+    #    print(i)
     
 
 if __name__ == '__main__':
@@ -304,9 +311,9 @@ if __name__ == '__main__':
     test(p,q)
 
     q = Polynom([0, Fraction(1,2), 0, Fraction(-4,3)])
-    #test(p,q)
+    test(p,q)
 
-    p = Polynom([1, 1, 1 ])
+    #p = Polynom([1, 1, 1 ])
     #print(p)
 
 

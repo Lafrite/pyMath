@@ -2,6 +2,8 @@
 # encoding: utf-8
 
 from .arithmetic import gcd
+from .generic import isNumber
+from .operator import op
 
 __all__ = ['Fraction']
 
@@ -45,7 +47,7 @@ class Fraction(object):
 
         elif gcd_ != 1:
             n_frac = Fraction(n_frac._num // gcd_ , n_frac._denom // gcd_)
-            steps.append([n_frac._num, gcd_, '*', n_frac._denom, gcd_, '*', '/' ])
+            steps.append([n_frac._num, gcd_, op.mul, n_frac._denom, gcd_, op.mul, op.div ])
 
             steps.append(n_frac)
 
@@ -100,13 +102,13 @@ class Fraction(object):
             coef1 = number._denom // gcd_denom
             coef2 = self._denom // gcd_denom
 
-            steps.append([self._num, coef1, "*", self._denom, coef1, "*", '/', number._num, coef2, "*", number._denom, coef2, "*", "/",'+']) 
+            steps.append([self._num, coef1, op.mul, self._denom, coef1, op.mul, op.div, number._num, coef2, op.mul, number._denom, coef2, op.mul, op.div,op.add]) 
 
             com_denom = self._denom * coef1
             num1 = self._num * coef1
             num2 = number._num * coef2
 
-        steps.append([num1, num2, '+', com_denom, '/'])
+        steps.append([num1, num2, op.add, com_denom, op.div])
 
         num = num1 + num2
 
@@ -142,13 +144,13 @@ class Fraction(object):
             coef1 = number._denom // gcd_denom
             coef2 = self._denom // gcd_denom
 
-            steps.append([self._num, coef1, "*", self._denom, coef1, "*", '/', number._num, coef2, "*", number._denom, coef2, "*", "/",'-']) 
+            steps.append([self._num, coef1, op.mul, self._denom, coef1, op.mul, op.div, number._num, coef2, op.mul, number._denom, coef2, op.mul, op.div,op.sub]) 
 
             com_denom = self._denom * coef1
             num1 = self._num * coef1
             num2 = number._num * coef2
 
-        steps.append([num1, num2, '-', com_denom, '/'])
+        steps.append([num1, num2, op.sub, com_denom, op.div])
 
         num = num1 - num2
 
@@ -180,12 +182,12 @@ class Fraction(object):
         elif type(other) == int:
             gcd1 = gcd(other, self._denom)
             if gcd1 != 1:
-                num = [self._num, int(other/gcd1), "*", gcd1,"*"]
-                denom = [int(self._denom/gcd1), gcd1, "*"]
+                num = [self._num, int(other/gcd1), op.mul, gcd1,op.mul]
+                denom = [int(self._denom/gcd1), gcd1, op.mul]
             else:
-                num = [self._num, other, "*"]
+                num = [self._num, other, op.mul]
                 denom = [self._denom]
-            steps.append(num + denom + ["/"])
+            steps.append(num + denom + [op.div])
 
             num = int(self._num * other / gcd1)
             denom = int(self._denom / gcd1)
@@ -195,22 +197,22 @@ class Fraction(object):
 
             gcd1 = gcd(self._num, number._denom) 
             if gcd1 != 1:
-                num1 = [int(self._num/ gcd1), gcd1, "*"]
-                denom2 = [int(number._denom/ gcd1), gcd1, "*"] 
+                num1 = [int(self._num/ gcd1), gcd1, op.mul]
+                denom2 = [int(number._denom/ gcd1), gcd1, op.mul] 
             else:
                 num1 = [self._num]
                 denom2 = [number._denom]
 
             gcd2 = gcd(self._denom, number._num) 
             if gcd2 != 1:
-                num2 = [int(number._num/ gcd2), gcd2, "*"]
-                denom1 = [int(self._denom/ gcd2), gcd2, "*"] 
+                num2 = [int(number._num/ gcd2), gcd2, op.mul]
+                denom1 = [int(self._denom/ gcd2), gcd2, op.mul] 
             else:
                 num2 = [number._num]
                 denom1 = [self._denom]
 
 
-            steps.append(num1 +  num2 + [ '*'] +  denom1 +  denom2 + ['*', '/'])
+            steps.append(num1 +  num2 + [ op.mul] +  denom1 +  denom2 + [op.mul, op.div])
 
             num = int(self._num * number._num / (gcd1 * gcd2))
             denom = int(self._denom * number._denom / (gcd1 * gcd2))
@@ -234,7 +236,7 @@ class Fraction(object):
 
         steps = []
         number = Fraction(number._denom, number._num)
-        steps.append([self, number, "*"])
+        steps.append([self, number, op.mul])
         steps += self * number
 
         return steps
@@ -249,9 +251,12 @@ class Fraction(object):
 
     def __eq__(self, other):
         """ == """
-        number = self.convert2fraction(other)
+        if isNumber(other):
+            number = self.convert2fraction(other)
 
-        return self._num * number._denom == self._denom * number._num
+            return self._num * number._denom == self._denom * number._num
+        else:
+            return 0
 
     def __lt__(self, other):
         """ < """

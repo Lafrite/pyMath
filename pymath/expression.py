@@ -32,6 +32,9 @@ class Expression(object):
         """
         return self.STR_RENDER(self.postfix_tokens)
 
+    def __repr__(self):
+        return "< Expression " + str(self.postfix_tokens) + ">"
+
     def render(self, render = lambda  x:str(x)):
         """ Same as __str__ but accept render as argument
         :param render: function which render the list of token (postfix form) to string
@@ -56,7 +59,7 @@ class Expression(object):
                 if new_s != old_s:
                     old_s = new_s
                     yield new_s
-            for s in self.child.simplify():
+            for s in self.child.simplify(render = render):
                 if old_s != s:
                     yield s
 
@@ -127,6 +130,9 @@ class Expression(object):
         except AttributeError:
                 return 0
         return  1
+
+    # -----------
+    # Some math manipulations
 
 
 

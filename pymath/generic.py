@@ -253,7 +253,6 @@ def spe_zip(l1,l2):
     >>> spe_zip([1,2], [3,4,5])
     [[1, 3], [2, 4], 5]
     """
-
     tmp = list(zip_longest(l1,l2))
     ans = []
     for i in tmp:
@@ -280,6 +279,7 @@ def transpose_fill(list_lists):
                 col.append(l[i])
             except IndexError:
                 col.append(l[-1])
+        
         yield col
 
 def isOperator(exp):
