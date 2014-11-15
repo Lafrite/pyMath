@@ -257,7 +257,7 @@ def spe_zip(l1,l2):
     ans = []
     for i in tmp:
         if None in i:
-            j = [a for a in i if i != None][-1]
+            j = [a for a in i if a != None][-1]
         else:
             j = list(i)
         ans.append(j)
