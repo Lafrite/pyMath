@@ -26,6 +26,10 @@ class RdExpression(object):
 
     FORM = "exp"
 
+    @classmethod
+    def set_form(cls, form):
+        cls.FORM = form
+
     def __init__(self, form, conditions = []):
         """Initiate the generator
 

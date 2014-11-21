@@ -11,6 +11,8 @@ from pymath.generic import first_elem
 from pymath.render import txt, tex
 
 
+Expression.set_render(txt)
+
 class TestExpression(unittest.TestCase):
     """Testing functions from pymath.expression"""
 
@@ -26,16 +28,16 @@ class TestExpression(unittest.TestCase):
         self.assertEqual(exp.postfix_tokens, [2, 3, "+"])
 
     def test_simplify_frac(self):
-        render = lambda x : str(x)
+        render = lambda _,x : str(x)
+        Expression.set_render(render)
         exp = Expression("1/2 - 4")
         steps = ["[1, 2, '/', 4, '-']", \
                 "[< Fraction 1 / 2>, 4, '-']", \
                 "[1, 1, '*', 2, 1, '*', '/', 4, 2, '*', 1, 2, '*', '/', '-']", \
                 "[1, 8, '-', 2, '/']", \
                 '[< Fraction -7 / 2>]']
-        self.assertEqual(steps, list(exp.simplify(render = render)))
-
-        Expression.STR_RENDER = tex
+        self.assertEqual(steps, list(exp.simplify()))
+        Expression.set_render(txt)
 
     def test_add_exp(self):
         e = Expression("12- 4")

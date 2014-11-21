@@ -34,28 +34,16 @@ On peut ensuite afficher l'expression avec un *print*.
 Et si l'on souhaite un rendu plus adapté à la console:
 
     >>> from pymath.render import txt
-    >>> exp.render(render = txt)
+    >>> Expression.set_render(txt)
+    >>> exp.render()
     1 + 2 * 3
-
-Ou encore
-
-    >>> from pymath.renders import txt
-    >>> Expression.STR_RENDER = txt
-    >>> print(exp)
-    1 + 2 * 3
-
-/!\ Il ne faut pas faire
-
-    >>> exp.STR_RENDER = txt
-
-car le changement ne se propagera pas à toute la classe. Ce qui posera problème quand on utilisera la méthode *simplify*(les sous expressions auront l'ancien STR_RENDER).
 
 ### Simplification des expressions
 Une fois les expressions créées, elles peuvent se réduire en expliquant les étapes et en respectant les règles de priorités. Les exemples suivants seront données avec un rendu texte.
 
     >>> from pymath.expression import Expression
     >>> from pymath.renders import txt
-    >>> Expression.STR_RENDER = txt
+    >>> Expression.set_render(txt)
 
     >>> exp = Expression("1 + 2 * 3")
     >>> for i in exp.simplify():

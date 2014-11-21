@@ -12,6 +12,15 @@ class Expression(object):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
 
     STR_RENDER = tex
+    DEFAULT_RENDER = tex
+
+    @classmethod
+    def set_render(cls, render):
+        cls.STR_RENDER = render
+
+    @classmethod
+    def set_df_render(cls):
+        cls.set_render(cls.DEFAULT_RENDER)
 
     def __init__(self, exp):
         """ Initiate the expression
@@ -47,20 +56,20 @@ class Expression(object):
     ## ---------------------
     ## Mechanism functions
 
-    def simplify(self, render=STR_RENDER):
+    def simplify(self):
         """ Generator which return steps for computing the expression  """
         if not self.can_go_further():
-            yield render(self.postfix_tokens) 
+            yield self.STR_RENDER(self.postfix_tokens) 
         else:
             self.compute_exp() 
             old_s = ''
             for s in self.steps:
-                new_s = render(s)
+                new_s = self.STR_RENDER(s)
                 # Astuce pour éviter d'avoir deux fois la même étape (par exemple pour la transfo d'une division en fraction)
                 if new_s != old_s:
                     old_s = new_s
                     yield new_s
-            for s in self.child.simplify(render = render):
+            for s in self.child.simplify():
                 if old_s != s:
                     yield s
 
@@ -191,13 +200,19 @@ def test(exp):
     print("\n")
 
 if __name__ == '__main__':
-    Expression.STR_RENDER = txt
+    Expression.set_render(txt)
     exp1 = "2 ^ 3 * 5"
+    test(exp1)
+
+    Expression.set_render(tex)
+
     test(exp1)
 
     from pymath.operator import op
     exp = [2, 3, op.pw, 5, op.mul]
     test(exp)
+
+    Expression.set_render(txt)
 
     test([Expression(exp1), Expression(exp), op.add])
 
