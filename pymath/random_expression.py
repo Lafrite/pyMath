@@ -25,10 +25,15 @@ class RdExpression(object):
     """
 
     FORM = "exp"
+    DEFAULT_FORM = "exp"
 
     @classmethod
     def set_form(cls, form):
         cls.FORM = form
+
+    @classmethod
+    def set_df_form(cls):
+        cls.set_form(cls.DEFAULT_FORM)
 
     def __init__(self, form, conditions = []):
         """Initiate the generator
@@ -155,6 +160,7 @@ def desc_rdExp(rdExp):
     print("Letters: ", rdExp._letters)
     print("2replaced: ", rdExp._2replaced)
     print("Call : ", rdExp())
+    print("type: ",type(rdExp()))
     print("Gene varia: ", rdExp._gene_varia)
     print("Gene 2replaced: ", rdExp._gene_2replaced)
     print('')
@@ -162,15 +168,17 @@ def desc_rdExp(rdExp):
 
 if __name__ == '__main__':
     # Adapt render to consol display
-    Expression.STR_RENDER = txt
+    #Expression.set_render(txt)
 
-    form = "{a}*-14 / (2*{b}) : -23 / 4"
+    RdExpression.set_form("raw")
+    form = "{a}*-14 / (2*{b}) / -23 / 4"
     cond = ["{a} + {b} in [1, 2, 3, 4, 5]", "{a} not in [1]", "{b} not in [1]"]
     rdExp1 = RdExpression(form, cond)
     desc_rdExp(rdExp1)
     rdExp2 = RdExpression(form)
     desc_rdExp(rdExp2)
 
+    RdExpression.set_df_form()
     form = "{a+a*10}*4 + {a} + 2*{b}"
     cond = ["{a} + {b} in [1, 2, 3, 4, 5]", "abs({a}) not in [1]", "{b} not in [1]", "gcd({a},{b}) == 1"]
     rdExp3 = RdExpression(form, cond)
