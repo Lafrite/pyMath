@@ -8,9 +8,9 @@ pyMath est un module python qui permet la manipulation d'expressions mathématiq
 
 * *Créer des exercices aléatoirement*: Pour faire des devoirs personnels, des fiches de révisions ou des exercices en classe, un générateur d'expressions est inclus.
 
-* *Différents type de données*: Pour le moment, pyMath est capable de gérer les entiers naturels et les rationnels (sous forme de fractions). L'utilisation des nombres à virgules, des racines et des polynômes devraient être ajouter dans les prochaines versions.
+* *Gérer différents type de données*: Pour le moment, pyMath est capable de gérer les entiers naturels et les rationnels (sous forme de fractions). L'utilisation des nombres à virgules, des racines et des polynômes devraient être ajoutés dans les prochaines versions.
 
-* *Deux types de rendus*: Un en mode texte pour l'affichage dans une console. Un deuxième spécialement pour écrire des documents latex.
+* *Afficher avec deux types de rendus*: Un en mode texte pour l'affichage dans une console. Un deuxième spécialement pour écrire des documents latex.
 
 Ce module a pour but d'être un outil pour faciliter la construction d'exercices et leurs correction. Il a pour but d'être le plus simple possible d'utilisation afin que tout le monde avec un minimum de connaissance en programmation puisse créer librement des exercices. 
 
@@ -20,11 +20,13 @@ Actuellement le module pour faire calculer python comme un collégien est *pymat
 
     >>> from pymath.expression import Expression
 
-Un expression peut être initialisée de deux façons différentes: à partir d'une chaine de caractère ou à partir de la liste des termes.
+
+### Déclarer une expression 
+Un expression peut être initialisée de deux façons différentes: à partir d'une chaine de caractères ou à partir de la liste des termes (en postfix).
 
     >>> exp = Expression("1 + 2 * 3")
     >>> from pymath.operator import pw, mul
-    >>> exp = [2, 3, pw, 5, mul]
+    >>> exp = Expression([2, 3, pw, 5, mul])
 
 On peut ensuite afficher l'expression avec un *print*.
 
@@ -66,7 +68,7 @@ Les opérations autorisées sont les opérations "classique": + - * / ^. L'utili
     7 / 5
 
     >>> exp = Expression("(2 + 4)(3 - 4 * 2)")
-    >>> for i in exp.simplify(render = txt):
+    >>> for i in exp.simplify():
     ...     print(i)
     ... 
     ( 2 + 4 ) ( 3 - ( 4 * 2 ) )
@@ -75,7 +77,7 @@ Les opérations autorisées sont les opérations "classique": + - * / ^. L'utili
     -30
 
 ### Différents rendus
-Comme dit dans l'introduction, il y a deux types de rendus: un rendus texte (utilisé depuis le début) et un rendus latex. Voici un exemple de l'utilisation du rendu latex (par défaut)
+Comme dit dans l'introduction, il y a deux types de rendus: un rendu texte (utilisé depuis le début) et un rendu latex. Voici un exemple de l'utilisation du rendu latex (par défaut)
 
     >>> exp = Expression("1 + 2 / 5")
     >>> for i in exp.simplify():
@@ -97,17 +99,17 @@ Le module qui permet de générer des expressions aléatoirement est *pymath.ran
 Pour créer une expression il faut au moins une chose: la forme de l'expression. Toutes les lettres entre accolades seront remplacées par des valeurs aléatoires (par défaut entre -10 et 10 et non nulles).
 
     >>> form = "2* {a} + 3"
-    >>> rd_exp = RdExpression(form)
-    >>> e = rd_exp()
-    >>> type(e)
+    >>> random_expression_generator = RdExpression(form)
+    >>> generated_expression = random_expression_generator()
+    >>> type(generated_expression)
     pymath.expression.Expression
-    >>> print(e)
+    >>> print(generated_expression)
     '2 \times 9  +  3'
-    >>> print(rd_exp(30, 40))
+    >>> print(random_expression_generator(30, 40))
     '2 \times 31  +  3'
 
-On remarque que ici que rd_exp renvoie une expression. Cela permettra qu'ensuite on puisse simplifier ou manipuler les expressions
- On verra plus tard comment se passer de cette classe pour par exemple créer des expressions avec des fonctions non implémentées dans Expression.
+On remarque que ici que *random_expression_generator* renvoie une expression. Cela permettra ensuite de simplifier ou manipuler les expressions
+ On verra plus tard comment se passer de cette classe pour par exemple créer des expressions avec des opérateurs non implémentés dans Expression.
 
 ### Créer une expression avec conditions
 Parfois il peut être nécessaire d'imposer des conditions sur les éléments à générer pour créer des exercices spécifiques.
