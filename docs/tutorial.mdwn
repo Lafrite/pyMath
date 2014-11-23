@@ -115,9 +115,9 @@ On remarque que ici que *random_expression_generator* renvoie une expression. Ce
 Parfois il peut être nécessaire d'imposer des conditions sur les éléments à générer pour créer des exercices spécifiques.
 
     >>> form = "{a} / {b} + {c} / {d}"
-    >>> cond = ["abs({b}) != 1", "{d} > 1", "{b} != {d}", "gcd({a},{b}) == 1", "gcd({c},{d}) == 1"]
-    >>> rd_frac_add = RdExpression(form, cond)
-    >>> print(rd_frac_add())
+    >>> conditions = ["abs({b}) != 1", "{d} > 1", "{b} != {d}", "gcd({a},{b}) == 1", "gcd({c},{d}) == 1"]
+    >>> random_frac_add_generator = RdExpression(form, conditions)
+    >>> print(random_frac_add_generator())
     '\frac{ 4 }{ 5 }  +  \frac{ 9 }{ 7 }'
 
 La méthode pour créer les valeurs avec des conditions est la méthode par rejet. Elle n'est pas très efficace et rien n'est encore prévu dans le cas où aucune valeur n'est possible. 
@@ -126,29 +126,29 @@ La méthode pour créer les valeurs avec des conditions est la méthode par reje
 Pour éviter de faire tourner la méthode par rejet trop longtemps, il est possible de faire des calculs avec les valeurs générées.
 
     >>> form = "{a} / {b} + {c} / {k*b}"
-    >>> cond = ["abs({b}) != 1", "{k} > 1", "{b} != {d}", "gcd({a},{b}) == 1", "gcd({c},{k*b}) == 1"]
-    >>> rd_frac_add = RdExpression(form, cond)
-    >>> print(rd_frac_add())
+    >>> conditions = ["abs({b}) != 1", "{k} > 1", "{b} != {d}", "gcd({a},{b}) == 1", "gcd({c},{k*b}) == 1"]
+    >>> random_frac_add_generator = RdExpression(form, conditions)
+    >>> print(random_frac_add_generator())
     '\frac{ -9 }{ 7 }  +  \frac{ 1 }{ 28 }
 
 ### Rendu des expressions
 On peut vouloir ne pas passer par la classe Expression pour obtenir notre expression (si l'on veut utiliser la racine carré par exemple, ou pour créer n'importe quoi qui ne fait pas intervenir d'expression). Pour cela il va falloir changer la forme du rendu
 
-    >>> RdExpression.FORM = "raw"
+    >>> RdExpression.set_form("raw")
     >>> form = "{a} / {b} + {c} / {k*b}"
-    >>> cond = ["abs({b}) != 1", "{d} > 1", "{b} != {d}", "gcd({a},{b}) == 1", "gcd({c},{k*b}) == 1"]
-    >>> rd_frac_add = RdExpression(form, cond)
-    >>> exp = rd_frac_add()
+    >>> conditions = ["abs({b}) != 1", "{d} > 1", "{b} != {d}", "gcd({a},{b}) == 1", "gcd({c},{k*b}) == 1"]
+    >>> random_frac_add_generator = RdExpression(form, conditions)
+    >>> exp = random_frac_add_generator()
     >>> type(exp)
     str
     >>> print(exp)
     -2 / 5 + -8 / 35
     
     >>> form = "{a**2}x^2 + {2*a*b} x + {b**2}"
-    >>> rd_id_rmq = RdExpression(form, with_Exp = False)
-    >>> print(rd_id_rmq())
+    >>> random_id_rmq_generator = RdExpression(form)
+    >>> print(random_id_rmq_generator())
     '100x^2 + -180 x + 81'
-    >>> rd_id_rmq()
+    >>> random_id_rmq_generator()
     '49x^2 + 42 x + 9'
 
 On remarque le défaut d'utiliser cette forme, le rendu est moins bien fait (dans l'exemple, il n'y a pas de parenthèses autour du -8).
