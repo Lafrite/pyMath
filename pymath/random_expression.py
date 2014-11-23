@@ -5,6 +5,8 @@ from random import randint
 from .expression import Expression
 from .render import tex, txt
 import re
+import pyparsing
+from .generic import flatten_list
 
 from .arithmetic import gcd
 
@@ -54,14 +56,17 @@ class RdExpression(object):
         :returns: set for elements which have to be replaced
 
         """
-        pattern = "\{(.*?)\}" #select inside {} non greedy way
+        #pattern = "\{(.*?)\}" #select inside {} non greedy way
+        #varia_form = re.findall(pattern, self._form)
 
-        varia_form = re.findall(pattern, self._form)
+        # TODO: Bug with varia with spaces |dim. nov. 23 10:44:34 CET 2014
+        varia_form = flatten_list([eval(str(i[0])) for i in pyparsing.nestedExpr('{','}').searchString(self._form)])
         varia_form = set(varia_form)
 
         varia_cond = set()
         for c in self._conditions:
-            varia_cond = varia_cond | set(re.findall(pattern, c))
+            c_varia_cond = flatten_list([eval(str(i[0])) for i in pyparsing.nestedExpr('{','}').searchString(c)])
+            varia_cond = varia_cond | set(c_varia_cond)
         
         self._2replaced = varia_cond | varia_form
 
@@ -184,7 +189,7 @@ if __name__ == '__main__':
     rdExp3 = RdExpression(form, cond)
     desc_rdExp(rdExp3)
 
-    form = "{a+a*10}*4 + {a} + 2*{b}"
+    form = "{a + a*10}*4 + {a} + 2*{b}"
     cond = ["{a-b} + {b} in list(range(20))", "abs({a}) not in [1]", "{b} not in [1]", "gcd({a},{b}) == 1"]
     rdExp3 = RdExpression(form, cond)
     desc_rdExp(rdExp3)
