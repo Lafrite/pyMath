@@ -56,18 +56,24 @@ class Operator(str):
             return getattr(args[0], self.actions)()
 
         elif self.arity == 2:
-            # C'est moche mais je veux que ça marche...
-            if str(self) == "/":
-                # TODO: faudra changer ça c'est pas beau! |ven. nov. 14 16:13:49 CET 2014
-                from .fraction import Fraction
-                ans = [Fraction(args[0], args[1])]
-                ans += ans[0].simplify()
-                return ans
+            if type(args[1]) == int:
+                return getattr(args[0], self.actions[0])(args[1])
             else:
-                if type(args[1]) == int:
-                    return getattr(args[0], self.actions[0])(args[1])
-                else:
-                    return getattr(args[1], self.actions[1])(args[0])
+                return getattr(args[1], self.actions[1])(args[0])
+
+    def _render(self, link, *args):
+        """Global step for __txt__ and __tex__
+
+        :param link: the link between operators
+        :param *args: the operands
+        :returns: the string with operator and operands
+
+        """
+        replacement = {"op"+str(i+1): ' '.join(self.add_parenthesis(op)) for (i,op) in enumerate(args)}
+        
+        ans = link.format(**replacement)
+        ans = save_mainOp(ans, self)
+        return ans
 
     def __txt__(self, *args):
         """Txt rendering for the operator
@@ -95,11 +101,7 @@ class Operator(str):
         >>> sub1.__txt__(f)
         '- ( 2 + 3 )'
         """
-        replacement = {"op"+str(i+1): ' '.join(self.add_parenthesis(op)) for (i,op) in enumerate(args)}
-        
-        ans = self._txt.format(**replacement)
-        ans = save_mainOp(ans, self)
-        return ans
+        return self._render(self._txt, *args)
 
     def __tex__(self, *args):
         """Tex rendering for the operator
@@ -127,11 +129,7 @@ class Operator(str):
         >>> sub1.__tex__(f)
         '- ( 2 + 3 )'
         """
-        replacement = {"op"+str(i+1): ' '.join(self.add_parenthesis(op)) for (i,op) in enumerate(args)}
-        
-        ans = self._tex.format(**replacement)
-        ans = save_mainOp(ans, self)
-        return ans
+        return self._render(self._tex, *args)
 
     def __p2i__(self, *args):
         """Fix list transformation for the operator
@@ -139,6 +137,7 @@ class Operator(str):
         :*args: Operands for this operation
         :returns: list with the operator surrounded by operands
 
+        # TODO: order doctest  |lun. nov. 24 07:17:29 CET 2014
         >>> mul = Operator("*", 2)
         >>> add = Operator("+", 2)
         >>> sub1 = Operator("-", 1)
@@ -176,6 +175,64 @@ class Operator(str):
             if op.mainOp.priority < self.priority:
                 op = flatten_list(["("] + [op] + [")"])
         except AttributeError:
+            # op has not the attribute priority
+            try:
+                if int(op) < 0:
+                    op = ['(', op, ')']
+            except ValueError:
+                pass
+        return flatten_list([op])
+
+class Mul(Operator):
+    def __new__(cls, visibility = 1):
+        op = Operator.__new__(cls, "*")
+        op.visibility = visibility
+        return op
+
+    def _render(self, link, *args):
+        replacement = {"op"+str(i+1): ' '.join(self.add_parenthesis(op)) for (i,op) in enumerate(args)}
+
+        if not self.visibility or args[1][0] == "(" or \
+                (type(args[1][0]) == str and args[1][0].isalpha()):
+            ans = "{op1} {op2}".format(**replacement)
+            ans = save_mainOp(ans, self)
+            return ans
+        else:
+            ans = link.format(**replacement)
+            ans = save_mainOp(ans, self)
+            return ans
+
+class Div(Operator):
+    def __new__(cls, visibility = 1):
+        op = Operator.__new__(cls, "/")
+        return op
+
+    def __call__(self, op1, op2):
+        if op2 == 1:
+            return op1
+        else:
+            return Fraction(op1,op2)
+
+    def __tex__(self, *args):
+        # Pas besoin de parenthèses en plus pour \frac
+        replacement = {"op"+str(i+1): op for (i,op) in enumerate(args)}
+        
+        ans = self._tex.format(**replacement)
+        ans = save_mainOp(ans, self)
+        return ans
+
+class Sub1(Operator):
+    def __new__(cls,):
+        op = Operator.__new__(cls, "-", 1)
+        return op
+
+    def add_parenthesis(self, op):
+        """ Add parenthesis if necessary """
+        try:
+            if op.mainOp.priority <= self.priority:
+                op = flatten_list(["("] + [op] + [")"])
+        except AttributeError:
+            # op has not the attribute priority
             try:
                 if int(op) < 0:
                     op = ['(', op, ')']
@@ -184,15 +241,19 @@ class Operator(str):
         return flatten_list([op])
 
 
+
 class op(object):
     """ List of admited operations """
     # TODO: On pourrait peut être le faire plus proprement avec des décorateurs? |mar. nov. 11 20:24:54 CET 2014
     add  = Operator("+")
     sub  = Operator("-")
-    mul  = Operator("*")
-    div  = Operator("/")
+    #mul  = Mul("*")
+    #div  = Div("/")
+    mul  = Mul()
+    div  = Div()
     pw   = Operator("^")
-    sub1 = Operator("-", 1)
+    #sub1 = Operator("-", 1)
+    sub1 = Sub1()
     par = Operator("(")
 
 def save_mainOp(obj, mainOp):
@@ -212,26 +273,21 @@ def save_mainOp(obj, mainOp):
     return Fake(obj)
 
 if __name__ == '__main__':
-    op = Operator("+", 2)
-    print(op.__txt__('1','2'))
-    mul = Operator("*", 2)
-    add = Operator("+", 2)
-    sub1 = Operator("-", 1)
-    div = Operator("/", 1)
-    print(mul.__txt__('1','2'))
-    print(add.__txt__('1','2'))
-    f = save_mainOp('2 + 3',add)
-    print(mul.__txt__(f, '4'))
-    f = save_mainOp('-3',sub1)
-    print(sub1.__txt__(f))
-    print(sub1.__txt__('-3'))
-    f = save_mainOp('2 + 3',add)
-    print(sub1.__txt__(f))
+    print(op.mul.__txt__('1','2'))
+    print(op.sub.__txt__('1','2'))
+    print(op.add.__txt__('1','2'))
+    f = save_mainOp('2 + 3',op.add)
+    print(op.mul.__txt__(f, '4'))
+    f = save_mainOp('-3',op.sub1)
+    print(op.sub1.__txt__(f))
+    print(op.sub1.__txt__('-3'))
+    f = save_mainOp('2 + 3',op.add)
+    print(op.sub1.__txt__(f))
 
     from .fraction import Fraction
     f = Fraction(1, 2)
-    print(add.__txt__(f.__txt__(),'2'))
-    print(add.__tex__(f.__tex__(),'2'))
+    print(op.add.__txt__(f.__txt__(),'2'))
+    print(op.add.__tex__(f.__tex__(),'2'))
     
 
     import doctest
