@@ -98,25 +98,25 @@ class TestPolynom(unittest.TestCase):
 
     def test_reduce(self):
         p = Polynom([1, [2, 3], 4])
-        self.assertEqual(str(p.reduce()[-1]),'4 * x ^ 2 + 5 * x + 1')
+        self.assertEqual(str(p.reduce()[-1]),'4 x ^ 2 + 5 x + 1')
 
     def test_add_int(self):
         p = Polynom([1, 2, 3])
         q = (p + 2)[-1]
-        self.assertEqual(str(q), '3 * x ^ 2 + 2 * x + 3')
+        self.assertEqual(str(q), '3 x ^ 2 + 2 x + 3')
 
     def test_add_frac(self):
         p = Polynom([1, 2, 3])
         f = Fraction(1, 2)
         q = (p + f)[-1]
         #ans = repr(Polynom([Expression(Fraction(3, 2)), Expression(2), Expression(3)]))
-        self.assertEqual(str(q),'3 * x ^ 2 + 2 * x + 3 / 2')
+        self.assertEqual(str(q),'3 x ^ 2 + 2 x + 3 / 2')
 
     def test_add_poly(self):
         p = Polynom([1, 0, 3])
         q = Polynom([0, 2, 3])
         r = (p + q)[-1]
-        self.assertEqual(str(r), '6 * x ^ 2 + 2 * x + 1')
+        self.assertEqual(str(r), '6 x ^ 2 + 2 x + 1')
 
     def test_radd_int(self):
         pass

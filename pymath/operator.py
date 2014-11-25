@@ -75,24 +75,20 @@ class Operator(str):
         :*args: Operands for this operation
         :returns: String with operator and his operands
 
-        >>> mul = Operator("*", 2)
-        >>> add = Operator("+", 2)
-        >>> sub1 = Operator("-", 1)
-        >>> div = Operator("/", 1)
-        >>> mul.__txt__('1','2')
+        >>> op.mul.__txt__('1','2')
         '1 * 2'
-        >>> add.__txt__('1','2')
+        >>> op.add.__txt__('1','2')
         '1 + 2'
-        >>> f = save_mainOp('2 + 3',add)
-        >>> mul.__txt__(f, '4')
+        >>> f = save_mainOp('2 + 3',op.add)
+        >>> op.mul.__txt__(f, '4')
         '( 2 + 3 ) * 4'
-        >>> f = save_mainOp('-3',sub1)
-        >>> sub1.__txt__(f)
+        >>> f = save_mainOp('-3',op.sub1)
+        >>> op.sub1.__txt__(f)
         '- ( -3 )'
-        >>> sub1.__txt__('-3')
+        >>> op.sub1.__txt__('-3')
         '- ( -3 )'
-        >>> f = save_mainOp('2 + 3',add)
-        >>> sub1.__txt__(f)
+        >>> f = save_mainOp('2 + 3',op.add)
+        >>> op.sub1.__txt__(f)
         '- ( 2 + 3 )'
         """
         replacement = {"op"+str(i+1): ' '.join(self.add_parenthesis(op)) for (i,op) in enumerate(args)}
@@ -107,24 +103,20 @@ class Operator(str):
         :*args: Operands for this operation
         :returns: String with operator and his operands
 
-        >>> mul = Operator("*", 2)
-        >>> add = Operator("+", 2)
-        >>> sub1 = Operator("-", 1)
-        >>> div = Operator("/", 1)
-        >>> mul.__tex__('1','2')
+        >>> op.mul.__tex__('1','2')
         '1 \\\\times 2'
-        >>> add.__tex__('1','2')
+        >>> op.add.__tex__('1','2')
         '1 + 2'
-        >>> f = save_mainOp('2 + 3',add)
-        >>> mul.__tex__(f, '4')
+        >>> f = save_mainOp('2 + 3',op.add)
+        >>> op.mul.__tex__(f, '4')
         '( 2 + 3 ) \\\\times 4'
-        >>> f = save_mainOp('-3',sub1)
-        >>> sub1.__tex__(f)
+        >>> f = save_mainOp('-3',op.sub1)
+        >>> op.sub1.__tex__(f)
         '- ( -3 )'
-        >>> sub1.__tex__('-3')
+        >>> op.sub1.__tex__('-3')
         '- ( -3 )'
-        >>> f = save_mainOp('2 + 3',add)
-        >>> sub1.__tex__(f)
+        >>> f = save_mainOp('2 + 3',op.add)
+        >>> op.sub1.__tex__(f)
         '- ( 2 + 3 )'
         """
         replacement = {"op"+str(i+1): ' '.join(self.add_parenthesis(op)) for (i,op) in enumerate(args)}
@@ -139,21 +131,19 @@ class Operator(str):
         :*args: Operands for this operation
         :returns: list with the operator surrounded by operands
 
-        >>> mul = Operator("*", 2)
-        >>> add = Operator("+", 2)
-        >>> sub1 = Operator("-", 1)
-        >>> mul.__p2i__(1,2)
+        # TODO: order doctest  |lun. nov. 24 07:17:29 CET 2014
+        >>> op.mul.__p2i__(1,2)
         [1, '*', 2]
-        >>> f = save_mainOp([2, add, 3],add)
-        >>> mul.__p2i__(f, 4)
+        >>> f = save_mainOp([2, op.add, 3],op.add)
+        >>> op.mul.__p2i__(f, 4)
         ['(', 2, '+', 3, ')', '*', 4]
-        >>> f = save_mainOp([sub1, 3],sub1)
-        >>> sub1.__p2i__(f)
+        >>> f = save_mainOp([op.sub1, 3],op.sub1)
+        >>> op.sub1.__p2i__(f)
         ['-', '(', '-', 3, ')']
-        >>> sub1.__p2i__(-3)
+        >>> op.sub1.__p2i__(-3)
         ['-', '(', -3, ')']
-        >>> f = save_mainOp([2, add, 3],add)
-        >>> sub1.__p2i__(f)
+        >>> f = save_mainOp([2, op.add, 3],op.add)
+        >>> op.sub1.__p2i__(f)
         ['-', '(', 2, '+', 3, ')']
         """
         # TODO: Attention à gestion des fractions qui se comportent chelou avec les parenthèses |dim. nov.  9 09:21:52 CET 2014
