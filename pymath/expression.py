@@ -98,7 +98,7 @@ class Expression(object):
                 op1 = tokenList[0]
                 op2 = tokenList[1]
                 operator = tokenList[2]
-
+                
                 res = operator(op1, op2)
 
                 tmpTokenList.append(res)

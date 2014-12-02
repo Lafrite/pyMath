@@ -27,6 +27,11 @@ class Operator(str):
 
     def __call__(self, *args):
         """ Calling this operator performs the rigth calculus """
+        return self._call(*args)
+
+
+    def _call(self, *args):
+        """Trick to avoid overloading __call__ """
         if self.arity == 1:
             return getattr(args[0], self.actions)()
 
@@ -169,11 +174,11 @@ def operatorize(fun):
     The returned value of the function has to be a dictionnary with those keys
         * "operator": the name (Needed!)
         * "priority": the priority level
-        * "action": mathematic action of the operator (list of 1 element if the arity is 1, 2 elements if arity is 2)
+        * "actions": mathematics actions of the operator (list of 1 element if the arity is 1, 2 elements if arity is 2)
         * "txt": string ready to be formated in txt for with {op1} and/or {op2}
         * "tex": string ready to be formated in tex for with {op1} and/or {op2}
         * "arity": arity ie number of operands needed
-        * "__call__": action to perform when call the operator
+        * "_call": action to perform when call the operator
         * "_render": action use in __txt__ and __tex__
         * "__txt__": txt rendering
         * "__tex__": tex rendering
@@ -182,14 +187,14 @@ def operatorize(fun):
     def mod_fun(self, *args):
         ans = fun(self, *args)
 
-        op = Operator(ans["operator"])
+        new_op = Operator(ans["operator"])
         for (attr, value) in ans.items():
             if hasattr(value, '__call__'):
-                setattr(op, attr, types.MethodType(value, op))
+                setattr(new_op, attr, types.MethodType(value, new_op))
             else:
-                setattr(op, attr, value)
+                setattr(new_op, attr, value)
 
-        return op
+        return new_op
     return mod_fun
 
 class ClassProperty(object):
@@ -236,7 +241,7 @@ class op(object):
             "name" : "add",\
             "priority" : 1, \
             "arity" : 2, \
-            "action" : ("__add__","__radd__"), \
+            "actions" : ("__add__","__radd__"), \
             "txt" :  "{op1} + {op2}",\
             "tex" :  "{op1} + {op2}",\
         }
@@ -252,7 +257,7 @@ class op(object):
             "name" : "sub",\
             "priority" : 1, \
             "arity" : 2, \
-            "action" : ("__sub__","__rsub__"), \
+            "actions" : ("__sub__","__rsub__"), \
             "txt" :  "{op1} - {op2}",\
             "tex" :  "{op1} - {op2}",\
         }
@@ -282,7 +287,7 @@ class op(object):
             "name" : "sub1",\
             "priority" : 2, \
             "arity" : 1, \
-            "action" : "__neg__",\
+            "actions" : "__neg__",\
             "txt" :  "- {op1}",\
             "tex" :  "- {op1}",\
             "add_parenthesis": add_parenthesis,\
@@ -314,7 +319,7 @@ class op(object):
             "name" : "mul",\
             "priority" : 4, \
             "arity" : 2, \
-            "action" : ("__mul__","__rmul__"), \
+            "actions" : ("__mul__","__rmul__"), \
             "txt" :  "{op1} * {op2}",\
             "tex" :  "{op1} \\times {op2}",\
             "visibility": 1,\
@@ -327,7 +332,8 @@ class op(object):
     @operatorize
     def div(self):
         """ The operator / """
-        def __call__(self, op1, op2):
+        from .fraction import Fraction
+        def _call(self, op1, op2):
             if op2 == 1:
                 return op1
             else:
@@ -348,7 +354,7 @@ class op(object):
             "arity" : 2, \
             "txt" :  "{op1} /^ {op2}",\
             "tex" : "\\frac{{ {op1} }}{{ {op2} }}",\
-            "__call__": __call__,\
+            "_call": _call,\
             "__tex__":__tex__,\
         }
 
@@ -358,14 +364,19 @@ class op(object):
     @operatorize
     def pw(self):
         """ The operator ^ """
+        def _call(self, op1, op2):
+            """ Calling this operator performs the rigth calculus """
+            return getattr(op1, "__pow__")(op2)
+
         caract = {
             "operator" : "^", \
             "name" : "pw",\
             "priority" : 5, \
             "arity" : 2, \
-            "action" : ("__pow__",""), \
+            "actions" : ("__pow__",""), \
             "txt" :  "{op1} ^ {op2}",\
             "tex" :  "{op1}^{{  {op2} }}",\
+            "_call":_call,\
         }
 
         return caract
@@ -383,9 +394,9 @@ class op(object):
         return caract
 
 if __name__ == '__main__':
-    print(op.add.__txt__('1','2'))
-    print(op.mul.__txt__('1','2'))
-    print(op.sub.__txt__('1','2'))
+    print(op.add.__tex__('1','2'))
+    print(op.mul.__tex__('1','2'))
+    print(op.sub.__tex__('1','2'))
     f = save_mainOp('2 + 3',op.add)
     print(op.mul.__txt__(f, '4'))
     f = save_mainOp('-3',op.sub1)
