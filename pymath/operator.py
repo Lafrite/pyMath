@@ -209,7 +209,7 @@ class op(object):
             ("*", 2): "mul",\
             ("/", 2): "div",\
             ("^", 2): "pw",\
-            (")", 2): "par",\
+            ("(", 2): "par",\
             }
 
     @classmethod
@@ -220,6 +220,12 @@ class op(object):
         :arity: the arity
         """
         return getattr(cls, cls._operators[(op, arity)])
+
+    @classmethod
+    def can_be_operator(cls, symbole):
+        """ Tell if the symbole can be an operator """
+        return symbole in [i[0] for i in cls._operators]
+
 
     @ClassProperty
     @operatorize
@@ -393,6 +399,9 @@ if __name__ == '__main__':
     print(op.add.__txt__(f.__txt__(),'2'))
     print(op.add.__tex__(f.__tex__(),'2'))
 
+    print("\t op.can_be_operator('+') :" + str(op.can_be_operator('+')))
+    print("\t op.can_be_operator('t') :" + str(op.can_be_operator('t')))
+    
 
     import doctest
     doctest.testmod()
