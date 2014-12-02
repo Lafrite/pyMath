@@ -9,11 +9,12 @@ class Operator(str):
 
     """The operator class, is a string (representation of the operator) with its arity"""
 
-    def __new__(cls, operator = "", priority = 0, actions = ("",""), txt = "", tex = "", arity = 2):
+    def __new__(cls, operator = "", name = "", priority = 0, actions = ("",""), txt = "", tex = "", arity = 2):
         """ Create an Operator """
         #def __new__(cls, operator,  arity = 2):
         op = str.__new__(cls, operator)
-        op.name = operator
+        op.operator = operator
+        op.name = name
         op.arity = arity
         op.priority = priority
         op.actions = actions
@@ -184,12 +185,10 @@ def operatorize(fun):
         op = Operator(ans["operator"])
         for (attr, value) in ans.items():
             if hasattr(value, '__call__'):
-                #callback = lambda *args, **kwrds: value(op, *args, **kwrds)
-                #setattr(op, attr, callback)
                 setattr(op, attr, types.MethodType(value, op))
             else:
                 setattr(op, attr, value)
-        
+
         return op
     return mod_fun
 
@@ -204,12 +203,31 @@ class ClassProperty(object):
 class op(object):
     """ List of admited operations """
 
+    _operators = {("+",2): "add",\
+            ("-", 2): "sub",\
+            ("-", 1): "sub1",\
+            ("*", 2): "mul",\
+            ("/", 2): "div",\
+            ("^", 2): "pw",\
+            (")", 2): "par",\
+            }
+
+    @classmethod
+    def get_op(cls, op, arity = 2):
+        """Return the corresponding operator
+        
+        :op: symbole of the op
+        :arity: the arity
+        """
+        return getattr(cls, cls._operators[(op, arity)])
+
     @ClassProperty
     @operatorize
     def add(cls):
         """ The operator + """
         caract = {
             "operator" : "+", \
+            "name" : "add",\
             "priority" : 1, \
             "arity" : 2, \
             "action" : ("__add__","__radd__"), \
@@ -225,6 +243,7 @@ class op(object):
         """ The operator - """
         caract = {
             "operator" : "-", \
+            "name" : "sub",\
             "priority" : 1, \
             "arity" : 2, \
             "action" : ("__sub__","__rsub__"), \
@@ -254,6 +273,7 @@ class op(object):
 
         caract = {
             "operator" : "-", \
+            "name" : "sub1",\
             "priority" : 2, \
             "arity" : 1, \
             "action" : "__neg__",\
@@ -285,6 +305,7 @@ class op(object):
 
         caract = {
             "operator" : "*", \
+            "name" : "mul",\
             "priority" : 4, \
             "arity" : 2, \
             "action" : ("__mul__","__rmul__"), \
@@ -316,6 +337,7 @@ class op(object):
 
         caract = {
             "operator" : "/", \
+            "name" : "div",\
             "priority" : 4, \
             "arity" : 2, \
             "txt" :  "{op1} /^ {op2}",\
@@ -332,6 +354,7 @@ class op(object):
         """ The operator ^ """
         caract = {
             "operator" : "^", \
+            "name" : "pw",\
             "priority" : 5, \
             "arity" : 2, \
             "action" : ("__pow__",""), \
@@ -347,6 +370,7 @@ class op(object):
         """ The operator ( """
         caract = {
             "operator" : "(", \
+            "name" : "par",\
             "priority" : 0, \
             "arity" : 0, \
         }
@@ -368,7 +392,7 @@ if __name__ == '__main__':
     f = Fraction(1, 2)
     print(op.add.__txt__(f.__txt__(),'2'))
     print(op.add.__tex__(f.__tex__(),'2'))
-    
+
 
     import doctest
     doctest.testmod()
