@@ -3,27 +3,26 @@
 
 
 from .generic import flatten_list, isNumber
+import types
 
-class Operator(object):
+class Operator(str):
 
     """The operator class, is a string (representation of the operator) with its arity"""
 
-    def __init__(self, operator = "", priority = 0, actions = ("",""), txt = "", tex = "", arity = 2):
+    def __new__(cls, operator = "", priority = 0, actions = ("",""), txt = "", tex = "", arity = 2):
         """ Create an Operator """
-        self.name = operator
-        self.arity = arity
+        #def __new__(cls, operator,  arity = 2):
+        op = str.__new__(cls, operator)
+        op.name = operator
+        op.arity = arity
+        op.priority = priority
+        op.actions = actions
+        op.txt = txt
+        op.tex = tex
 
+        op.isOperator = 1
         # TODO: Add self.visibility |sam. nov.  8 17:00:08 CET 2014
-
-        self.priority = priority
-        self.actions = actions
-        self.txt = txt
-        self.tex = tex
-
-        self.isselferator = 1
-
-    def __str__(self):
-        return self.name
+        return op
 
     def __call__(self, *args):
         """ Calling this operator performs the rigth calculus """
@@ -183,15 +182,14 @@ def operatorize(fun):
         ans = fun(self, *args)
 
         op = Operator(ans["operator"])
-        print("type(op)", type(op))
         for (attr, value) in ans.items():
             if hasattr(value, '__call__'):
-                print("value :", type(value))
-                print("value :", str(value))
-                callback = lambda *args, **kwrds: value(op, *args, **kwrds)
-                setattr(op, attr, callback)
+                #callback = lambda *args, **kwrds: value(op, *args, **kwrds)
+                #setattr(op, attr, callback)
+                setattr(op, attr, types.MethodType(value, op))
             else:
                 setattr(op, attr, value)
+        
         return op
     return mod_fun
 
@@ -257,7 +255,7 @@ class op(object):
         caract = {
             "operator" : "-", \
             "priority" : 2, \
-            "arity" : 2, \
+            "arity" : 1, \
             "action" : "__neg__",\
             "txt" :  "- {op1}",\
             "tex" :  "- {op1}",\
@@ -272,10 +270,6 @@ class op(object):
         """ The operator * """
         # * can not be display in some cases
         def _render(self, link, *args):
-
-            #print("self->", str(self))
-            #print("link ->", str(link))
-            #print("*args ->", str(args))
 
             replacement = {"op"+str(i+1): ' '.join(self.add_parenthesis(op)) for (i,op) in enumerate(args)}
 
