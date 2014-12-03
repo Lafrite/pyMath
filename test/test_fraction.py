@@ -121,6 +121,17 @@ class TestFraction(unittest.TestCase):
     def test_le(self):
         pass
 
+    def test_tex(self):
+        f = Fraction(2, 3)
+        ans = "\\frac{ 2 }{ 3 }"
+        self.assertEqual(f.__tex__(), ans)
+    
+    def test_txt(self):
+        f = Fraction(2, 3)
+        ans = "2 / 3"
+        self.assertEqual(f.__txt__(), ans)
+    
+
 
 if __name__ == '__main__':
     unittest.main()
