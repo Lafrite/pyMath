@@ -223,8 +223,19 @@ class op(object):
         
         :op: symbole of the op
         :arity: the arity
+
+        >>> op.get_op('+')
+        '+'
+        >>> mul = op.get_op('*')
+        >>> mul.tex
+        '{op1} \\\\times {op2}'
+        >>> mul.txt
+        '{op1} * {op2}'
         """
-        return getattr(cls, cls._operators[(op, arity)])
+        try:
+            return getattr(cls, cls._operators[(op, arity)])
+        except KeyError:
+            raise KeyError("{theOp} (arity: {arity}) is not available".format(theOp = op, arity = arity))
 
     @classmethod
     def can_be_operator(cls, symbole):
@@ -235,7 +246,20 @@ class op(object):
     @ClassProperty
     @operatorize
     def add(cls):
-        """ The operator + """
+        """ The operator +
+        
+        >>> add = op.add
+        >>> add
+        '+'
+        >>> add(1, 2)
+        3
+        >>> add.__tex__('1','2')
+        '1 + 2'
+        >>> add.__txt__('1','2')
+        '1 + 2'
+        >>> add.__tex__('1','-2')
+        '1 + (-2)'
+        """
         caract = {
             "operator" : "+", \
             "name" : "add",\
@@ -251,7 +275,20 @@ class op(object):
     @ClassProperty
     @operatorize
     def sub(self):
-        """ The operator - """
+        """ The operator -
+        
+        >>> sub = op.sub
+        >>> sub
+        '-'
+        >>> sub(1, 2)
+        -1
+        >>> sub.__tex__('1','2')
+        '1 - 2'
+        >>> sub.__txt__('1','2')
+        '1 - 2'
+        >>> sub.__tex__('1','-2')
+        '1 - (-2)'
+        """
         caract = {
             "operator" : "-", \
             "name" : "sub",\
@@ -267,7 +304,20 @@ class op(object):
     @ClassProperty
     @operatorize
     def sub1(self):
-        """ The operator - """
+        """ The operator -
+        
+        >>> sub1 = op.sub1
+        >>> sub1
+        '-'
+        >>> sub1(1)
+        -1
+        >>> sub1.__tex__('1')
+        '- 1'
+        >>> sub1.__txt__('1')
+        '- 1'
+        >>> sub1.__tex__('-1')
+        '- (-1)'
+        """
         def add_parenthesis(self, op):
             """ Add parenthesis if necessary """
             try:
@@ -298,7 +348,20 @@ class op(object):
     @ClassProperty
     @operatorize
     def mul(self):
-        """ The operator * """
+        """ The operator *
+        
+        >>> mul = op.mul
+        >>> mul
+        '*'
+        >>> mul(1, 2)
+        2
+        >>> mul.__tex__('1','2')
+        '1 \\times 2'
+        >>> mul.__txt__('1','2')
+        '1 * 2'
+        >>> mul.__tex__('1','-2')
+        '1 \\times (-2)'
+        """
         # * can not be display in some cases
         def _render(self, link, *args):
 
@@ -331,7 +394,20 @@ class op(object):
     @ClassProperty
     @operatorize
     def div(self):
-        """ The operator / """
+        """ The operator /
+        
+        >>> div = op.div
+        >>> div
+        '/'
+        >>> div(1, 2)
+        < Fraction 1 / 2>
+        >>> div.__tex__('1','2')
+        '\\frac{ 1 }{ 2 }'
+        >>> div.__tex__('1','2')
+        '\\frac{ -1 }{ 2 }'
+        >>> div.__txt__('1','2')
+        '1 / 2'
+        """
         from .fraction import Fraction
         def _call(self, op1, op2):
             if op2 == 1:
@@ -343,7 +419,7 @@ class op(object):
             # Pas besoin de parenthèses en plus pour \frac
             replacement = {"op"+str(i+1): op for (i,op) in enumerate(args)}
             
-            ans = self._tex.format(**replacement)
+            ans = self.tex.format(**replacement)
             ans = save_mainOp(ans, self)
             return ans
 
@@ -352,7 +428,7 @@ class op(object):
             "name" : "div",\
             "priority" : 4, \
             "arity" : 2, \
-            "txt" :  "{op1} /^ {op2}",\
+            "txt" :  "{op1} / {op2}",\
             "tex" : "\\frac{{ {op1} }}{{ {op2} }}",\
             "_call": _call,\
             "__tex__":__tex__,\
@@ -363,7 +439,20 @@ class op(object):
     @ClassProperty
     @operatorize
     def pw(self):
-        """ The operator ^ """
+        """ The operator ^
+        
+        >>> pw = op.pw
+        >>> pw
+        '^'
+        >>> pw(2, 3)
+        8
+        >>> pw.__tex__('2','3')
+        '2^{  3 }'
+        >>> pw.__txt__('2','3')
+        '2 ^ 3'
+        >>> pw.__txt__('-2','3')
+        '( -2 ) ^ 3'
+        """
         def _call(self, op1, op2):
             """ Calling this operator performs the rigth calculus """
             return getattr(op1, "__pow__")(op2)
