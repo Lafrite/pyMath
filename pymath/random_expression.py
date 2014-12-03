@@ -31,6 +31,19 @@ class RdExpression(object):
 
     @classmethod
     def set_form(cls, form):
+        """ Define whether RdExpression create expression with Expression (nice render) or if it only replace inside {} not taking care or render
+
+        >>> form = "{a}*{b}"
+        >>> exp = RdExpression(form)()
+        >>> print(type(exp))
+        <class 'pymath.expression.Expression'>
+        >>> RdExpression.set_form("raw")
+        >>> form = "{a}*{b}"
+        >>> exp = RdExpression(form)()
+        >>> print(type(exp))
+        <class 'str'>
+        """
+
         cls.FORM = form
 
     @classmethod
@@ -189,12 +202,13 @@ if __name__ == '__main__':
     rdExp3 = RdExpression(form, cond)
     desc_rdExp(rdExp3)
 
-    form = "{a + a*10}*4 + {a} + 2*{b}"
+    form = "{a+a*10}*4 + {a} + 2*{b}"
     cond = ["{a-b} + {b} in list(range(20))", "abs({a}) not in [1]", "{b} not in [1]", "gcd({a},{b}) == 1"]
     rdExp3 = RdExpression(form, cond)
     desc_rdExp(rdExp3)
 
-
+    import doctest
+    doctest.testmod()
 
 
 
