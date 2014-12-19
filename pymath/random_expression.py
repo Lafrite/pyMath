@@ -27,7 +27,7 @@ class RdExpression(object):
 
         self._letters = self.get_letters()
         self._gene_varia = {}
-        self._gene_2replaced= {}
+        self._gene_2replaced = {}
 
     def get_2replaced(self):
         """Get elements of self._form which will have to be replaced
@@ -74,12 +74,6 @@ class RdExpression(object):
         :returns: an formated random expression 
 
         """
-        #if self.FORM == "exp":
-        #    return self.raw_exp(val_min, val_max)
-        #elif self.FORM == "raw":
-        #    return self.raw_str(val_min, val_max)
-        #else:
-        #    raise ValueError(self.FORM , " is an undefined form for self.FORM")
         return self.raw_str(val_min, val_max)
 
     def raw_str(self, val_min = -10, val_max = 10):
