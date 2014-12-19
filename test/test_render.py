@@ -6,7 +6,7 @@ import unittest
 
 from pymath.render import tex, txt,p2i
 from pymath.fraction import Fraction
-from pymath.operator import Operator 
+from pymath.operator import op
 
 
 
@@ -23,29 +23,29 @@ class TestTexRender(unittest.TestCase):
         self.assertEqual(tex([Fraction(1,2)]), "\\frac{ 1 }{ 2 }")
 
     def test_mult_interger(self):
-        exps = [ [2, 3, Operator("*", 2)], [2, -3, Operator("*", 2)], [-2, 3, Operator("*", 2)]]
+        exps = [ [2, 3, op.get_op("*", 2)], [2, -3, op.get_op("*", 2)], [-2, 3, op.get_op("*", 2)]]
         wanted_render = [ "2 \\times 3", "2 \\times ( -3 )", "-2 \\times 3"]
         for (i,e) in enumerate(exps):
             rend = tex(e)
             self.assertEqual(rend, wanted_render[i])
 
     def test_mult_letter(self):
-        exps = [ [2, "a", Operator("*", 2)], ["a", 3, Operator("*", 2)], [-2, "a", Operator("*", 2)], ["a", -2, Operator("*", 2)]]
+        exps = [ [2, "a", op.get_op("*", 2)], ["a", 3, op.get_op("*", 2)], [-2, "a", op.get_op("*", 2)], ["a", -2, op.get_op("*", 2)]]
         wanted_render = [ "2 a", "a \\times 3", "-2 a", "a \\times ( -2 )"]
         for (i,e) in enumerate(exps):
             rend = tex(e)
             self.assertEqual(rend, wanted_render[i])
 
     def test_mult_fraction(self):
-        exps = [ [2, Fraction(1,2), Operator("*", 2)], [Fraction(1,2), 3, Operator("*", 2)]]
+        exps = [ [2, Fraction(1,2), op.get_op("*", 2)], [Fraction(1,2), 3, op.get_op("*", 2)]]
         wanted_render = [ "2 \\times \\frac{ 1 }{ 2 }", "\\frac{ 1 }{ 2 } \\times 3"]
         for (i,e) in enumerate(exps):
             rend = tex(e)
             self.assertEqual(rend, wanted_render[i])
 
     def test_parentheses(self):
-        mul = Operator("*", 2)
-        add = Operator("+", 2)
+        mul = op.get_op("*", 2)
+        add = op.get_op("+", 2)
         exps = [\
             [ 2, 3, add, 4, mul],\
             [ 2, 3, mul, 4, add],\
@@ -81,35 +81,35 @@ class TesttxtRender(unittest.TestCase):
         self.assertEqual(txt([Fraction(1,2)]), "1 / 2")
 
     def test_mult_interger(self):
-        exps = [ [2, 3, Operator("*", 2)], \
-                [2, -3, Operator("*", 2)], \
-                [-2, 3, Operator("*", 2)]]
+        exps = [ [2, 3, op.get_op("*", 2)], \
+                [2, -3, op.get_op("*", 2)], \
+                [-2, 3, op.get_op("*", 2)]]
         wanted_render = [ "2 * 3", "2 * ( -3 )", "-2 * 3"]
         for (i,e) in enumerate(exps):
             rend = txt(e)
             self.assertEqual(rend, wanted_render[i])
 
     def test_mult_letter(self):
-        exps = [ [2, "a", Operator("*", 2)], \
-                ["a", 3, Operator("*", 2)], \
-                [-2, "a", Operator("*", 2)], \
-                ["a", -2, Operator("*", 2)]]
+        exps = [ [2, "a", op.get_op("*", 2)], \
+                ["a", 3, op.get_op("*", 2)], \
+                [-2, "a", op.get_op("*", 2)], \
+                ["a", -2, op.get_op("*", 2)]]
         wanted_render = [ "2 a", "a * 3", "-2 a", "a * ( -2 )"]
         for (i,e) in enumerate(exps):
             rend = txt(e)
             self.assertEqual(rend, wanted_render[i])
 
     def test_mult_fraction(self):
-        exps = [ [2, Fraction(1,2), Operator("*", 2)], \
-                [Fraction(1,2), 3, Operator("*", 2)]]
+        exps = [ [2, Fraction(1,2), op.get_op("*", 2)], \
+                [Fraction(1,2), 3, op.get_op("*", 2)]]
         wanted_render = [ "2 * 1 / 2", "1 / 2 * 3"]
         for (i,e) in enumerate(exps):
             rend = txt(e)
             self.assertEqual(rend, wanted_render[i])
 
     def test_parentheses(self):
-        mul = Operator("*", 2)
-        add = Operator("+", 2)
+        mul = op.get_op("*", 2)
+        add = op.get_op("+", 2)
         exps = [\
             [ 2, 3, add, 4, mul],\
             [ 2, 3, mul, 4, add],\

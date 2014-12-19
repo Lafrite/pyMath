@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from .operator import Operator
 from .generic import Stack, isOperator, isNumber
+from pymath.operator import op
 
 def str2tokens(exp):
     """ Parse the string into tokens then turn it into postfix form
@@ -51,7 +51,7 @@ def str2in_tokens(exp):
                 tokens.append(int(character))
 
         elif character in "+-*/:^":
-            tokens.append(Operator(character))
+            tokens.append(character)
 
         elif character == ")":
             tokens.append(character)
@@ -60,9 +60,8 @@ def str2in_tokens(exp):
             # If "3(", ")("
             if isNumber(tokens[-1]) \
                     or tokens[-1] == ")" :
-                        #tokens.append(Operator("*"))
-                tokens.append(Operator("*"))
-            tokens.append(Operator(character))
+                tokens.append("*")
+            tokens.append(character)
 
         elif character == ".":
             raise ValueError("No float number please")
@@ -80,15 +79,11 @@ def in2post_fix(infix_tokens):
     @param infix_tokens: the infix list of tokens to transform into postfix form.
     @return: the corresponding postfix list of tokens.
 
-    >>> a, s, m, d, p = Operator("+"), Operator("-"), Operator("*"), Operator("/"), Operator("^")
-    >>> s1 = Operator("-", 1)
-    >>> par = Operator("(")
-
-    >>> in2post_fix([par, 2, a, 5, s, 1, ')', d, par, 3, m, 4, ')'])
+    >>> in2post_fix([op.par, 2, op.add, 5, op.sub, 1, ')', op.div, op.par, 3, op.mul, 4, ')'])
     [2, 5, '+', 1, '-', 3, 4, '*', '/']
-    >>> in2post_fix([s1, par, s1, 2, ')'])
+    >>> in2post_fix([op.sub1, op.par, op.sub1, 2, ')'])
     [2, '-', '-']
-    >>> in2post_fix([s1, par, s1, 2, a, 3, m, 4, ')'])
+    >>> in2post_fix([op.sub1, op.par, op.sub1, 2, op.add, 3, op.mul, 4, ')'])
     [2, '-', 3, 4, '*', '+', '-']
     """
     # Stack where operator will be stocked
@@ -101,13 +96,13 @@ def in2post_fix(infix_tokens):
 
     for (pos_token,token) in enumerate(infix_tokens):
 
-        ## Pour voir ce qu'il se passe dans cette procédure
+        # Pour voir ce qu'il se passe dans cette procédure
         #print(str(postfix_tokens), " | ", str(opStack), " | ", str(infix_tokens[(pos_token+1):]), " | ", str(arity_Stack))
         if token == ")":
-            op = opStack.pop()
-            while op != "(":
-                postfix_tokens.append(op)
-                op = opStack.pop()
+            next_op = opStack.pop()
+            while next_op != "(":
+                postfix_tokens.append(next_op)
+                next_op = opStack.pop()
 
             # Go back to old arity 
             arity_Stack.pop()
@@ -115,23 +110,22 @@ def in2post_fix(infix_tokens):
             arity = arity_Stack.pop()
             arity_Stack.push(arity + 1)
 
-        elif isOperator(token):
+        elif op.can_be_operator(token):
             if token == "(":
-                opStack.push(token)
+                opStack.push(op.get_op(token))
                 # Set next arity counter
                 arity_Stack.push(0)
             else:
-                while (not opStack.isEmpty()) and opStack.peek().priority >= token.priority:
-                    op = opStack.pop()
-                    postfix_tokens.append(op)
-
                 arity = arity_Stack.pop() 
-                
-                token.arity = arity + 1
-                opStack.push(token)
-                # print("--", token, " -> ", str(arity + 1))
+                token_op = op.get_op(token, arity + 1)
                 # Reset arity to 0 in case there is other operators (the real operation would be "-op.arity + 1")
                 arity_Stack.push(0)
+                while (not opStack.isEmpty()) and opStack.peek().priority >= token_op.priority:
+                    next_op = opStack.pop()
+                    postfix_tokens.append(next_op)
+
+                opStack.push(token_op)
+                #print("--", token, " -> ", str(arity + 1))
         else:
             postfix_tokens.append(token)
             arity = arity_Stack.pop()
@@ -141,8 +135,8 @@ def in2post_fix(infix_tokens):
     #print(str(postfix_tokens), " | ", str(opStack), " | ", str(infix_tokens[(pos_token+1):]), " | ", str(arity_Stack))
 
     while not opStack.isEmpty():
-        op = opStack.pop()
-        postfix_tokens.append(op)
+        next_op = opStack.pop()
+        postfix_tokens.append(next_op)
 
         ## Pour voir ce qu'il se passe dans cette procédure
         #print(str(postfix_tokens), " | ", str(opStack), " | ", str(infix_tokens[(pos_token+1):]), " | ", str(arity_Stack))
@@ -161,7 +155,6 @@ if __name__ == '__main__':
     #
     #print(in2post_fix(in_tokens))
 
-    from .operator import op
     print(in2post_fix([op.par, 2, op.add, 5, op.sub, 1, ')', op.div, op.par, 3, op.mul, 4, ')']))
     print(in2post_fix([op.sub1, op.par, op.sub1, 2, ')']))
     print(in2post_fix([op.sub1, op.par, op.sub1, 2, op.add, 3, op.mul, 4, ')']))

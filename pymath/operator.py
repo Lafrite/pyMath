@@ -3,71 +3,57 @@
 
 
 from .generic import flatten_list, isNumber
+import types
 
 class Operator(str):
 
     """The operator class, is a string (representation of the operator) with its arity"""
 
-    PRIORITY = {"^": [0, 5], "/": [0, 4], "*" : [0,3], ":": [0,3], "+": [0,1], "-":[2,1], "(":[0,0]}
-    OPERATIONS = { \
-            "+": ["", ("__add__","__radd__")],\
-            "-": ["__neg__", ("__sub__", "__rsub__")], \
-            "*": ["", ("__mul__", "__rmul__")], \
-            "/": ["", ("__div__","__rdiv__")], \
-            "^": ["", ("__pow__", "")], \
-            "(": ["",""],\
-            }
-    TXT = { \
-            "+": ["", "{op1} + {op2}"] ,\
-            "-": ["- {op1}", "{op1} - {op2}"] ,\
-            "*": ["", "{op1} * {op2}"] ,\
-            "/": ["", "{op1} / {op2}"] ,\
-            "^": ["", "{op1} ^ {op2}"] ,\
-            "(": ["",""],\
-            }
-    TEX = { \
-            "+": ["", "{op1} + {op2}"] ,\
-            "-": ["- {op1}", "{op1} - {op2}"] ,\
-            "*": ["", "{op1} \\times {op2}"] ,\
-            "/": ["", "\\frac{{ {op1} }}{{ {op2} }}"] ,\
-            "^": ["", "{op1}^{{ {op2} }}"] ,\
-            "(": ["",""],\
-            }
-
-
-    def __new__(cls, operator,  arity = 2):
+    def __new__(cls, operator = "", name = "", priority = 0, actions = ("",""), txt = "", tex = "", arity = 2):
+        """ Create an Operator """
+        #def __new__(cls, operator,  arity = 2):
         op = str.__new__(cls, operator)
+        op.operator = operator
+        op.name = name
         op.arity = arity
-
-        # TODO: Add op.visibility |sam. nov.  8 17:00:08 CET 2014
-
-        op.priority = cls.PRIORITY[operator][arity - 1]
-        op.actions = cls.OPERATIONS[operator][arity-1]
-        op._txt = cls.TXT[operator][arity-1]
-        op._tex = cls.TEX[operator][arity-1]
+        op.priority = priority
+        op.actions = actions
+        op.txt = txt
+        op.tex = tex
 
         op.isOperator = 1
-
+        # TODO: Add self.visibility |sam. nov.  8 17:00:08 CET 2014
         return op
 
     def __call__(self, *args):
         """ Calling this operator performs the rigth calculus """
+        return self._call(*args)
+
+
+    def _call(self, *args):
+        """Trick to avoid overloading __call__ """
         if self.arity == 1:
             return getattr(args[0], self.actions)()
 
         elif self.arity == 2:
-            # C'est moche mais je veux que ça marche...
-            if str(self) == "/":
-                # TODO: faudra changer ça c'est pas beau! |ven. nov. 14 16:13:49 CET 2014
-                from .fraction import Fraction
-                ans = [Fraction(args[0], args[1])]
-                ans += ans[0].simplify()
-                return ans
+            if type(args[1]) == int:
+                return getattr(args[0], self.actions[0])(args[1])
             else:
-                if type(args[1]) == int:
-                    return getattr(args[0], self.actions[0])(args[1])
-                else:
-                    return getattr(args[1], self.actions[1])(args[0])
+                return getattr(args[1], self.actions[1])(args[0])
+
+    def _render(self, link, *args):
+        """Global step for __txt__ and __tex__
+
+        :param link: the link between operators
+        :param *args: the operands
+        :returns: the string with operator and operands
+
+        """
+        replacement = {"op"+str(i+1): ' '.join(self.add_parenthesis(op)) for (i,op) in enumerate(args)}
+        
+        ans = link.format(**replacement)
+        ans = save_mainOp(ans, self)
+        return ans
 
     def __txt__(self, *args):
         """Txt rendering for the operator
@@ -91,11 +77,7 @@ class Operator(str):
         >>> op.sub1.__txt__(f)
         '- ( 2 + 3 )'
         """
-        replacement = {"op"+str(i+1): ' '.join(self.add_parenthesis(op)) for (i,op) in enumerate(args)}
-        
-        ans = self._txt.format(**replacement)
-        ans = save_mainOp(ans, self)
-        return ans
+        return self._render(self.txt, *args)
 
     def __tex__(self, *args):
         """Tex rendering for the operator
@@ -119,11 +101,7 @@ class Operator(str):
         >>> op.sub1.__tex__(f)
         '- ( 2 + 3 )'
         """
-        replacement = {"op"+str(i+1): ' '.join(self.add_parenthesis(op)) for (i,op) in enumerate(args)}
-        
-        ans = self._tex.format(**replacement)
-        ans = save_mainOp(ans, self)
-        return ans
+        return self._render(self.tex, *args)
 
     def __p2i__(self, *args):
         """Fix list transformation for the operator
@@ -166,24 +144,13 @@ class Operator(str):
             if op.mainOp.priority < self.priority:
                 op = flatten_list(["("] + [op] + [")"])
         except AttributeError:
+            # op has not the attribute priority
             try:
                 if int(op) < 0:
                     op = ['(', op, ')']
             except ValueError:
                 pass
         return flatten_list([op])
-
-
-class op(object):
-    """ List of admited operations """
-    # TODO: On pourrait peut être le faire plus proprement avec des décorateurs? |mar. nov. 11 20:24:54 CET 2014
-    add  = Operator("+")
-    sub  = Operator("-")
-    mul  = Operator("*")
-    div  = Operator("/")
-    pw   = Operator("^")
-    sub1 = Operator("-", 1)
-    par = Operator("(")
 
 def save_mainOp(obj, mainOp):
     """Create a temporary class build over built-in type to stock the main operation of a calculus
@@ -201,27 +168,339 @@ def save_mainOp(obj, mainOp):
 
     return Fake(obj)
 
+def operatorize(fun):
+    """Transform the answer of the function into an operator
+
+    The returned value of the function has to be a dictionnary with those keys
+        * "operator": the name (Needed!)
+        * "priority": the priority level
+        * "actions": mathematics actions of the operator (list of 1 element if the arity is 1, 2 elements if arity is 2)
+        * "txt": string ready to be formated in txt for with {op1} and/or {op2}
+        * "tex": string ready to be formated in tex for with {op1} and/or {op2}
+        * "arity": arity ie number of operands needed
+        * "_call": action to perform when call the operator
+        * "_render": action use in __txt__ and __tex__
+        * "__txt__": txt rendering
+        * "__tex__": tex rendering
+        * "add_parenthesis": mechanism to add parenthesis
+    """
+    def mod_fun(self, *args):
+        ans = fun(self, *args)
+
+        new_op = Operator(ans["operator"])
+        for (attr, value) in ans.items():
+            if hasattr(value, '__call__'):
+                setattr(new_op, attr, types.MethodType(value, new_op))
+            else:
+                setattr(new_op, attr, value)
+
+        return new_op
+    return mod_fun
+
+class ClassProperty(object):
+
+    def __init__(self, fget):
+        self.fget = fget
+
+    def __get__(self, owner_self, owner_cls):
+        return self.fget(owner_cls)
+
+class op(object):
+    """ List of admited operations """
+
+    _operators = {("+",2): "add",\
+            ("-", 2): "sub",\
+            ("-", 1): "sub1",\
+            ("*", 2): "mul",\
+            ("/", 2): "div",\
+            ("^", 2): "pw",\
+            ("(", 2): "par",\
+            }
+
+    @classmethod
+    def get_op(cls, op, arity = 2):
+        """Return the corresponding operator
+        
+        :op: symbole of the op
+        :arity: the arity
+
+        >>> op.get_op('+')
+        '+'
+        >>> mul = op.get_op('*')
+        >>> mul.tex
+        '{op1} \\\\times {op2}'
+        >>> mul.txt
+        '{op1} * {op2}'
+        """
+        try:
+            return getattr(cls, cls._operators[(op, arity)])
+        except KeyError:
+            raise KeyError("{theOp} (arity: {arity}) is not available".format(theOp = op, arity = arity))
+
+    @classmethod
+    def can_be_operator(cls, symbole):
+        """ Tell if the symbole can be an operator """
+        return symbole in [i[0] for i in cls._operators]
+
+
+    @ClassProperty
+    @operatorize
+    def add(cls):
+        """ The operator +
+        
+        >>> add = op.add
+        >>> add
+        '+'
+        >>> add(1, 2)
+        3
+        >>> add.__tex__('1','2')
+        '1 + 2'
+        >>> add.__txt__('1','2')
+        '1 + 2'
+        >>> add.__tex__('1','-2')
+        '1 + (-2)'
+        """
+        caract = {
+            "operator" : "+", \
+            "name" : "add",\
+            "priority" : 1, \
+            "arity" : 2, \
+            "actions" : ("__add__","__radd__"), \
+            "txt" :  "{op1} + {op2}",\
+            "tex" :  "{op1} + {op2}",\
+        }
+
+        return caract
+
+    @ClassProperty
+    @operatorize
+    def sub(self):
+        """ The operator -
+        
+        >>> sub = op.sub
+        >>> sub
+        '-'
+        >>> sub(1, 2)
+        -1
+        >>> sub.__tex__('1','2')
+        '1 - 2'
+        >>> sub.__txt__('1','2')
+        '1 - 2'
+        >>> sub.__tex__('1','-2')
+        '1 - (-2)'
+        """
+        caract = {
+            "operator" : "-", \
+            "name" : "sub",\
+            "priority" : 1, \
+            "arity" : 2, \
+            "actions" : ("__sub__","__rsub__"), \
+            "txt" :  "{op1} - {op2}",\
+            "tex" :  "{op1} - {op2}",\
+        }
+
+        return caract
+
+    @ClassProperty
+    @operatorize
+    def sub1(self):
+        """ The operator -
+        
+        >>> sub1 = op.sub1
+        >>> sub1
+        '-'
+        >>> sub1(1)
+        -1
+        >>> sub1.__tex__('1')
+        '- 1'
+        >>> sub1.__txt__('1')
+        '- 1'
+        >>> sub1.__tex__('-1')
+        '- (-1)'
+        """
+        def add_parenthesis(self, op):
+            """ Add parenthesis if necessary """
+            try:
+                if op.mainOp.priority <= self.priority:
+                    op = flatten_list(["("] + [op] + [")"])
+            except AttributeError:
+                # op has not the attribute priority
+                try:
+                    if int(op) < 0:
+                        op = ['(', op, ')']
+                except ValueError:
+                    pass
+            return flatten_list([op])
+
+        caract = {
+            "operator" : "-", \
+            "name" : "sub1",\
+            "priority" : 2, \
+            "arity" : 1, \
+            "actions" : "__neg__",\
+            "txt" :  "- {op1}",\
+            "tex" :  "- {op1}",\
+            "add_parenthesis": add_parenthesis,\
+        }
+
+        return caract
+
+    @ClassProperty
+    @operatorize
+    def mul(self):
+        """ The operator *
+        
+        >>> mul = op.mul
+        >>> mul
+        '*'
+        >>> mul(1, 2)
+        2
+        >>> mul.__tex__('1','2')
+        '1 \\times 2'
+        >>> mul.__txt__('1','2')
+        '1 * 2'
+        >>> mul.__tex__('1','-2')
+        '1 \\times (-2)'
+        """
+        # * can not be display in some cases
+        def _render(self, link, *args):
+
+            replacement = {"op"+str(i+1): ' '.join(self.add_parenthesis(op)) for (i,op) in enumerate(args)}
+
+            if not self.visibility or args[1][0] == "(" or \
+                    (type(args[1][0]) == str and args[1][0].isalpha()):
+                ans = "{op1} {op2}".format(**replacement)
+                ans = save_mainOp(ans, self)
+                return ans
+            else:
+                ans = link.format(**replacement)
+                ans = save_mainOp(ans, self)
+                return ans
+
+        caract = {
+            "operator" : "*", \
+            "name" : "mul",\
+            "priority" : 4, \
+            "arity" : 2, \
+            "actions" : ("__mul__","__rmul__"), \
+            "txt" :  "{op1} * {op2}",\
+            "tex" :  "{op1} \\times {op2}",\
+            "visibility": 1,\
+            "_render": _render
+        }
+
+        return caract
+
+    @ClassProperty
+    @operatorize
+    def div(self):
+        """ The operator /
+        
+        >>> div = op.div
+        >>> div
+        '/'
+        >>> div(1, 2)
+        < Fraction 1 / 2>
+        >>> div.__tex__('1','2')
+        '\\frac{ 1 }{ 2 }'
+        >>> div.__tex__('1','2')
+        '\\frac{ -1 }{ 2 }'
+        >>> div.__txt__('1','2')
+        '1 / 2'
+        """
+        from .fraction import Fraction
+        def _call(self, op1, op2):
+            if op2 == 1:
+                return op1
+            else:
+                return Fraction(op1,op2)
+
+        def __tex__(self, *args):
+            # Pas besoin de parenthèses en plus pour \frac
+            replacement = {"op"+str(i+1): op for (i,op) in enumerate(args)}
+            
+            ans = self.tex.format(**replacement)
+            ans = save_mainOp(ans, self)
+            return ans
+
+        caract = {
+            "operator" : "/", \
+            "name" : "div",\
+            "priority" : 4, \
+            "arity" : 2, \
+            "txt" :  "{op1} / {op2}",\
+            "tex" : "\\frac{{ {op1} }}{{ {op2} }}",\
+            "_call": _call,\
+            "__tex__":__tex__,\
+        }
+
+        return caract
+
+    @ClassProperty
+    @operatorize
+    def pw(self):
+        """ The operator ^
+        
+        >>> pw = op.pw
+        >>> pw
+        '^'
+        >>> pw(2, 3)
+        8
+        >>> pw.__tex__('2','3')
+        '2^{  3 }'
+        >>> pw.__txt__('2','3')
+        '2 ^ 3'
+        >>> pw.__txt__('-2','3')
+        '( -2 ) ^ 3'
+        """
+        def _call(self, op1, op2):
+            """ Calling this operator performs the rigth calculus """
+            return getattr(op1, "__pow__")(op2)
+
+        caract = {
+            "operator" : "^", \
+            "name" : "pw",\
+            "priority" : 5, \
+            "arity" : 2, \
+            "actions" : ("__pow__",""), \
+            "txt" :  "{op1} ^ {op2}",\
+            "tex" :  "{op1}^{{  {op2} }}",\
+            "_call":_call,\
+        }
+
+        return caract
+
+    @ClassProperty
+    @operatorize
+    def par(self):
+        """ The operator ( """
+        caract = {
+            "operator" : "(", \
+            "name" : "par",\
+            "priority" : 0, \
+            "arity" : 0, \
+        }
+        return caract
+
 if __name__ == '__main__':
-    op = Operator("+", 2)
-    print(op.__txt__('1','2'))
-    mul = Operator("*", 2)
-    add = Operator("+", 2)
-    sub1 = Operator("-", 1)
-    div = Operator("/", 1)
-    print(mul.__txt__('1','2'))
-    print(add.__txt__('1','2'))
-    f = save_mainOp('2 + 3',add)
-    print(mul.__txt__(f, '4'))
-    f = save_mainOp('-3',sub1)
-    print(sub1.__txt__(f))
-    print(sub1.__txt__('-3'))
-    f = save_mainOp('2 + 3',add)
-    print(sub1.__txt__(f))
+    print(op.add.__tex__('1','2'))
+    print(op.mul.__tex__('1','2'))
+    print(op.sub.__tex__('1','2'))
+    f = save_mainOp('2 + 3',op.add)
+    print(op.mul.__txt__(f, '4'))
+    f = save_mainOp('-3',op.sub1)
+    print(op.sub1.__txt__(f))
+    print(op.sub1.__txt__('-3'))
+    f = save_mainOp('2 + 3',op.add)
+    print(op.sub1.__txt__(f))
 
     from .fraction import Fraction
     f = Fraction(1, 2)
-    print(add.__txt__(f.__txt__(),'2'))
-    print(add.__tex__(f.__tex__(),'2'))
+    print(op.add.__txt__(f.__txt__(),'2'))
+    print(op.add.__tex__(f.__tex__(),'2'))
+
+    print("\t op.can_be_operator('+') :" + str(op.can_be_operator('+')))
+    print("\t op.can_be_operator('t') :" + str(op.can_be_operator('t')))
     
 
     import doctest

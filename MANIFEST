@@ -5,5 +5,16 @@ pymath/arithmetic.py
 pymath/expression.py
 pymath/fraction.py
 pymath/generic.py
+pymath/operator.py
+pymath/polynom.py
 pymath/random_expression.py
 pymath/render.py
+pymath/str2tokens.py
+test/test_arithmetic.py
+test/test_expression.py
+test/test_fraction.py
+test/test_generic.py
+test/test_polynom.py
+test/test_random_expression.py
+test/test_render.py
+test/test_str2tokens.py

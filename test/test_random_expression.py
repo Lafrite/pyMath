@@ -22,15 +22,15 @@ class TestRandomExpression(unittest.TestCase):
         self.assertEqual(set(rdExp._gene_2replaced.keys()), {'a'}) 
 
     def test_only_form_calc(self):
-        form = "{a + b} + 2"
+        form = "{a+b} + 2"
         rdExp = RdExpression(form)
 
         self.assertEqual(rdExp._letters, {'a', 'b'})
-        self.assertEqual(rdExp._2replaced, {'a + b'})
+        self.assertEqual(rdExp._2replaced, {'a+b'})
 
         rdExp()
         self.assertEqual(set(rdExp._gene_varia.keys()), {'a', 'b'}) 
-        self.assertEqual(set(rdExp._gene_2replaced.keys()), {'a + b'}) 
+        self.assertEqual(set(rdExp._gene_2replaced.keys()), {'a+b'}) 
 
     def test_only_form_cond(self):
         form = "{a} + 2"
@@ -78,15 +78,15 @@ class TestRandomExpression(unittest.TestCase):
 
     def test_only_form_calc_cond_calc(self):
         form = "{a*3} * {b}"
-        cond = ["{a + b} == 3"]
+        cond = ["{a+b} == 3"]
         rdExp = RdExpression(form, cond)
 
         self.assertEqual(rdExp._letters, {'a', 'b'})
-        self.assertEqual(rdExp._2replaced, {'b', 'a*3', 'a + b'})
+        self.assertEqual(rdExp._2replaced, {'b', 'a*3', 'a+b'})
 
         rdExp()
         self.assertEqual(set(rdExp._gene_varia.keys()), {'a', 'b'}) 
-        self.assertEqual(set(rdExp._gene_2replaced.keys()), {'b', 'a*3', 'a + b'}) 
+        self.assertEqual(set(rdExp._gene_2replaced.keys()), {'b', 'a*3', 'a+b'}) 
 
         self.assertEqual((rdExp._gene_varia['a'] + rdExp._gene_varia['b']), 3)
 
