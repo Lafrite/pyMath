@@ -72,6 +72,12 @@ class Expression(object):
             for s in self.child.simplify():
                 if old_s != s:
                     yield s
+    def simplified(self):
+        """ Get the simplified version of the expression """
+        if not self.can_go_further():
+            return self.postfix_tokens[0]
+        else:
+            return self.child.simplified()
 
     def can_go_further(self):
         """Check whether it's a last step or not. If not create self.child the next expression.
@@ -196,6 +202,8 @@ def test(exp):
     print(a)
     for i in a.simplify():
         print(i)
+
+    print(type(a.simplified()), ":", a.simplified())
 
     print("\n")
 
