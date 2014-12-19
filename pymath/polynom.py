@@ -29,7 +29,8 @@ class Polynom(object):
         """
         form = str(coefs_form)
         coefs = RdExpression(form, conditions)()
-        return Polynom(coef = eval(coefs), letter = letter)
+        coefs = [eval(i) if type(i)==str else i for i in eval(coefs)]
+        return Polynom(coef = coefs, letter = letter)
 
     def __init__(self, coef = [1], letter = "x" ):
         """Initiate the polynom
@@ -347,8 +348,9 @@ if __name__ == '__main__':
     #    print(repr(i))
 
     print("\n")
-    poly = Polynom.random(["{a**2}", "{2*a*b}", "{b**2}"]) 
-    print(poly)
+    poly = Polynom.random(["[{a**2}, {a}]", "{2*a*b}", "{b**2}"]) 
+    for i in poly.simplify():
+        print(i)
 
     import doctest
     doctest.testmod()
