@@ -6,6 +6,8 @@ from .render import txt, tex
 from .str2tokens import str2tokens
 from .operator import op
 
+from .random_expression import RdExpression
+
 __all__ = ['Expression']
 
 class Expression(object):
@@ -21,6 +23,19 @@ class Expression(object):
     @classmethod
     def set_df_render(cls):
         cls.set_render(cls.DEFAULT_RENDER)
+
+    @classmethod
+    def random(self, form="", conditions=[], val_min = -10, val_max=10):
+        """Create a random expression from form and with conditions
+
+        :param form: the form of the expression (/!\ variables need to be in brackets {})
+        :param conditions: condition on variables (/!\ variables need to be in brackets {})
+        :param val_min: min value for generate variables
+        :param val_max: max value for generate variables
+
+        """
+        random_generator = RdExpression(form, conditions)
+        return Expression(random_generator(val_min, val_max))
 
     def __init__(self, exp):
         """ Initiate the expression
@@ -283,6 +298,11 @@ if __name__ == '__main__':
     ## Can't handle it yet!!
     #exp="-(-2)"
     #test(exp)
+
+    print("\n")
+    exp = Expression.random("({a} + 3)({b} - 1)", ["{a} > 4"])
+    for i in exp.simplify():
+        print(i)
 
     #import doctest
     #doctest.testmod()
