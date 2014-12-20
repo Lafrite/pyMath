@@ -37,18 +37,26 @@ class Expression(object):
         random_generator = RdExpression(form, conditions)
         return Expression(random_generator(val_min, val_max))
 
-    def __init__(self, exp):
-        """ Initiate the expression
+    def __new__(cls, exp):
+        """Create Expression objects
 
         :param exp: the expression. It can be a string or a list of postfix tokens.
+
         """
+        expression = object.__new__(cls)
         if type(exp) == str:
             #self._exp = exp
-            self.postfix_tokens = str2tokens(exp) # les tokens seront alors stockés dans self.tokens temporairement
+            expression.postfix_tokens = str2tokens(exp) # les tokens seront alors stockés dans self.tokens temporairement
         elif type(exp) == list:
-            self.postfix_tokens = flatten_list([tok.postfix_tokens if self.isExpression(tok) else tok for tok in exp])
+            expression.postfix_tokens = flatten_list([tok.postfix_tokens if Expression.isExpression(tok) else tok for tok in exp])
+        else:
+            raise ValueError("Can't build Expression with {} object".format(type(exp)))
 
-        self._isExpression = 1
+        if len(expression.postfix_tokens) == 1:
+            return expression.postfix_tokens[0]
+        else:
+            expression._isExpression = 1
+            return expression
 
     def __str__(self):
         """
@@ -84,15 +92,23 @@ class Expression(object):
                 if new_s != old_s:
                     old_s = new_s
                     yield new_s
-            for s in self.child.simplify():
-                if old_s != s:
-                    yield s
+
+            try:
+                for s in self.child.simplify():
+                    if old_s != s:
+                        yield s
+                if not Expression.isExpression(self.child):
+                    yield self.STR_RENDER([self.child])
+
+            except AttributeError:
+                yield self.STR_RENDER([self.child])
+
     def simplified(self):
         """ Get the simplified version of the expression """
-        if not self.can_go_further():
-            return self.postfix_tokens[0]
-        else:
+        try:
             return self.child.simplified()
+        except AttributeError:
+            return self.child
 
     def can_go_further(self):
         """Check whether it's a last step or not. If not create self.child the next expression.
@@ -155,6 +171,7 @@ class Expression(object):
 
         self.child = Expression(steps[-1])
 
+    @classmethod
     def isExpression(self, other):
         try:
             other._isExpression
@@ -253,51 +270,51 @@ if __name__ == '__main__':
     f = -e
     print(f)
 
-    #exp = "2 * 3 * 3 * 5"
-    #test(exp)
+    exp = "2 * 3 * 3 * 5"
+    test(exp)
 
-    #exp = "2 * 3 + 3 * 5"
-    #test(exp)
+    exp = "2 * 3 + 3 * 5"
+    test(exp)
 
-    #exp = "2 * ( 3 + 4 ) + 3 * 5"
-    #test(exp)
+    exp = "2 * ( 3 + 4 ) + 3 * 5"
+    test(exp)
 
-    #exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
-    #test(exp)
-    #
-    #exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
-    #test(exp)
-    #
-    #exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
-    #test(exp)
-    #
-    #exp = "2 + 5 * ( 3 - 4 )"
-    #test(exp)
+    exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
+    test(exp)
+    
+    exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
+    test(exp)
+    
+    exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
+    test(exp)
+    
+    exp = "2 + 5 * ( 3 - 4 )"
+    test(exp)
 
-    #exp = "( 2 + 5 ) * ( 3 - 4 )^4"
-    #test(exp)
+    exp = "( 2 + 5 ) * ( 3 - 4 )^4"
+    test(exp)
 
-    #exp = "( 2 + 5 ) * ( 3 * 4 )"
-    #test(exp)
+    exp = "( 2 + 5 ) * ( 3 * 4 )"
+    test(exp)
 
-    #exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
-    #test(exp)
+    exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
+    test(exp)
 
-    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
-    #test(exp)
+    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
+    test(exp)
 
-    #exp = "( 2+ 5 )/( 3 * 4 ) + 1 / 2"
-    #test(exp)
+    exp = "( 2+ 5 )/( 3 * 4 ) + 1 / 2"
+    test(exp)
 
-    #exp="(-2+5)/(3*4)+1/12+5*5"
-    #test(exp)
+    exp="(-2+5)/(3*4)+1/12+5*5"
+    test(exp)
 
-    #exp="-2*4(12 + 1)(3-12)"
-    #test(exp)
+    exp="-2*4(12 + 1)(3-12)"
+    test(exp)
 
 
-    #exp="(-2+5)/(3*4)+1/12+5*5"
-    #test(exp)
+    exp="(-2+5)/(3*4)+1/12+5*5"
+    test(exp)
 
     # TODO: The next one doesn't work  |ven. janv. 17 14:56:58 CET 2014
     #exp="-2*(-a)(12 + 1)(3-12)"
