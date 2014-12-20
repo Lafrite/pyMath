@@ -19,7 +19,7 @@ class Expression(object):
         cls.STR_RENDER = render
 
     @classmethod
-    def set_df_render(cls):
+    def set_default_render(cls):
         cls.set_render(cls.DEFAULT_RENDER)
 
     def __init__(self, exp):

@@ -178,7 +178,7 @@ class Polynom(object):
             # On fait réduire l'expression puis on ajoute dans steps
             Expression.set_render(lambda _,x:Expression(x))
             coef_steps = list(coef_exp.simplify())
-            Expression.set_df_render()
+            Expression.set_default_render()
 
             # On ajoute toutes ces étapes
             coefs_steps.append(coef_steps)
