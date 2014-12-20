@@ -148,6 +148,15 @@ class Expression(object):
         return  1
 
     # -----------
+    # Expression act as container from self.postfix_tokens
+
+    def __getitem__(self, index):
+        return self.postfix_tokens[index]
+
+    def __setitem__(self, index, value):
+        self.postfix_tokens[index] = value
+
+    # -----------
     # Some math manipulations
 
     def operate(self, other, operator):
