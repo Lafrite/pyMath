@@ -77,7 +77,7 @@ class TestPolynom(unittest.TestCase):
         # TODO: Choix arbitraire (vis à vis des + et des -) il faudra faire en fonction de render |sam. juin 14 09:45:55 CEST 2014
         p = Polynom([-1,-2,-3])
         #ans = [-1, -2, "x", "*", "+", -3, "x", 2, "^", "*", "+"]
-        ans = [-3, 'x', 2, '^', '*', -2, 'x', '*', '+', -1, '+']
+        ans = [-3, 'x', 2, '^', '*', 2, 'x', '*', '-', 1, '-']
         self.assertEqual(ans, p.postfix)
 
     def test_postfix_multi_coef(self):

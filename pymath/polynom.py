@@ -149,7 +149,7 @@ class Polynom(object):
             elif type(a) == list:
                 # case need to repeat the x^i
                 for b in a:
-                    if isNumber(b) and b < 0:
+                    if len(postfix) > 0 and isNumber(b) and b < 0:
                         b = -b
                         operator = op.sub
                     c = self.coef_postfix([b],i)
@@ -159,7 +159,7 @@ class Polynom(object):
                             postfix.append(operator)
 
             elif a != 0:
-                if a < 0:
+                if len(postfix) > 0 and a < 0:
                     a = -a
                     operator = op.sub
                 c = self.coef_postfix([a],i)
@@ -196,18 +196,28 @@ class Polynom(object):
         coefs_steps = []
         for coef in self._coef:
             coef_steps = []
-            if type(coef) != Expression:
+            if type(coef) == list:
                 # On converti en postfix avec une addition
                 postfix_add = self.postfix_add(coef)
                 # On converti en Expression
                 coef_exp = Expression(postfix_add)
-            else:
-                coef_exp = coef
 
-            # On fait réduire l'expression puis on ajoute dans steps
-            Expression.set_render(lambda _,x:Expression(x))
-            coef_steps = list(coef_exp.simplify())
-            Expression.set_default_render()
+                Expression.set_render(lambda _,x:Expression(x))
+                coef_steps = list(coef_exp.simplify())
+                Expression.set_default_render()
+
+            elif type(coef) == Expression:
+
+                Expression.set_render(lambda _,x:Expression(x))
+                coef_steps = list(coef.simplify())
+                Expression.set_default_render()
+
+            else:
+                coef_steps = [coef]
+                try:
+                    coef_steps.append(coef.simplify())
+                except AttributeError:
+                    pass
 
             # On ajoute toutes ces étapes
             coefs_steps.append(coef_steps)
@@ -317,6 +327,7 @@ def test(p,q):
     print("q : ",q)
 
     print("\n Plus ------")
+    print(p, "+", q)
     for i in (p + q):
         #print(repr(i))
         #print("\t", str(i.postfix))
@@ -344,6 +355,10 @@ if __name__ == '__main__':
     q = Polynom([0, Fraction(1,2), 0, Fraction(-4,3)])
     test(p,q)
 
+    print("\n")
+    p = Polynom([-1,-2,-3])
+    print(p)
+
     #p = Polynom([1, 1, 1 ])
     #print(p)
 
@@ -360,10 +375,10 @@ if __name__ == '__main__':
     #for i in p.simplify():
     #    print(repr(i))
 
-    print("\n")
-    poly = Polynom.random(["[{a**2}, {a}]", "{2*a*b}", "{b**2}"]) 
-    for i in poly.simplify():
-        print(i)
+    #print("\n")
+    #poly = Polynom.random(["[{a**2}, {a}]", "{2*a*b}", "{b**2}"]) 
+    #for i in poly.simplify():
+    #    print(i)
 
     import doctest
     doctest.testmod()
