@@ -137,25 +137,38 @@ class Polynom(object):
         """
         postfix = []
         for (i,a) in list(enumerate(self._coef))[::-1]:
+            operator = op.add
             if type(a) == Expression:
                 # case coef is an arithmetic expression
                 c = self.coef_postfix(a.postfix_tokens,i)
                 if c != []:
                     postfix.append(c)
+                    if len(postfix) > 1:
+                        postfix.append(operator)
 
             elif type(a) == list:
                 # case need to repeat the x^i
                 for b in a:
+                    if isNumber(b) and b < 0:
+                        b = -b
+                        operator = op.sub
                     c = self.coef_postfix([b],i)
                     if c != []:
                         postfix.append(c)
+                        if len(postfix) > 1:
+                            postfix.append(operator)
 
             elif a != 0:
+                if a < 0:
+                    a = -a
+                    operator = op.sub
                 c = self.coef_postfix([a],i)
                 if c != []:
                     postfix.append(c)
+                    if len(postfix) > 1:
+                        postfix.append(operator)
 
-        return flatten_list(self.postfix_add(postfix))
+        return flatten_list(postfix)
 
     def conv2poly(self, other):
         """Convert anything number into a polynom"""
