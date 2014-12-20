@@ -7,6 +7,7 @@ from .operator import op
 from .generic import spe_zip, expand_list, isNumber, transpose_fill, flatten_list
 #from .generic import spe_zip, sum_postfix, expand_list, isNumber
 from .render import txt
+from .random_expression import RdExpression
 from itertools import chain
 
 __all__ = ["Polynom"]
@@ -15,6 +16,21 @@ __all__ = ["Polynom"]
 class Polynom(object):
 
     """Docstring for Polynom. """
+
+    @classmethod
+    def random(self, coefs_form=[], conditions=[], letter = "x"):
+        """ Create a random polynom from coefs_form and conditions 
+
+        :param coefs_form: list of forms (one by coef) (ascending degree sorted)
+        :param conditions: condition on variables 
+
+        /!\ variables need to be in brackets {}
+
+        """
+        form = str(coefs_form)
+        coefs = RdExpression(form, conditions)()
+        coefs = [eval(i) if type(i)==str else i for i in eval(coefs)]
+        return Polynom(coef = coefs, letter = letter)
 
     def __init__(self, coef = [1], letter = "x" ):
         """Initiate the polynom
@@ -330,6 +346,11 @@ if __name__ == '__main__':
     #print(p)
     #for i in p.simplify():
     #    print(repr(i))
+
+    print("\n")
+    poly = Polynom.random(["[{a**2}, {a}]", "{2*a*b}", "{b**2}"]) 
+    for i in poly.simplify():
+        print(i)
 
     import doctest
     doctest.testmod()
