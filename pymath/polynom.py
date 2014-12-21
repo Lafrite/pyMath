@@ -62,6 +62,15 @@ class Polynom(object):
 
         self._isPolynom = 1
 
+    def __call__(self, value):
+        """ Evaluate the polynom in value
+
+        :returns: Expression ready to be simplify
+
+        """
+        postfix_exp = [value if i==self._letter else i for i in self.postfix]
+        return Expression(postfix_exp)
+
     def feed_coef(self, l_coef):
         """Feed coef of the polynom. Manage differently whether it's a number or an expression
         
@@ -102,7 +111,7 @@ class Polynom(object):
             return 0
 
     def __str__(self):
-        return txt(self.postfix)
+        return str(Expression(self.postfix))
 
     def __repr__(self):
         return  "< Polynom " + str(self._coef) + ">"
@@ -370,27 +379,28 @@ def test(p,q):
     print("p : ",p)
     print("q : ",q)
 
-    #print("\n Plus ------")
-    #print(p, "+", q)
-    #for i in (p + q):
-    #    #print(repr(i))
-    #    #print("\t", str(i.postfix))
-    #    print(i)
-    ##print((p+q)[-1]._coef)
+    print("\n Plus ------")
+    print(p, "+", q)
+    for i in (p + q):
+        #print(repr(i))
+        #print("\t", str(i.postfix))
+        print(i)
 
-    #print("\n Moins ------")
-    #for i in (p - q):
-    #    #print(repr(i))
-    #    #print("\t", str(i.postfix))
-    #    print(i)
-    ##print((p-q)[-1]._coef)
+    print("\n Moins ------")
+    for i in (p - q):
+        #print(repr(i))
+        #print("\t", str(i.postfix))
+        print(i)
 
     print("\n Multiplier ------")
     for i in (p * q):
         #print(repr(i))
         #print("\t", str(i.postfix))
         print(i)
-    #print((p*q)[-1]._coef)
+
+    print("\n Evaluer ------")
+    for i in q(3).simplify():
+        print(i)
     
 
 if __name__ == '__main__':
