@@ -254,9 +254,10 @@ class Polynom(object):
                 # On converti en Expression
                 coef_exp = Expression(postfix_add)
 
+                old_render = Expression.get_render()
                 Expression.set_render(lambda _,x:Expression(x))
                 coef_steps = list(coef_exp.simplify())
-                Expression.set_default_render()
+                Expression.set_render(old_render)
 
             elif type(coef) == Expression:
 

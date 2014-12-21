@@ -21,6 +21,10 @@ class Expression(object):
         cls.STR_RENDER = render
 
     @classmethod
+    def get_render(cls ):
+        return cls.STR_RENDER
+
+    @classmethod
     def set_default_render(cls):
         cls.set_render(cls.DEFAULT_RENDER)
 
