@@ -7,10 +7,14 @@ import unittest
 from pymath.polynom import Polynom
 from pymath.fraction import Fraction
 from pymath.expression import Expression
+from pymath.render import txt
 
 
 class TestPolynom(unittest.TestCase):
     """Testing functions from pymath.polynom"""
+
+    def setup(self):
+        Expression.set_render(txt)
 
     def test_init(self):
         p = Polynom([1, 2, 3], "x")
@@ -27,8 +31,17 @@ class TestPolynom(unittest.TestCase):
     def test_deg(self):
         pass
 
-    def test_eval(self):
-        pass
+    def test_eval_base(self):
+        p = Polynom([1, 2])
+        self.assertEqual(p(3).simplified(), 7)
+
+    def test_eval_const(self):
+        p = Polynom([1])
+        self.assertEqual(p(3).simplified(), 1)
+
+    def test_eval_const_neg(self):
+        p = Polynom([-1])
+        self.assertEqual(p(3).simplified(), -1)
 
     #def test_print(self):
     #    p = Polynom([1,2,3])
