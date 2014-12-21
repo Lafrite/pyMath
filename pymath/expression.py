@@ -110,6 +110,7 @@ class Expression(object):
 
     def simplified(self):
         """ Get the simplified version of the expression """
+        self.compute_exp()
         try:
             return self.child.simplified()
         except AttributeError:
