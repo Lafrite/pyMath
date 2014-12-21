@@ -399,7 +399,11 @@ def test(p,q):
         #print("\t", str(i.postfix))
         print(i)
 
-    print("\n Evaluer ------")
+    print("\n Evaluer p ------")
+    for i in p(3).simplify():
+        print(i)
+
+    print("\n Evaluer q ------")
     for i in q(3).simplify():
         print(i)
     

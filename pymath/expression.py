@@ -58,6 +58,7 @@ class Expression(object):
 
         if len(expression.postfix_tokens) == 1:
             return expression.postfix_tokens[0]
+
         else:
             expression._isExpression = 1
             return expression
@@ -166,6 +167,20 @@ class Expression(object):
                 tmpTokenList.append(tokenList[0])
 
                 del tokenList[0]
+
+        if len(tokenList) == 2 and isNumber(tokenList[0]) \
+                    and isOperator(tokenList[1]) and tokenList[1].arity == 1:
+            # S'il reste deux éléments dont un operation d'arité 1
+            op1 = tokenList[0]
+            operator = tokenList[1]
+
+            res = operator(op1)
+
+            tmpTokenList.append(res)
+
+            # Comme on vient de faire le calcul, on peut détruire aussi les deux prochains termes
+            del tokenList[0:2]
+
         tmpTokenList += tokenList
 
         steps = expand_list(tmpTokenList)
