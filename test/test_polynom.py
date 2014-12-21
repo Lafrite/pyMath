@@ -77,7 +77,7 @@ class TestPolynom(unittest.TestCase):
         # TODO: Choix arbitraire (vis à vis des + et des -) il faudra faire en fonction de render |sam. juin 14 09:45:55 CEST 2014
         p = Polynom([-1,-2,-3])
         #ans = [-1, -2, "x", "*", "+", -3, "x", 2, "^", "*", "+"]
-        ans = [-3, 'x', 2, '^', '*', 2, 'x', '*', '-', 1, '-']
+        ans = [3, 'x', 2, '^', '*', '-', 2, 'x', '*', '-', 1, '-']
         self.assertEqual(ans, p.postfix)
 
     def test_postfix_multi_coef(self):
@@ -117,6 +117,25 @@ class TestPolynom(unittest.TestCase):
         q = Polynom([0, 2, 3])
         r = (p + q)[-1]
         self.assertEqual(str(r), '6 x ^ 2 + 2 x + 1')
+
+    def test_sub_int(self):
+        p = Polynom([1, 2, 3])
+        q = (p - 2)[-1]
+        self.assertEqual(str(q), '3 x ^ 2 + 2 x - 1')
+
+    def test_sub_frac(self):
+        p = Polynom([1, 2, 3])
+        f = Fraction(1, 2)
+        q = (p - f)[-1]
+        #ans = repr(Polynom([Expression(Fraction(3, 2)), Expression(2), Expression(3)]))
+        self.assertEqual(str(q),'3 x ^ 2 + 2 x + 1 / 2')
+
+    def test_sub_poly(self):
+        p = Polynom([1, 0, 2])
+        q = Polynom([0, 2, 3])
+        r = (p - q)[-1]
+        self.assertEqual(str(r), '- x ^ 2 - 2 x + 1')
+
 
     def test_radd_int(self):
         pass
