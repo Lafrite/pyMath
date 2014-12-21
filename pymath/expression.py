@@ -65,7 +65,7 @@ class Expression(object):
     def __str__(self):
         """
         Overload str
-        If you want to changer render set Expression.RENDER
+        If you want to changer render use Expression.set_render(...)
         """
         return self.STR_RENDER(self.postfix_tokens)
 
