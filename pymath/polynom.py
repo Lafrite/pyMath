@@ -231,10 +231,9 @@ class Polynom(object):
             else:
                 coef_steps = [coef]
                 try:
-                    coef_steps.append(coef.simplify())
+                    coef_steps += coef.simplify()
                 except AttributeError:
                     pass
-
             # On ajoute toutes ces étapes
             coefs_steps.append(coef_steps)
 
@@ -327,6 +326,8 @@ class Polynom(object):
         steps.append(p)
         
         steps += p.simplify()
+
+        #print("steps -> \n", "\n".join(["\t {}".format(s._coef) for s in steps]))
         
         return steps
 
@@ -346,26 +347,29 @@ def test(p,q):
     print(p, "+", q)
     for i in (p + q):
         #print(repr(i))
-        #print("\t", str(i.postfix))
+        print("\t", str(i.postfix))
         print(i)
+    #print((p+q)[-1]._coef)
 
     print("\n Moins ------")
     for i in (p - q):
         #print(repr(i))
         #print("\t", str(i.postfix))
         print(i)
+    #print((p-q)[-1]._coef)
 
     print("\n Multiplier ------")
     for i in (p * q):
         #print(repr(i))
         #print("\t", str(i.postfix))
         print(i)
+    #print((p*q)[-1]._coef)
     
 
 if __name__ == '__main__':
     from .fraction import Fraction
     p = Polynom([1, -2 ])
-    q = Polynom([4, 7])
+    q = Polynom([4, 7, 4])
     test(p,q)
 
     q = Polynom([0, Fraction(1,2), 0, Fraction(-4,3)])
