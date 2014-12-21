@@ -11,10 +11,11 @@ from pymath.generic import first_elem
 from pymath.render import txt, tex
 
 
-Expression.set_render(txt)
-
 class TestExpression(unittest.TestCase):
     """Testing functions from pymath.expression"""
+
+    def setup(self):
+        Expression.set_render(txt)
 
     def test_init_from_str(self):
         exp = Expression("2 + 3")
