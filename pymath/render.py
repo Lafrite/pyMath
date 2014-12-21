@@ -40,7 +40,10 @@ class Render(object):
             else:
                 operandeStack.push(self.render(token)())
 
-        return operandeStack.pop()
+        if len(operandeStack) > 1:
+            raise ValueError("This postfix_tokens is not a valid expression")
+        else:
+            return operandeStack.pop()
 
 def txt_render(token):
     def render(*args):
