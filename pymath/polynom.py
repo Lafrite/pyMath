@@ -114,6 +114,20 @@ class Polynom(object):
         :param i: power
         :returns: postfix tokens of coef
 
+        >>> p = Polynom()
+        >>> p.coef_postfix([3],2)
+        [3, 'x', 2, '^', '*']
+        >>> p.coef_postfix([0],1)
+        []
+        >>> p.coef_postfix([3],0)
+        [3]
+        >>> p.coef_postfix([3],1)
+        [3, 'x', '*']
+        >>> p.coef_postfix([1],1)
+        ['x']
+        >>> p.coef_postfix([1],2)
+        ['x', 2, '^']
+
         """
         # TODO: Couille certaine avec txt à qui il fait donner des opérateurs tout beau! |mar. nov. 11 13:08:35 CET 2014
         ans =[] 
@@ -135,6 +149,7 @@ class Polynom(object):
         :returns: the postfix list of polynom's tokens
 
         """
+        # TODO: Faudrait factoriser un peu tout ça..! |dim. déc. 21 16:02:34 CET 2014
         postfix = []
         for (i,a) in list(enumerate(self._coef))[::-1]:
             operator = [op.add]
@@ -151,10 +166,16 @@ class Polynom(object):
                 # case need to repeat the x^i
                 for b in a:
                     if len(postfix) == 0 and isNumber(b) and b < 0:
-                        b = [-b]
+                        try:
+                            b = [(-b)[-1]]
+                        except TypeError:
+                            b = [-b]
                         operator_sub1 = [op.sub1]
                     elif len(postfix) > 0 and isNumber(b) and b < 0:
-                        b = [-b]
+                        try:
+                            b = [(-b)[-1]]
+                        except TypeError:
+                            b = [-b]
                         operator = [op.sub]
                     else:
                         b = [b]
@@ -168,10 +189,16 @@ class Polynom(object):
 
             elif a != 0:
                 if len(postfix) == 0 and a < 0:
+                    try:
+                        a = [(-a)[-1]]
+                    except TypeError:
                         a = [-a]
-                        operator_sub1 = [op.sub1]
+                    operator_sub1 = [op.sub1]
                 elif len(postfix) > 0 and a < 0:
-                    a = [-a]
+                    try:
+                        a = [(-a)[-1]]
+                    except TypeError:
+                        a = [-a]
                     operator = [op.sub]
                 else:
                     a = [a]
@@ -327,7 +354,7 @@ class Polynom(object):
         
         steps += p.simplify()
 
-        #print("steps -> \n", "\n".join(["\t {}".format(s._coef) for s in steps]))
+        #print("steps -> \n", "\n".join(["\t {}".format(s.postfix) for s in steps]))
         
         return steps
 
@@ -343,20 +370,20 @@ def test(p,q):
     print("p : ",p)
     print("q : ",q)
 
-    print("\n Plus ------")
-    print(p, "+", q)
-    for i in (p + q):
-        #print(repr(i))
-        print("\t", str(i.postfix))
-        print(i)
-    #print((p+q)[-1]._coef)
+    #print("\n Plus ------")
+    #print(p, "+", q)
+    #for i in (p + q):
+    #    #print(repr(i))
+    #    #print("\t", str(i.postfix))
+    #    print(i)
+    ##print((p+q)[-1]._coef)
 
-    print("\n Moins ------")
-    for i in (p - q):
-        #print(repr(i))
-        #print("\t", str(i.postfix))
-        print(i)
-    #print((p-q)[-1]._coef)
+    #print("\n Moins ------")
+    #for i in (p - q):
+    #    #print(repr(i))
+    #    #print("\t", str(i.postfix))
+    #    print(i)
+    ##print((p-q)[-1]._coef)
 
     print("\n Multiplier ------")
     for i in (p * q):
@@ -368,16 +395,20 @@ def test(p,q):
 
 if __name__ == '__main__':
     from .fraction import Fraction
-    p = Polynom([1, -2 ])
-    q = Polynom([4, 7, 4])
-    test(p,q)
+    #p = Polynom([1, -2 ])
+    #q = Polynom([4, 7, 4])
+    #test(p,q)
 
-    q = Polynom([0, Fraction(1,2), 0, Fraction(-4,3)])
-    test(p,q)
+    #q = Polynom([0, Fraction(1,2), 0, Fraction(-4,3)])
+    #test(p,q)
 
-    print("\n")
-    p = Polynom([-1,-2,-3])
-    print(p)
+    #print("\n")
+    #p = Polynom([-1,-2,-3])
+    #print(p)
+
+    p = Polynom([-2])
+    q = Polynom([0,0,Fraction(1,2)])
+    test(p,q)
 
     #p = Polynom([1, 1, 1 ])
     #print(p)
