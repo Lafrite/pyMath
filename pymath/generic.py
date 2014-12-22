@@ -335,6 +335,26 @@ def isPolynom(exp):
         return 0
     return  1
 
+def isNumerande(exp):
+    """Check is the expression is something we can compute with
+
+    >>> isNumerande(1)
+    1
+    >>> from pymath.polynom import Polynom
+    >>> p = Polynom([1,2])
+    >>> isNumerande(p)
+    1
+    >>> from pymath.fraction import Fraction
+    >>> f = Fraction(12)
+    >>> isNumerande(f)
+    1
+    >>> isNumerande("a")
+    0
+
+
+    """
+    return isNumber(exp) or isPolynom(exp)
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
