@@ -57,7 +57,21 @@ class Expression(object):
             raise ValueError("Can't build Expression with {} object".format(type(exp)))
 
         if len(expression.postfix_tokens) == 1:
-            return expression.postfix_tokens[0]
+            token = expression.postfix_tokens[0]
+            if hasattr(token, 'simplify'):
+                return expression.postfix_tokens[0]
+
+            elif type(token) == int:
+            # On crée un faux int en ajoutant la méthode simplify et simplified et la caractérisique isNumber
+                simplify = lambda x:[x]
+                simplified = lambda x:x
+                is_number = True
+                methods_attr = {'simplify':simplify, 'simplified':simplified, 'isNumber': is_number}
+                fake_token = type('fake_obj', (int,), methods_attr)(token)
+                return fake_token
+
+            else:
+                raise ValueError("Unknow type in Expression: {}".format(type(token)))
 
         else:
             expression._isExpression = 1
