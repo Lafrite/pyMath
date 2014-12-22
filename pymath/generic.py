@@ -269,8 +269,8 @@ def transpose_fill(list_lists):
     :list_lists: a list of list to transpose
     :returns: generator which generate lines of the transposed matrix
 
-    >>> Polynom.transpose_fill([[1], [2, 3], [4, 5, 6]])
-    [[1, 2, 4] , [1, 3, 5], [1, 3, 6]]
+    >>> list(transpose_fill([[1], [2, 3], [4, 5, 6]]))
+    [[1, 2, 4], [1, 3, 5], [1, 3, 6]]
     """
     for i in range(max([len(l) for l in list_lists])):
         col = []
@@ -311,6 +311,28 @@ def isNumber(exp):
             return 1
         else:
             return 0
+    return  1
+
+def isPolynom(exp):
+    """Check if the expression can be a polynom
+
+    :param exp: an expression
+    :returns: True if the expression can be a polynom and false otherwise
+
+    >>> from pymath.polynom import Polynom
+    >>> p = Polynom([1,2])
+    >>> isPolynom(p)
+    1
+    >>> isPolynom(1)
+    0
+    >>> isPolynom("a")
+    0
+
+    """
+    try:
+        exp._isPolynom
+    except AttributeError:
+        return 0
     return  1
 
 if __name__ == '__main__':
