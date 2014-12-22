@@ -121,15 +121,15 @@ class Expression(object):
                     old_s = new_s
                     yield new_s
 
-           try:
-               for s in self.child.simplify():
-                   if old_s != s:
-                       yield s
-               if not Expression.isExpression(self.child):
-                   yield self.STR_RENDER([self.child])
+        try:
+            for s in self.child.simplify():
+                if old_s != s:
+                    yield s
+            if not Expression.isExpression(self.child):
+                yield self.STR_RENDER([self.child])
 
-           except AttributeError:
-               yield self.STR_RENDER([self.child])
+        except AttributeError:
+            yield self.STR_RENDER([self.child])
 
     def simplified(self):
         """ Get the simplified version of the expression """
