@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from .generic import Stack, isOperator, isNumber
+from .generic import Stack, isOperator, isNumber, isPolynom
 from pymath.operator import op
 
 def str2tokens(exp):
@@ -9,9 +9,10 @@ def str2tokens(exp):
     
     >>> str2tokens('2+3*4')
     [2, 3, 4, '*', '+']
-    
     >>> str2tokens('2*3+4')
     [2, 3, '*', 4, '+']
+    >>> str2tokens('2x+4')
+    [2, < Polynom [0, 1]>, '*', 1, '+']
     """
     in_tokens = str2in_tokens(exp)
     post_tokens = in2post_fix(in_tokens)
@@ -57,11 +58,21 @@ def str2in_tokens(exp):
             tokens.append(character)
 
         elif character == "(":
-            # If "3(", ")("
+            # If "3(", ")(", "x("
             if isNumber(tokens[-1]) \
-                    or tokens[-1] == ")" :
+                    or tokens[-1] == ")" \
+                    or isPolynom(tokens[-1]):
                 tokens.append("*")
             tokens.append(character)
+
+        elif character.isalpha():
+            # If "3x", ")x", "xy"
+            if isNumber(tokens[-1]) \
+                    or tokens[-1] == ")" \
+                    or isPolynom(tokens[-1]):
+                tokens.append("*")
+            from pymath.polynom import Polynom
+            tokens.append(Polynom([0,1], letter = character))
 
         elif character == ".":
             raise ValueError("No float number please")
@@ -155,12 +166,20 @@ if __name__ == '__main__':
     #
     #print(in2post_fix(in_tokens))
 
-    print(in2post_fix([op.par, 2, op.add, 5, op.sub, 1, ')', op.div, op.par, 3, op.mul, 4, ')']))
-    print(in2post_fix([op.sub1, op.par, op.sub1, 2, ')']))
-    print(in2post_fix([op.sub1, op.par, op.sub1, 2, op.add, 3, op.mul, 4, ')']))
+    #print(in2post_fix([op.par, 2, op.add, 5, op.sub, 1, ')', op.div, op.par, 3, op.mul, 4, ')']))
+    #print(in2post_fix([op.sub1, op.par, op.sub1, 2, ')']))
+    #print(in2post_fix([op.sub1, op.par, op.sub1, 2, op.add, 3, op.mul, 4, ')']))
 
-    import doctest
-    doctest.testmod()
+    print(str2tokens('2*3+4'))
+    print("\n------")
+    print(str2tokens('2x+4'))
+    print("\n------")
+    print(str2tokens('xx+4'))
+    print("\n------")
+    print(str2tokens('x(2+1)+4'))
+    print("\n------")
+    #import doctest
+    #doctest.testmod()
 
 
 # -----------------------------
