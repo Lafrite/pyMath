@@ -4,8 +4,7 @@
 
 from .expression import Expression
 from .operator import op
-from .generic import spe_zip, expand_list, isNumber, transpose_fill, flatten_list
-#from .generic import spe_zip, sum_postfix, expand_list, isNumber
+from .generic import spe_zip, expand_list, isNumber, transpose_fill, flatten_list, isPolynom
 from .render import txt
 from .random_expression import RdExpression
 from itertools import chain
@@ -228,19 +227,12 @@ class Polynom(object):
 
     def conv2poly(self, other):
         """Convert anything number into a polynom"""
-        if isNumber(other) and not self.isPolynom(other):
+        if isNumber(other) and not isPolynom(other):
             return Polynom([other])
-        elif self.isPolynom(other):
+        elif isPolynom(other):
             return other
         else:
             raise ValueError(type(other) + " can't be converted into a polynom")
-
-    def isPolynom(self, other):
-        try:
-            other._isPolynom
-        except AttributeError:
-                return 0
-        return  1
     
     def reduce(self):
         """Compute coefficients which have same degree
