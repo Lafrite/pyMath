@@ -159,12 +159,13 @@ def save_mainOp(obj, mainOp):
     :mainOp: the main operator
     :returns: the same object with the main operation attribute
     """
-    class Fake(type(obj)):
-        """ The fake class """
-        def __new__(cls, obj):
-            op = type(obj).__new__(cls, obj)
-            op.mainOp = mainOp
-            return op
+    #class Fake(type(obj)):
+    #    """ The fake class """
+    #    def __new__(cls, obj):
+    #        op = type(obj).__new__(cls, obj)
+    #        op.mainOp = mainOp
+    #        return op
+    Fake = type('fake_'+str(type(obj)), (type(obj),), {'mainOp': mainOp})
 
     return Fake(obj)
 
