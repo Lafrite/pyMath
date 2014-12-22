@@ -257,9 +257,10 @@ class Polynom(object):
 
             elif type(coef) == Expression:
 
+                old_render = Expression.get_render()
                 Expression.set_render(lambda _,x:Expression(x))
                 coef_steps = list(coef.simplify())
-                Expression.set_default_render()
+                Expression.set_render(old_render)
 
             else:
                 coef_steps = [coef]
@@ -409,14 +410,18 @@ def test(p,q):
 
 if __name__ == '__main__':
     #from .fraction import Fraction
+    Expression.set_render(txt)
     p = Polynom([0, -2 ])
     q = Polynom([4, 0, 4])
-    test(p,q)
+    r = (p-q)[-1]
+    print(r)
 
-    print("\n")
-    p = Polynom([[1,0], [2,3,0]])
-    for i in p.simplify():
-        print(i)
+    #test(p,q)
+
+    #print("\n")
+    #p = Polynom([[1,0], [2,3,0]])
+    #for i in p.simplify():
+    #    print(i)
 
     #q = Polynom([0, Fraction(1,2), 0, Fraction(-4,3)])
     #test(p,q)
