@@ -335,20 +335,20 @@ def isPolynom(exp):
         return 0
     return  1
 
-def isNumerande(exp):
+def isNumerand(exp):
     """Check is the expression is something we can compute with
 
-    >>> isNumerande(1)
+    >>> isNumerand(1)
     1
     >>> from pymath.polynom import Polynom
     >>> p = Polynom([1,2])
-    >>> isNumerande(p)
+    >>> isNumerand(p)
     1
     >>> from pymath.fraction import Fraction
     >>> f = Fraction(12)
-    >>> isNumerande(f)
+    >>> isNumerand(f)
     1
-    >>> isNumerande("a")
+    >>> isNumerand("a")
     0
 
 
