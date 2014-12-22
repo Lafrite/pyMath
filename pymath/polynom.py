@@ -68,7 +68,11 @@ class Polynom(object):
         :returns: Expression ready to be simplify
 
         """
-        postfix_exp = [value if i==self._letter else i for i in self.postfix]
+        if isNumber(value):
+            postfix_exp = [value if i==self._letter else i for i in self.postfix]
+        else:
+            postfix_exp = [Expression(value) if i==self._letter else i for i in self.postfix]
+
         return Expression(postfix_exp)
 
     def feed_coef(self, l_coef):

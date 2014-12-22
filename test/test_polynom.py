@@ -43,6 +43,10 @@ class TestPolynom(unittest.TestCase):
         p = Polynom([-1])
         self.assertEqual(p(3).simplified(), -1)
 
+    def test_eval_poly(self):
+        p = Polynom([1, 2])
+        self.assertEqual(p("1+h").simplified(), Polynom([3,2]))
+
     #def test_print(self):
     #    p = Polynom([1,2,3])
     #    ans = "1 + 2 x + 3 x^2"
