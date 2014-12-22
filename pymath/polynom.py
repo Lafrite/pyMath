@@ -228,7 +228,7 @@ class Polynom(object):
     def conv2poly(self, other):
         """Convert anything number into a polynom"""
         if isNumber(other) and not isPolynom(other):
-            return Polynom([other])
+            return Polynom([other], letter = self._letter)
         elif isPolynom(other):
             return other
         else:
@@ -317,7 +317,7 @@ class Polynom(object):
         o_poly = self.conv2poly(other)
 
         n_coef = spe_zip(self._coef, o_poly._coef)
-        p = Polynom(n_coef)
+        p = Polynom(n_coef, letter = self._letter)
         steps.append(p)
 
         steps += p.simplify()
@@ -359,7 +359,7 @@ class Polynom(object):
                 except IndexError:
                     coefs.append(elem)
 
-        p = Polynom(coefs)
+        p = Polynom(coefs, letter = self._letter)
         steps.append(p)
         
         steps += p.simplify()
