@@ -121,15 +121,21 @@ class Expression(object):
                     old_s = new_s
                     yield new_s
 
-        try:
+        if Expression.isExpression(self.child):
             for s in self.child.simplify():
                 if old_s != s:
+                    old_s = s
                     yield s
-            if not Expression.isExpression(self.child):
+        else:
+            for s in self.child.simplify():
+                new_s = self.STR_RENDER([s])
+                # Astuce pour éviter d'avoir deux fois la même étape (par exemple pour la transfo d'une division en fraction)
+                if new_s != old_s:
+                    old_s = new_s
+                    yield new_s
+            if old_s != str(self.child):
                 yield self.STR_RENDER([self.child])
 
-        except AttributeError:
-            yield self.STR_RENDER([self.child])
 
     def simplified(self):
         """ Get the simplified version of the expression """
@@ -283,7 +289,7 @@ class Expression(object):
 
 def test(exp):
     a = Expression(exp)
-    #print(a)
+    print(a)
     for i in a.simplify():
         print(type(i))
         print(i)
@@ -293,12 +299,17 @@ def test(exp):
     print("\n")
 
 if __name__ == '__main__':
-    Expression.set_render(txt)
+    render = lambda _,x : str(x)
+    Expression.set_render(render)
+    exp = Expression("1/2 - 4")
+    print(list(exp.simplify()))
+
+    #Expression.set_render(txt)
     #exp = "2 ^ 3 * 5"
     #test(exp)
 
-    exp = "2x + 5"
-    test(exp)
+    #exp = "2x + 5"
+    #test(exp)
 
     #Expression.set_render(tex)
 
@@ -370,10 +381,10 @@ if __name__ == '__main__':
     #exp="-(-2)"
     #test(exp)
 
-    print("\n")
-    exp = Expression.random("({a} + 3)({b} - 1)", ["{a} > 4"])
-    for i in exp.simplify():
-        print(i)
+    #print("\n")
+    #exp = Expression.random("({a} + 3)({b} - 1)", ["{a} > 4"])
+    #for i in exp.simplify():
+    #    print(i)
 
     #import doctest
     #doctest.testmod()
