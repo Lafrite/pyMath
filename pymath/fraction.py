@@ -247,6 +247,48 @@ class Fraction(object):
 
         return number / self
 
+    def __pow__(self, power):
+        """ overload **
+        
+        >>> f = Fraction(3, 4)
+        >>> f**0
+        [1]
+        >>> f**1
+        [< Fraction 3 / 4>]
+        >>> f**3
+        [[3, 3, '^', 4, 3, '^', '/'], < Fraction 27 / 64>]
+        >>> f = Fraction(6, 4)
+        >>> f**3
+        [[6, 3, '^', 4, 3, '^', '/'], < Fraction 216 / 64>, [27, 8, '*', 8, 8, '*', '/'], < Fraction 27 / 8>]
+        
+        """
+        if not type(power) == int:
+            raise ValueError("Can't raise fraction to power {}".format(str(power)))
+
+        if power == 0:
+            return [1]
+        elif power == 1:
+            return [self]
+        else:
+            steps = [[self._num, power, op.pw, self._denom, power, op.pw, op.div]]
+            ans_frac = Fraction(self._num ** power, self._denom ** power)
+            steps.append(ans_frac)
+            steps += ans_frac.simplify()
+            return steps
+
+    def __xor__(self, power):
+        """ overload ^
+        
+        >>> f = Fraction(3, 4)
+        >>> f^3
+        [[3, 3, '^', 4, 3, '^', '/'], < Fraction 27 / 64>]
+        >>> f = Fraction(6, 4)
+        >>> f^3
+        [[6, 3, '^', 4, 3, '^', '/'], < Fraction 216 / 64>, [27, 8, '*', 8, 8, '*', '/'], < Fraction 27 / 8>]
+        """
+        
+        return self.__pow__(power)
+
     def __abs__(self):
         return Fraction(abs(self._num), abs(self._denom))
 
@@ -278,68 +320,71 @@ class Fraction(object):
 
 
 if __name__ == '__main__':
-    f = Fraction(1, 12)
-    g = Fraction(1, 12)
-    h = Fraction(1,-5)
-    t = Fraction(10,3)
-    print("---------")
-    print("1 + ", str(h))
-    for i in (1 + h):
-        print(i)
-    print("---------")
-    print(str(f) , "+", str(t))
-    for i in (f + t):
-        print(i)
-    print("---------")
-    print(str(f) , "+", str(g))
-    for i in (f + g):
-        print(i)
-    print("---------")
-    print(str(f) , "-", str(g))
-    for i in (f - g):
-        print(i)
-    print("---------")
-    print(str(f) , "*", str(g))
-    for i in (f * g):
-        print(i)
-    print("---------")
-    print(str(h) , "+", str(t))
-    for i in (h + t):
-        print(i)
-    print("---------")
-    print(str(h) , "-", str(t))
-    for i in (h - t):
-        print(i)
-    print("---------")
-    print(str(h) , "*", str(t))
-    for i in (h * t):
-        print(i)
-    print("---------")
-    print("-", str(h) )
-    for i in (-h):
-        print(i)
-    print("---------")
-    print(str(h) , "/", str(t))
-    for i in (h / t):
-        print(i)
-    print("---------")
-    print(str(h) , "+", str(0))
-    for i in (h + 0):
-        print(i)
-    print("---------")
-    print(str(h) , "*", str(1))
-    for i in (h * 1):
-        print(i)
-    print("---------")
-    print(str(h) , "*", str(0))
-    for i in (h * 0):
-        print(i)
-    print("---------")
-    print(str(h) , "*", str(4))
-    for i in (h * 4):
-        print(i)
+    #f = Fraction(1, 12)
+    #g = Fraction(1, 12)
+    #h = Fraction(1,-5)
+    #t = Fraction(10,3)
+    #print("---------")
+    #print("1 + ", str(h))
+    #for i in (1 + h):
+    #    print(i)
+    #print("---------")
+    #print(str(f) , "+", str(t))
+    #for i in (f + t):
+    #    print(i)
+    #print("---------")
+    #print(str(f) , "+", str(g))
+    #for i in (f + g):
+    #    print(i)
+    #print("---------")
+    #print(str(f) , "-", str(g))
+    #for i in (f - g):
+    #    print(i)
+    #print("---------")
+    #print(str(f) , "*", str(g))
+    #for i in (f * g):
+    #    print(i)
+    #print("---------")
+    #print(str(h) , "+", str(t))
+    #for i in (h + t):
+    #    print(i)
+    #print("---------")
+    #print(str(h) , "-", str(t))
+    #for i in (h - t):
+    #    print(i)
+    #print("---------")
+    #print(str(h) , "*", str(t))
+    #for i in (h * t):
+    #    print(i)
+    #print("---------")
+    #print("-", str(h) )
+    #for i in (-h):
+    #    print(i)
+    #print("---------")
+    #print(str(h) , "/", str(t))
+    #for i in (h / t):
+    #    print(i)
+    #print("---------")
+    #print(str(h) , "+", str(0))
+    #for i in (h + 0):
+    #    print(i)
+    #print("---------")
+    #print(str(h) , "*", str(1))
+    #for i in (h * 1):
+    #    print(i)
+    #print("---------")
+    #print(str(h) , "*", str(0))
+    #for i in (h * 0):
+    #    print(i)
+    #print("---------")
+    #print(str(h) , "*", str(4))
+    #for i in (h * 4):
+    #    print(i)
 
     #print(f.simplify())
+
+    import doctest
+    doctest.testmod()
 
 # -----------------------------
 # Reglages pour 'vim'
