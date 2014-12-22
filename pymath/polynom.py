@@ -246,7 +246,7 @@ class Polynom(object):
             coef_steps = []
             if type(coef) == list:
                 # On converti en postfix avec une addition
-                postfix_add = self.postfix_add(coef)
+                postfix_add = self.postfix_add([i for i in coef if i!=0])
                 # On converti en Expression
                 coef_exp = Expression(postfix_add)
 
@@ -408,10 +408,15 @@ def test(p,q):
     
 
 if __name__ == '__main__':
-    from .fraction import Fraction
-    #p = Polynom([1, -2 ])
-    #q = Polynom([4, 7, 4])
-    #test(p,q)
+    #from .fraction import Fraction
+    p = Polynom([0, -2 ])
+    q = Polynom([4, 0, 4])
+    test(p,q)
+
+    print("\n")
+    p = Polynom([[1,0], [2,3,0]])
+    for i in p.simplify():
+        print(i)
 
     #q = Polynom([0, Fraction(1,2), 0, Fraction(-4,3)])
     #test(p,q)
@@ -420,9 +425,9 @@ if __name__ == '__main__':
     #p = Polynom([-1,-2,-3])
     #print(p)
 
-    p = Polynom([-2])
-    q = Polynom([0,0,Fraction(1,2)])
-    test(p,q)
+    #p = Polynom([-2])
+    #q = Polynom([0,0,Fraction(1,2)])
+    #test(p,q)
 
     #p = Polynom([1, 1, 1 ])
     #print(p)
