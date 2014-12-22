@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from .generic import Stack, flatten_list, expand_list, isNumber, isOperator
+from .generic import Stack, flatten_list, expand_list, isNumber, isOperator, isNumerand
 from .render import txt, tex
 from .str2tokens import str2tokens
 from .operator import op
@@ -121,15 +121,15 @@ class Expression(object):
                     old_s = new_s
                     yield new_s
 
-            try:
-                for s in self.child.simplify():
-                    if old_s != s:
-                        yield s
-                if not Expression.isExpression(self.child):
-                    yield self.STR_RENDER([self.child])
+           try:
+               for s in self.child.simplify():
+                   if old_s != s:
+                       yield s
+               if not Expression.isExpression(self.child):
+                   yield self.STR_RENDER([self.child])
 
-            except AttributeError:
-                yield self.STR_RENDER([self.child])
+           except AttributeError:
+               yield self.STR_RENDER([self.child])
 
     def simplified(self):
         """ Get the simplified version of the expression """
@@ -157,7 +157,7 @@ class Expression(object):
 
         while len(tokenList) > 2: 
             # on va chercher les motifs du genre A B +, quand l'operateur est d'arité 2, pour les calculer 
-            if isNumber(tokenList[0]) and isNumber(tokenList[1]) \
+            if isNumerand(tokenList[0]) and isNumerand(tokenList[1]) \
                     and isOperator(tokenList[2]) and tokenList[2].arity == 2 :
                 
                 # S'il y a une opération à faire
@@ -173,7 +173,7 @@ class Expression(object):
                 del tokenList[0:3]
 
             # Et les motifs du gens A -, quand l'operateur est d'arité 1
-            elif isNumber(tokenList[0]) \
+            elif isNumerand(tokenList[0]) \
                     and isOperator(tokenList[1]) and tokenList[1].arity == 1:
                 
                 # S'il y a une opération à faire
@@ -192,7 +192,7 @@ class Expression(object):
 
                 del tokenList[0]
 
-        if len(tokenList) == 2 and isNumber(tokenList[0]) \
+        if len(tokenList) == 2 and isNumerand(tokenList[0]) \
                     and isOperator(tokenList[1]) and tokenList[1].arity == 1:
             # S'il reste deux éléments dont un operation d'arité 1
             op1 = tokenList[0]
@@ -283,81 +283,83 @@ class Expression(object):
 
 def test(exp):
     a = Expression(exp)
-    print(a)
+    #print(a)
     for i in a.simplify():
+        print(type(i))
         print(i)
 
-    print(type(a.simplified()), ":", a.simplified())
+    #print(type(a.simplified()), ":", a.simplified())
 
     print("\n")
 
 if __name__ == '__main__':
     Expression.set_render(txt)
-    exp1 = "2 ^ 3 * 5"
-    test(exp1)
+    #exp = "2 ^ 3 * 5"
+    #test(exp)
 
-    Expression.set_render(tex)
-
-    test(exp1)
-
-    from pymath.operator import op
-    exp = [2, 3, op.pw, 5, op.mul]
+    exp = "2x + 5"
     test(exp)
 
-    Expression.set_render(txt)
+    #Expression.set_render(tex)
 
-    test([Expression(exp1), Expression(exp), op.add])
+    #test(exp1)
 
-    exp = "1 + 3 * 5"
-    e = Expression(exp)
-    f = -e
-    print(f)
+    #from pymath.operator import op
+    #exp = [2, 3, op.pw, 5, op.mul]
+    #test(exp)
 
-    exp = "2 * 3 * 3 * 5"
-    test(exp)
+    #test([Expression(exp1), Expression(exp), op.add])
 
-    exp = "2 * 3 + 3 * 5"
-    test(exp)
+    #exp = "1 + 3 * 5"
+    #e = Expression(exp)
+    #f = -e
+    #print(f)
 
-    exp = "2 * ( 3 + 4 ) + 3 * 5"
-    test(exp)
+    #exp = "2 * 3 * 3 * 5"
+    #test(exp)
 
-    exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
-    test(exp)
-    
-    exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
-    test(exp)
-    
-    exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
-    test(exp)
-    
-    exp = "2 + 5 * ( 3 - 4 )"
-    test(exp)
+    #exp = "2 * 3 + 3 * 5"
+    #test(exp)
 
-    exp = "( 2 + 5 ) * ( 3 - 4 )^4"
-    test(exp)
+    #exp = "2 * ( 3 + 4 ) + 3 * 5"
+    #test(exp)
 
-    exp = "( 2 + 5 ) * ( 3 * 4 )"
-    test(exp)
+    #exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
+    #test(exp)
+    #
+    #exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
+    #test(exp)
+    #
+    #exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
+    #test(exp)
+    #
+    #exp = "2 + 5 * ( 3 - 4 )"
+    #test(exp)
 
-    exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
-    test(exp)
+    #exp = "( 2 + 5 ) * ( 3 - 4 )^4"
+    #test(exp)
 
-    exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
-    test(exp)
+    #exp = "( 2 + 5 ) * ( 3 * 4 )"
+    #test(exp)
 
-    exp = "( 2+ 5 )/( 3 * 4 ) + 1 / 2"
-    test(exp)
+    #exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
+    #test(exp)
 
-    exp="(-2+5)/(3*4)+1/12+5*5"
-    test(exp)
+    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
+    #test(exp)
 
-    exp="-2*4(12 + 1)(3-12)"
-    test(exp)
+    #exp = "( 2+ 5 )/( 3 * 4 ) + 1 / 2"
+    #test(exp)
+
+    #exp="(-2+5)/(3*4)+1/12+5*5"
+    #test(exp)
+
+    #exp="-2*4(12 + 1)(3-12)"
+    #test(exp)
 
 
-    exp="(-2+5)/(3*4)+1/12+5*5"
-    test(exp)
+    #exp="(-2+5)/(3*4)+1/12+5*5"
+    #test(exp)
 
     # TODO: The next one doesn't work  |ven. janv. 17 14:56:58 CET 2014
     #exp="-2*(-a)(12 + 1)(3-12)"
