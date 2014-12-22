@@ -153,33 +153,16 @@ class TestPolynom(unittest.TestCase):
         r = (p - q)[-1]
         self.assertEqual(str(r), '- x ^ 2 - 2 x + 1')
 
+    def test_pow_monome(self):
+        p = Polynom([0,-2])
+        r = (p**3)[-1]
+        self.assertEqual(str(r), '- 8 x ^ 3')
 
-    def test_radd_int(self):
-        pass
+    def test_pow2_monome(self):
+        p = Polynom([0,-2])
+        r = (p^3)[-1]
+        self.assertEqual(str(r), '- 8 x ^ 3')
 
-    def test_radd_frac(self):
-        pass
-
-    def test_radd_poly(self):
-        pass
-
-    def test_mul_int(self):
-        pass
-
-    def test_mul_frac(self):
-        pass
-
-    def test_mul_poly(self):
-        pass
-
-    def test_rmul_int(self):
-        pass
-
-    def test_rmul_frac(self):
-        pass
-
-    def test_rmul_poly(self):
-        pass
 
 
 if __name__ == '__main__':

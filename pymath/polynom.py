@@ -86,14 +86,15 @@ class Polynom(object):
             else:
                 self._coef.append(coef)
 
-    def get_degree(self):
+    @property
+    def degree(self):
         """Getting the degree fo the polynom
 
         :returns: the degree of the polynom
 
-        >>> Polynom([1, 2, 3]).get_degree()
+        >>> Polynom([1, 2, 3]).degree
         2
-        >>> Polynom([1]).get_degree()
+        >>> Polynom([1]).degree
         0
         """
         return len(self._coef) - 1
@@ -373,6 +374,29 @@ class Polynom(object):
 
         return o_poly.__mul__(self)
 
+    def __pow__(self, power):
+        if not type(power):
+            raise ValueError("Can't raise Polynom to {} power".format(str(power)))
+
+        steps = []
+
+        if self.is_monom():
+            coefs = [0]*self.degree*power + [Expression([self._coef[self.degree] , power, op.pw])]
+            p = Polynom(coefs, letter = self._letter)
+            steps.append(p)
+            
+            steps += p.simplify()
+
+        else:
+            raise AttributeError("__pw__ not implemented yet")
+
+        return steps
+
+    def __xor__(self, power):
+        return self.__pow__(power)
+
+
+
 
 def test(p,q):
     print("---------------------")
@@ -411,10 +435,11 @@ def test(p,q):
 if __name__ == '__main__':
     #from .fraction import Fraction
     Expression.set_render(txt)
-    p = Polynom([0, -2 ])
-    q = Polynom([4, 0, 4])
-    r = (p-q)[-1]
-    print(r)
+    p = Polynom([0, 0, 3 ])
+    #q = Polynom([4, 0, 4])
+    r = (p**3)
+    for i in r:
+        print(i)
 
     #test(p,q)
 
