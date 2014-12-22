@@ -12,6 +12,19 @@ from itertools import chain
 __all__ = ["Polynom"]
 
 
+def power_cache(fun):
+    """Decorator which cache calculated powers of polynoms """
+    cache  = {}
+    def cached_fun(self, power):
+        print("cache -> ", cache)
+        if (tuple(self._coef), power) in cache.keys():
+            return cache[(tuple(self._coef), power)]
+        else:
+            poly_powered = fun(self, power)
+            cache[(tuple(self._coef), power)] = poly_powered
+            return poly_powered
+    return cached_fun
+
 class Polynom(object):
 
     """Docstring for Polynom. """
@@ -374,7 +387,19 @@ class Polynom(object):
 
         return o_poly.__mul__(self)
 
+    @power_cache
     def __pow__(self, power):
+        """ Overload **
+
+        >>> p = Polynom([0,0,3])
+        >>> p**2
+        [< Polynom [0, 0, 0, 0, < Expression [3, 2, '^']>]>, < Polynom [0, 0, 0, 0, < Expression [3, 2, '^']>]>, < Polynom [0, 0, 0, 0, 9]>, < Polynom [0, 0, 0, 0, 9]>]
+        >>> p = Polynom([1,2])
+        >>> p**2
+        [[< Polynom [1, 2]>, < Polynom [1, 2]>, '*'], < Polynom [< Expression [1, 1, '*']>, [< Expression [1, 2, '*']>, < Expression [2, 1, '*']>], < Expression [2, 2, '*']>]>, < Polynom [< Expression [1, 1, '*']>, < Expression [1, 2, '*', 2, 1, '*', '+']>, < Expression [2, 2, '*']>]>, < Polynom [1, < Expression [2, 2, '+']>, 4]>, < Polynom [1, 4, 4]>]
+
+
+        """
         if not type(power):
             raise ValueError("Can't raise Polynom to {} power".format(str(power)))
 
@@ -388,7 +413,10 @@ class Polynom(object):
             steps += p.simplify()
 
         else:
-            raise AttributeError("__pw__ not implemented yet")
+            if power == 2:
+                return [[self, self, op.mul]] + self * self
+            else:
+                raise AttributeError("__pw__ not implemented yet")
 
         return steps
 
@@ -440,6 +468,7 @@ if __name__ == '__main__':
     r = (p**3)
     for i in r:
         print(i)
+    z = (p**3)
 
     #test(p,q)
 
