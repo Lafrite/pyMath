@@ -67,7 +67,16 @@ class Expression(object):
                 simplified = lambda x:x
                 is_number = True
                 methods_attr = {'simplify':simplify, 'simplified':simplified, 'isNumber': is_number}
-                fake_token = type('fake_obj', (int,), methods_attr)(token)
+                fake_token = type('fake_int', (int,), methods_attr)(token)
+                return fake_token
+
+            elif type(token) == str:
+            # On crée un faux str en ajoutant la méthode simplify et simplified et la caractérisique isNumber
+                simplify = lambda x:[x]
+                simplified = lambda x:x
+                is_polynom = True
+                methods_attr = {'simplify':simplify, 'simplified':simplified, '_isPolynom': is_polynom}
+                fake_token = type('fake_str', (str,), methods_attr)(token)
                 return fake_token
 
             else:
