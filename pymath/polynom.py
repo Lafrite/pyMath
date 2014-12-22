@@ -312,8 +312,11 @@ class Polynom(object):
         return self.reduce()
 
     def __eq__(self, other):
-        o_poly = self.conv2poly(other)
-        return self._coef == o_poly._coef
+        try:
+            o_poly = self.conv2poly(other)
+            return self._coef == o_poly._coef
+        except TypeError:
+            return 0
 
     def __add__(self, other):
         steps = []
