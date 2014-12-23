@@ -133,7 +133,7 @@ class Expression(object):
                 if new_s != old_s:
                     old_s = new_s
                     yield new_s
-            if old_s != str(self.child):
+            if old_s != self.STR_RENDER([self.child]):
                 yield self.STR_RENDER([self.child])
 
 
