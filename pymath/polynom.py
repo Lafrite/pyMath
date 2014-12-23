@@ -174,6 +174,31 @@ class Polynom(object):
 
         :returns: the postfix list of polynom's tokens
 
+        >>> p = Polynom([1, 2])
+        >>> p.postfix
+        [2, 'x', '*', 1, '+']
+        >>> p = Polynom([1, -2])
+        >>> p.postfix
+        [2, 'x', '*', '-', 1, '+']
+        >>> p = Polynom([1,2,3])
+        >>> p.postfix
+        [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+']
+        >>> p = Polynom([1,[2,3]])
+        >>> p.postfix
+        [2, 'x', '*', 3, 'x', '*', '+', 1, '+']
+        >>> p = Polynom([1,[2,-3]])
+        >>> p.postfix
+        [2, 'x', '*', 3, 'x', '*', '-', 1, '+']
+        >>> p = Polynom([1,[-2,-3]])
+        >>> p.postfix
+        [2, 'x', '*', '-', 3, 'x', '*', '-', 1, '+']
+        >>> from pymath.expression import Expression
+        >>> from pymath.operator import op
+        >>> e = Expression([2,3,op.add])
+        >>> p = Polynom([1,e])
+        >>> p.postfix
+        [2, 3, '+', 'x', '*', 1, '+']
+
         """
         # TODO: Faudrait factoriser un peu tout ça..! |dim. déc. 21 16:02:34 CET 2014
         postfix = []
@@ -191,6 +216,8 @@ class Polynom(object):
             elif type(a) == list:
                 # case need to repeat the x^i
                 for b in a:
+                    operator = [op.add]
+                    operator_sub1 = []
                     if len(postfix) == 0 and isNumber(b) and b < 0:
                         try:
                             b = [(-b)[-1]]
@@ -501,6 +528,8 @@ if __name__ == '__main__':
     p = Polynom([10, -5])
     q = Polynom([3, -9])
     print(p-q)
+    for i in p-q:
+        print(i)
 
 
     import doctest
