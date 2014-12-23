@@ -5,6 +5,7 @@
 import unittest
 
 from pymath.str2tokens import str2tokens, str2in_tokens, in2post_fix
+from pymath.polynom import Polynom
 
 class TestStr2tokens(unittest.TestCase):
     """Testing functions from pymath.str2tokens"""
@@ -46,18 +47,18 @@ class TestStr2tokens(unittest.TestCase):
     def test_str2tokens_poly(self):
         exp = "2x + 4"
         post = str2in_tokens(exp)
-        self.assertEqual(post, [2, < Polynom [0, 1]>, '*', 4, '+'])
+        self.assertEqual(post, [2, "*", Polynom([0, 1]), '+', 4])
 
 
     def test_str2tokens_poly_double_x(self):
         exp = "xx + 4"
         post = str2in_tokens(exp)
-        self.assertEqual(post, [< Polynom [0, 1]>, < Polynom [0, 1]>, '*', 4, '+'])
+        self.assertEqual(post, [Polynom([0, 1]), "*", Polynom([0, 1]), '+', 4])
 
     def test_str2tokens_poly(self):
         exp = "x(2+1) + 4"
         post = str2in_tokens(exp)
-        self.assertEqual(post, [< Polynom [0, 1]>, 2, 1, '+', '*', 4, '+'])
+        self.assertEqual(post, [Polynom([0, 1]), "*", "(", 2, "+", 1, ')', '+', 4])
 
     def test_str2in_tokens_time_lack2(self):
         exp = "-3(2)"
