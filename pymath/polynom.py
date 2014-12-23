@@ -269,6 +269,8 @@ class Polynom(object):
                 coef_steps = list(coef_exp.simplify())
                 Expression.set_render(old_render)
 
+                #print('\t 1.coef_steps -> ', coef_steps)
+
             elif type(coef) == Expression:
 
                 old_render = Expression.get_render()
@@ -276,14 +278,19 @@ class Polynom(object):
                 coef_steps = list(coef.simplify())
                 Expression.set_render(old_render)
 
+                #print('\t 2.coef_steps -> ', coef_steps)
+
             else:
-                coef_steps = [coef]
                 try:
                     coef_steps += coef.simplify()
                 except AttributeError:
-                    pass
+                    coef_steps = [coef]
+
+                #print('\t 3.coef_steps -> ', coef_steps)
             # On ajoute toutes ces étapes
             coefs_steps.append(coef_steps)
+
+        #print('\t coefs_steps -> ', coefs_steps)
 
         # On retourne la matrice
         ans = []
@@ -355,6 +362,23 @@ class Polynom(object):
         return o_poly.__sub__(-self)
     
     def __mul__(self, other):
+        """ Overload *
+
+        >>> p = Polynom([1,2])
+        >>> p*3
+        [< Polynom [3, < Expression [2, 3, '*']>]>, < Polynom [3, < Expression [2, 3, '*']>]>, < Polynom [3, 6]>]
+        >>> q = Polynom([0,0,4])
+        >>> q*3
+        [< Polynom [0, 0, < Expression [4, 3, '*']>]>, < Polynom [0, 0, < Expression [4, 3, '*']>]>, < Polynom [0, 0, 12]>]
+        >>> r = Polynom([0,1])
+        >>> r*3
+        [< Polynom [0, 3]>, < Polynom [0, 3]>]
+        >>> p*q
+        [< Polynom [0, 0, 4, < Expression [2, 4, '*']>]>, < Polynom [0, 0, 4, < Expression [2, 4, '*']>]>, < Polynom [0, 0, 4, 8]>]
+        >>> p*r
+        [< Polynom [0, 1, 2]>, < Polynom [0, 1, 2]>]
+
+        """
         steps = []
         o_poly = self.conv2poly(other)
 
@@ -363,6 +387,10 @@ class Polynom(object):
             for (j,b) in enumerate(o_poly._coef):
                 if a == 0 or b == 0:
                     elem = 0
+                elif a==1:
+                    elem = b
+                elif b==1:
+                    elem = a
                 else:
                     elem = Expression([a, b, op.mul])
                 try:
@@ -375,7 +403,7 @@ class Polynom(object):
 
         p = Polynom(coefs, letter = self._letter)
         steps.append(p)
-        
+
         steps += p.simplify()
 
         #print("steps -> \n", "\n".join(["\t {}".format(s.postfix) for s in steps]))
@@ -397,6 +425,9 @@ class Polynom(object):
         >>> p = Polynom([1,2])
         >>> p**2
         [[< Polynom [1, 2]>, < Polynom [1, 2]>, '*'], < Polynom [< Expression [1, 1, '*']>, [< Expression [1, 2, '*']>, < Expression [2, 1, '*']>], < Expression [2, 2, '*']>]>, < Polynom [< Expression [1, 1, '*']>, < Expression [1, 2, '*', 2, 1, '*', '+']>, < Expression [2, 2, '*']>]>, < Polynom [1, < Expression [2, 2, '+']>, 4]>, < Polynom [1, 4, 4]>]
+        >>> p = Polynom([0,0,1])
+        >>> p**3
+        [< Polynom [0, 0, 0, 0, 0, 0, 1]>]
 
 
         """
@@ -406,11 +437,16 @@ class Polynom(object):
         steps = []
 
         if self.is_monom():
-            coefs = [0]*self.degree*power + [Expression([self._coef[self.degree] , power, op.pw])]
-            p = Polynom(coefs, letter = self._letter)
-            steps.append(p)
-            
-            steps += p.simplify()
+            if self._coef[self.degree] == 1:
+                coefs = [0]*self.degree*power + [1]
+                p = Polynom(coefs, letter = self._letter)
+                steps.append(p)
+            else:
+                coefs = [0]*self.degree*power + [Expression([self._coef[self.degree] , power, op.pw])]
+                p = Polynom(coefs, letter = self._letter)
+                steps.append(p)
+                
+                steps += p.simplify()
 
         else:
             if power == 2:
@@ -463,51 +499,11 @@ def test(p,q):
 if __name__ == '__main__':
     #from .fraction import Fraction
     Expression.set_render(txt)
-    p = Polynom([0, 0, 3 ])
-    #q = Polynom([4, 0, 4])
-    r = (p**3)
-    for i in r:
-        print(i)
-    z = (p**3)
+    p = Polynom([1, 2])
+    print(p*3)
+    q = Polynom([0, 0, 1])
+    print(q**3)
 
-    #test(p,q)
-
-    #print("\n")
-    #p = Polynom([[1,0], [2,3,0]])
-    #for i in p.simplify():
-    #    print(i)
-
-    #q = Polynom([0, Fraction(1,2), 0, Fraction(-4,3)])
-    #test(p,q)
-
-    #print("\n")
-    #p = Polynom([-1,-2,-3])
-    #print(p)
-
-    #p = Polynom([-2])
-    #q = Polynom([0,0,Fraction(1,2)])
-    #test(p,q)
-
-    #p = Polynom([1, 1, 1 ])
-    #print(p)
-
-
-    #print("-- Poly étrange --")
-    #p = Polynom([1, [2, 3], 4], "x")
-    #print(repr(p))
-    #for i in p.simplify():
-    #    print(i)
-    #print("-- Poly étrange --")
-    #p = Polynom([1, [[2, 3, "*"], [4,5,"*"]], 4], "x")
-    #print(repr(p))
-    #print(p)
-    #for i in p.simplify():
-    #    print(repr(i))
-
-    #print("\n")
-    #poly = Polynom.random(["[{a**2}, {a}]", "{2*a*b}", "{b**2}"]) 
-    #for i in poly.simplify():
-    #    print(i)
 
     import doctest
     doctest.testmod()
