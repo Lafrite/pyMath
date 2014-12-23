@@ -447,7 +447,6 @@ class Polynom(object):
                 steps.append(p)
                 
                 steps += p.simplify()
-[< Polynom [0, 0, 0, 0, 0, 0, 1]>]
         else:
             if power == 2:
                 return [[self, self, op.mul]] + self * self
@@ -499,10 +498,9 @@ def test(p,q):
 if __name__ == '__main__':
     #from .fraction import Fraction
     Expression.set_render(txt)
-    p = Polynom([1, 2])
-    print(p*3)
-    q = Polynom([0, 0, 1])
-    print(q**3)
+    p = Polynom([10, -5])
+    q = Polynom([3, -9])
+    print(p-q)
 
 
     import doctest
