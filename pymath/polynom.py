@@ -447,12 +447,12 @@ class Polynom(object):
                 steps.append(p)
                 
                 steps += p.simplify()
-
+[< Polynom [0, 0, 0, 0, 0, 0, 1]>]
         else:
             if power == 2:
                 return [[self, self, op.mul]] + self * self
             else:
-                raise AttributeError("__pw__ not implemented yet")
+                raise AttributeError("__pw__ not implemented yet when power is greatter than 2")
 
         return steps
 
