@@ -29,14 +29,11 @@ class TestExpression(unittest.TestCase):
         self.assertEqual(exp.postfix_tokens, [2, 3, "+"])
 
     def test_simplify_frac(self):
-        render = lambda _,x : str(x)
-        Expression.set_render(render)
         exp = Expression("1/2 - 4")
-        steps = ["[1, 2, '/', 4, '-']", \
-                "[< Fraction 1 / 2>, 4, '-']", \
-                "[1, 1, '*', 2, 1, '*', '/', 4, 2, '*', 1, 2, '*', '/', '-']", \
-                "[1, 8, '-', 2, '/']", \
-                '[< Fraction -7 / 2>]']
+        steps = ['\\frac{ 1 }{ 2 } - 4', \
+            '\\frac{ 1 \\times 1 }{ 2 \\times 1 } - \\frac{ 4 \\times 2 }{ 1 \\times 2 }',\
+            '\\frac{ 1 - 8 }{ 2 }',\
+            '\\frac{ -7 }{ 2 }']
         self.assertEqual(steps, list(exp.simplify()))
         Expression.set_render(txt)
 
