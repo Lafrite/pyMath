@@ -427,7 +427,7 @@ class op(object):
         caract = {
             "operator" : "/", \
             "name" : "div",\
-            "priority" : 4, \
+            "priority" : 5, \
             "arity" : 2, \
             "txt" :  "{op1} / {op2}",\
             "tex" : "\\frac{{ {op1} }}{{ {op2} }}",\
