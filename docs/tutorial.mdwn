@@ -143,6 +143,14 @@ Contrairement aux opérations sur les Expressions, qui renvoient une nouvelle ex
 
 les opérations sur les fractions ou les polynômes renvoient la liste des étapes jusqu'à leur forme simplifiée
 
+    >>> fraction1 + fraction2
+    [< Expression [1, 3, '*', 2, 3, '*', '/', 2, 2, '*', 3, 2, '*', '/', '+']>, < Expression [3, 4, '+', 6, '/']>, < Fraction 7 / 6>]
+    >>> for i in (fraction1 + fraction2):
+    ...     print(i)
+    ...
+    1 * 3 / 2 * 3 + 2 * 2 / 3 * 2
+    ( 3 + 4 ) / 6
+    7 / 6
     >>> p + q
     [< Polynom [[1, 0], [2, 0], [3, 1]]>, < Polynom [1, 2, < Expression [3, 1, '+']>]>, < Polynom [1, 2, 4]>
     >>> for i in (p+q):
