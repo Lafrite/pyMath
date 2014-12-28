@@ -291,19 +291,15 @@ class Polynom(object):
                 # On converti en Expression
                 coef_exp = Expression(postfix_add)
 
-                old_render = Expression.get_render()
-                Expression.set_render(lambda _,x:Expression(x))
-                coef_steps = list(coef_exp.simplify())
-                Expression.set_render(old_render)
+                with Expression.tmp_render():
+                    coef_steps = list(coef_exp.simplify())
 
                 #print('\t 1.coef_steps -> ', coef_steps)
 
             elif type(coef) == Expression:
 
-                old_render = Expression.get_render()
-                Expression.set_render(lambda _,x:Expression(x))
-                coef_steps = list(coef.simplify())
-                Expression.set_render(old_render)
+                with Expression.tmp_render():
+                    coef_steps = list(coef.simplify())
 
                 #print('\t 2.coef_steps -> ', coef_steps)
 
@@ -524,12 +520,12 @@ def test(p,q):
 
 if __name__ == '__main__':
     #from .fraction import Fraction
-    Expression.set_render(txt)
-    p = Polynom([10, -5])
-    q = Polynom([3, -9])
-    print(p-q)
-    for i in p-q:
-        print(i)
+    with Expression.tmp_render(txt):
+        p = Polynom([10, -5])
+        q = Polynom([3, -9])
+        print(p-q)
+        for i in p-q:
+            print(i)
 
 
     import doctest

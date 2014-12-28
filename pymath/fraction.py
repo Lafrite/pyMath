@@ -119,13 +119,13 @@ class Fraction(object):
         >>> f = Fraction(1, 2)
         >>> g = Fraction(2, 3)
         >>> f + g
-        [< Expression [1, 3, '*', 2, 3, '*', '/', 2, 2, '*', 3, 2, '*', '/', '+']>, < Expression [3, 4, '+', 6, '/']>, < Fraction 7 / 6>]
+        [< Expression [1, 3, '*', 2, 3, '*', '/', 2, 2, '*', 3, 2, '*', '/', '+']>, < Expression [3, 6, '/', 4, 6, '/', '+']>, < Expression [< Fraction 3 / 6>, < Fraction 4 / 6>, '+']>, < Expression [3, 4, '+', 6, '/']>, < Expression [7, 6, '/']>, < Fraction 7 / 6>]
         >>> f + 2
-        [< Expression [1, 1, '*', 2, 1, '*', '/', 2, 2, '*', 1, 2, '*', '/', '+']>, < Expression [1, 4, '+', 2, '/']>, < Fraction 5 / 2>]
+        [< Expression [1, 1, '*', 2, 1, '*', '/', 2, 2, '*', 1, 2, '*', '/', '+']>, < Expression [1, 2, '/', 4, 2, '/', '+']>, < Expression [< Fraction 1 / 2>, < Fraction 4 / 2>, '+']>, < Expression [1, 4, '+', 2, '/']>, < Expression [5, 2, '/']>, < Fraction 5 / 2>]
         >>> f = Fraction(3, 4)
         >>> g = Fraction(5, 4)
         >>> f + g
-        [< Expression [3, 5, '+', 4, '/']>, < Fraction 8 / 4>, 2]
+        [< Expression [3, 5, '+', 4, '/']>, < Expression [8, 4, '/']>, 2]
 
         """
 
@@ -134,31 +134,22 @@ class Fraction(object):
 
         number = self.convert2fraction(other)
 
-        steps = []
-
         if self._denom == number._denom:
             com_denom = self._denom
             num1 = self._num
             num2 = number._num
+
+            exp = Expression([num1, num2, op.add, com_denom, op.div])
 
         else:
             gcd_denom = gcd(self._denom, number._denom)
             coef1 = number._denom // gcd_denom
             coef2 = self._denom // gcd_denom
 
-            steps.append(Expression([self._num, coef1, op.mul, self._denom, coef1, op.mul, op.div, number._num, coef2, op.mul, number._denom, coef2, op.mul, op.div,op.add]) )
+            exp = Expression([self._num, coef1, op.mul, self._denom, coef1, op.mul, op.div, number._num, coef2, op.mul, number._denom, coef2, op.mul, op.div,op.add])
 
-            com_denom = self._denom * coef1
-            num1 = self._num * coef1
-            num2 = number._num * coef2
-
-        steps.append(Expression([num1, num2, op.add, com_denom, op.div]))
-
-        num = num1 + num2
-
-        ans_frac = Fraction(num, com_denom)
-        steps.append(ans_frac)
-        steps += ans_frac.simplify()
+        with Expression.tmp_render():
+            steps = list(exp.simplify())
 
         return steps
 
@@ -176,7 +167,7 @@ class Fraction(object):
         >>> f = Fraction(1, 2)
         >>> g = Fraction(2, 3)
         >>> f - g
-        [< Expression [1, 3, '*', 2, 3, '*', '/', 2, 2, '*', 3, 2, '*', '/', '-']>, < Expression [3, 4, '-', 6, '/']>, < Fraction -1 / 6>]
+        [< Expression [1, 3, '*', 2, 3, '*', '/', 2, 2, '*', 3, 2, '*', '/', '-']>, < Expression [3, 6, '/', 4, 6, '/', '-']>, < Expression [< Fraction 3 / 6>, < Fraction 4 / 6>, '-']>, < Expression [3, 4, '-', 6, '/']>, < Expression [-1, 6, '/']>, < Fraction -1 / 6>]
 
         """
         if other == 0:
@@ -184,31 +175,22 @@ class Fraction(object):
 
         number = self.convert2fraction(other)
 
-        steps = []
-
         if self._denom == number._denom:
             com_denom = self._denom
             num1 = self._num
             num2 = number._num
+
+            exp = Expression([num1, num2, op.sub, com_denom, op.div])
 
         else:
             gcd_denom = gcd(self._denom, number._denom)
             coef1 = number._denom // gcd_denom
             coef2 = self._denom // gcd_denom
 
-            steps.append(Expression([self._num, coef1, op.mul, self._denom, coef1, op.mul, op.div, number._num, coef2, op.mul, number._denom, coef2, op.mul, op.div,op.sub]))
+            exp = Expression([self._num, coef1, op.mul, self._denom, coef1, op.mul, op.div, number._num, coef2, op.mul, number._denom, coef2, op.mul, op.div,op.sub])
 
-            com_denom = self._denom * coef1
-            num1 = self._num * coef1
-            num2 = number._num * coef2
-
-        steps.append(Expression([num1, num2, op.sub, com_denom, op.div]))
-
-        num = num1 - num2
-
-        ans_frac = Fraction(num, com_denom)
-        steps.append(ans_frac)
-        steps += ans_frac.simplify()
+        with Expression.tmp_render():
+            steps = list(exp.simplify())
 
         return steps
 
@@ -234,7 +216,11 @@ class Fraction(object):
 
         """
         f = Fraction(-self._num, self._denom)
-        return [f] + f.simplify()
+
+        with Expression.tmp_render():
+            steps = [f] + f.simplify()
+
+        return steps
     
     def __mul__(self, other):
         """ overload *
@@ -242,13 +228,13 @@ class Fraction(object):
         >>> f = Fraction(1, 2)
         >>> g = Fraction(2, 3)
         >>> f*g
-        [< Expression [1, 1, 2, '*', '*', 1, 2, '*', 3, '*', '/']>, < Fraction 1 / 3>]
+        [< Expression [1, 1, 2, '*', '*', 1, 2, '*', 3, '*', '/']>, < Expression [1, 2, '*', 2, 3, '*', '/']>, < Expression [2, 6, '/']>, < Expression [1, 2, '*', 3, 2, '*', '/']>, < Fraction 1 / 3>]
         >>> f * 0
         [0]
         >>> f*1
         [< Fraction 1 / 2>]
         >>> f*4
-        [< Expression [1, 2, '*', 2, '*', 1, 2, '*', '/']>, < Fraction 2 / 1>, 2]
+        [< Expression [1, 2, '*', 2, '*', 1, 2, '*', '/']>, < Expression [2, 2, '*', 2, '/']>, < Expression [4, 2, '/']>, 2]
 
         """
         steps = []
@@ -258,6 +244,8 @@ class Fraction(object):
         elif other == 1:
             return [self]
 
+        # TODO: Changer dans le cas où il y a trop de 1 |dim. déc. 28 10:44:10 CET 2014
+
         elif type(other) == int:
             gcd1 = gcd(other, self._denom)
             if gcd1 != 1:
@@ -266,10 +254,8 @@ class Fraction(object):
             else:
                 num = [self._num, other, op.mul]
                 denom = [self._denom]
-            steps.append(Expression(num + denom + [op.div]))
 
-            num = int(self._num * other / gcd1)
-            denom = int(self._denom / gcd1)
+            exp = Expression(num + denom + [op.div])
 
         else:
             number = self.convert2fraction(other)
@@ -291,14 +277,10 @@ class Fraction(object):
                 denom1 = [self._denom]
 
 
-            steps.append(Expression(num1 +  num2 + [ op.mul] +  denom1 +  denom2 + [op.mul, op.div]))
+            exp = Expression(num1 +  num2 + [ op.mul] +  denom1 +  denom2 + [op.mul, op.div])
 
-            num = int(self._num * number._num / (gcd1 * gcd2))
-            denom = int(self._denom * number._denom / (gcd1 * gcd2))
-
-        ans_frac = Fraction(num, denom)
-        steps.append(ans_frac)
-        steps += ans_frac.simplify()
+        with Expression.tmp_render():
+            steps = list(exp.simplify())
 
         return steps
 
@@ -334,10 +316,10 @@ class Fraction(object):
         >>> f**1
         [< Fraction 3 / 4>]
         >>> f**3
-        [< Expression [3, 3, '^', 4, 3, '^', '/']>, < Fraction 27 / 64>]
+        [< Expression [3, 3, '^', 4, 3, '^', '/']>, < Expression [27, 64, '/']>, < Fraction 27 / 64>]
         >>> f = Fraction(6, 4)
         >>> f**3
-        [< Expression [6, 3, '^', 4, 3, '^', '/']>, < Fraction 216 / 64>, < Expression [27, 8, '*', 8, 8, '*', '/']>, < Fraction 27 / 8>]
+        [< Expression [6, 3, '^', 4, 3, '^', '/']>, < Expression [216, 64, '/']>, < Expression [27, 8, '*', 8, 8, '*', '/']>, < Fraction 27 / 8>]
         
         """
         if not type(power) == int:
@@ -348,10 +330,9 @@ class Fraction(object):
         elif power == 1:
             return [self]
         else:
-            steps = [Expression([self._num, power, op.pw, self._denom, power, op.pw, op.div])]
-            ans_frac = Fraction(self._num ** power, self._denom ** power)
-            steps.append(ans_frac)
-            steps += ans_frac.simplify()
+            exp = Expression([self._num, power, op.pw, self._denom, power, op.pw, op.div])
+            with Expression.tmp_render():
+                steps = list(exp.simplify())
             return steps
 
     def __xor__(self, power):
@@ -364,10 +345,10 @@ class Fraction(object):
         >>> f^1
         [< Fraction 3 / 4>]
         >>> f^3
-        [< Expression [3, 3, '^', 4, 3, '^', '/']>, < Fraction 27 / 64>]
+        [< Expression [3, 3, '^', 4, 3, '^', '/']>, < Expression [27, 64, '/']>, < Fraction 27 / 64>]
         >>> f = Fraction(6, 4)
         >>> f^3
-        [< Expression [6, 3, '^', 4, 3, '^', '/']>, < Fraction 216 / 64>, < Expression [27, 8, '*', 8, 8, '*', '/']>, < Fraction 27 / 8>]
+        [< Expression [6, 3, '^', 4, 3, '^', '/']>, < Expression [216, 64, '/']>, < Expression [27, 8, '*', 8, 8, '*', '/']>, < Fraction 27 / 8>]
         
         """
         
