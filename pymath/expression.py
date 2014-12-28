@@ -29,6 +29,46 @@ class Expression(object):
         cls.set_render(cls.DEFAULT_RENDER)
 
     @classmethod
+    def tmp_render(cls, render = lambda _,x:Expression(x)):
+        """ Create a container in which Expression render is temporary modify
+
+        The default temporary render is Expression in order to perform calculus inside numbers
+
+        >>> exp = Expression("2*3/5")
+        >>> print(exp)
+        \\frac{ 2 \\times 3 }{ 5 }
+        >>> for i in exp.simplify():
+        ...     print(i)
+        \\frac{ 2 \\times 3 }{ 5 }
+        \\frac{ 6 }{ 5 }
+        >>> with Expression.tmp_render():
+        ...     for i in exp.simplify():
+        ...         i
+        < Expression [2, 3, '*', 5, '/']>
+        < Expression [6, 5, '/']>
+        < Fraction 6 / 5>
+
+        >>> with Expression.tmp_render(txt):
+        ...     for i in exp.simplify():
+        ...         print(i)
+        2 * 3 / 5
+        6 / 5
+        >>> for i in exp.simplify():
+        ...     print(i)
+        \\frac{ 2 \\times 3 }{ 5 }
+        \\frac{ 6 }{ 5 }
+
+        """
+        class TmpRenderEnv(object):
+            def __enter__(self):
+                self.old_render = Expression.get_render()
+                Expression.set_render(render)
+
+            def __exit__(self, type, value, traceback):
+                Expression.set_render(self.old_render)
+        return TmpRenderEnv()
+
+    @classmethod
     def random(self, form="", conditions=[], val_min = -10, val_max=10):
         """Create a random expression from form and with conditions
 
@@ -299,10 +339,10 @@ def test(exp):
     print("\n")
 
 if __name__ == '__main__':
-    render = lambda _,x : str(x)
-    Expression.set_render(render)
-    exp = Expression("1/2 - 4")
-    print(list(exp.simplify()))
+    #render = lambda _,x : str(x)
+    #Expression.set_render(render)
+    #exp = Expression("1/2 - 4")
+    #print(list(exp.simplify()))
 
     #Expression.set_render(txt)
     #exp = "2 ^ 3 * 5"
@@ -386,8 +426,8 @@ if __name__ == '__main__':
     #for i in exp.simplify():
     #    print(i)
 
-    #import doctest
-    #doctest.testmod()
+    import doctest
+    doctest.testmod()
 
 # -----------------------------
 # Reglages pour 'vim'
