@@ -32,6 +32,7 @@ class TestExpression(unittest.TestCase):
         exp = Expression("1/2 - 4")
         steps = ['\\frac{ 1 }{ 2 } - 4', \
             '\\frac{ 1 \\times 1 }{ 2 \\times 1 } - \\frac{ 4 \\times 2 }{ 1 \\times 2 }',\
+            '\\frac{ 1 }{ 2 } - \\frac{ 8 }{ 2 }',\
             '\\frac{ 1 - 8 }{ 2 }',\
             '\\frac{ -7 }{ 2 }']
         self.assertEqual(steps, list(exp.simplify()))
