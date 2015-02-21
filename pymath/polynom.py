@@ -30,18 +30,37 @@ class Polynom(object):
     """Docstring for Polynom. """
 
     @classmethod
-    def random(self, coefs_form=[], conditions=[], letter = "x"):
+    def random(self, coefs_form=[], conditions=[], letter = "x", degree = 0):
         """ Create a random polynom from coefs_form and conditions 
 
         :param coefs_form: list of forms (one by coef) (ascending degree sorted)
         :param conditions: condition on variables 
+        :param letter: the letter for the polynom
+        :param degree: degree of the polynom (can't be used with coefs_form, it will be overwrite) - can't be higher than 26 (number of letters in alphabet)
 
         /!\ variables need to be in brackets {}
 
+        >>> Polynom.random(["{b}", "{a}"]) # doctest:+ELLIPSIS
+        ...
+        >>> Polynom.random(degree = 2) # doctest:+ELLIPSIS
+        ...
+        >>> Polynom.random(degree = 2, conditions=["{b**2-4*a*c}>0"]) # Polynom deg 2 with positive Delta (ax^2 + bx + c)
+        ...
+        >>> Polynom.random(["{c}", "{b}", "{a}"], conditions=["{b**2-4*a*c}>0"]) # Same as above
+        ...
+
         """
+        if (degree > 0 and degree < 26):
+            # Générer assez de lettre pour les coefs
+            coefs_name = map(chr, range(97, 98+degree))
+            coefs_form = ["{" + i + "}" for i in coefs_name].reverse()
+
         form = str(coefs_form)
+        # On créé les valeurs toutes concaténées dans un string
         coefs = RdExpression(form, conditions)()
+        # On "parse" ce string pour créer les coefs
         coefs = [eval(i) if type(i)==str else i for i in eval(coefs)]
+        # Création du polynom
         return Polynom(coef = coefs, letter = letter)
 
     def __init__(self, coef = [1], letter = "x" ):
