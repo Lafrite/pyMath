@@ -16,7 +16,7 @@ def power_cache(fun):
     """Decorator which cache calculated powers of polynoms """
     cache  = {}
     def cached_fun(self, power):
-        print("cache -> ", cache)
+        #print("cache -> ", cache)
         if (tuple(self._coef), power) in cache.keys():
             return cache[(tuple(self._coef), power)]
         else:
