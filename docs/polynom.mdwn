@@ -1,0 +1,16 @@
+# Les polynômes
+
+
+## Créer des polynômes
+
+### Générer un polynôme "fixe"
+
+### Générer un polynôme aléatoirement
+
+    >>> P = Polynom.random(["{b}", "{a}"]) # Polynom du type ax + b
+    >>> print(P)
+    - 8 x - 3
+    >>> P = Polynom.random(degree = 2) 
+    >>> print(P)
+    5 x^{  2 } + 4 x - 7
+
