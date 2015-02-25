@@ -9,3 +9,4 @@
 
 * Expression parents class and his children: Numerical_exp, toGenerate_exp and formal expression
 * Create tbl sgn and variation render
+* Make less verbose fractions operations
