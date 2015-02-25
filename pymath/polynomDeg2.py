@@ -67,7 +67,7 @@ class Polynom_deg2(Polynom):
         \\frac{ -1 }{ 3 }
         \\frac{ -2 }{ 6 }
         >>> P.alpha.simplified() # Bug avec les fractions ici, on devrait avoir -1/3 pas -2/6...
-        < Fraction -2 / 6 >
+        < Fraction -2 / 6>
         
         """
         return Expression([self.b, op.sub1, 2, self.a, op.mul, op.div])
@@ -81,23 +81,23 @@ class Polynom_deg2(Polynom):
         < Expression [3, < Fraction -2 / 6>, 2, '^', '*', 2, < Fraction -2 / 6>, '*', '+', 1, '+']>
         >>> for i in P.beta.simplify(): # Ça serait bien que l'on puisse enlever des étapes maintenant...
         ...     print(i)
-        3 \times \frac{ -2 }{ 6 }^{  2 } + 2 \times \frac{ -2 }{ 6 } + 1
-        3 \times \frac{ ( -2 )^{  2 } }{ 6^{  2 } } + \frac{ ( -2 ) \times 1 \times 2 }{ 3 \times 2 } + 1
-        3 \times \frac{ 4 }{ 36 } + \frac{ ( -2 ) \times 2 }{ 6 } + 1
-        3 \times \frac{ 1 \times 4 }{ 9 \times 4 } + \frac{ -4 }{ 6 } + 1
-        3 \times \frac{ 1 }{ 9 } + \frac{ ( -2 ) \times 2 }{ 3 \times 2 } + 1
-        3 \times \frac{ 1 }{ 9 } + \frac{ -2 }{ 3 } + 1
-        \frac{ 1 \times 1 \times 3 }{ 3 \times 3 } + \frac{ -2 }{ 3 } + 1
-        \frac{ 1 \times 3 }{ 9 } + \frac{ -2 }{ 3 } + 1
-        \frac{ 3 }{ 9 } + \frac{ -2 }{ 3 } + 1
-        \frac{ 1 \times 3 }{ 3 \times 3 } + \frac{ -2 }{ 3 } + 1
-        \frac{ 1 }{ 3 } + \frac{ -2 }{ 3 } + 1
-        \frac{ 1 + ( -2 ) }{ 3 } + 1
-        \frac{ -1 }{ 3 } + 1
-        \frac{ ( -1 ) \times 1 }{ 3 \times 1 } + \frac{ 1 \times 3 }{ 1 \times 3 }
-        \frac{ -1 }{ 3 } + \frac{ 3 }{ 3 }
-        \frac{ ( -1 ) + 3 }{ 3 }
-        \frac{ 2 }{ 3 }
+        3 \\times \\frac{ -2 }{ 6 }^{  2 } + 2 \\times \\frac{ -2 }{ 6 } + 1
+        3 \\times \\frac{ ( -2 )^{  2 } }{ 6^{  2 } } + \\frac{ ( -2 ) \\times 1 \\times 2 }{ 3 \\times 2 } + 1
+        3 \\times \\frac{ 4 }{ 36 } + \\frac{ ( -2 ) \\times 2 }{ 6 } + 1
+        3 \\times \\frac{ 1 \\times 4 }{ 9 \\times 4 } + \\frac{ -4 }{ 6 } + 1
+        3 \\times \\frac{ 1 }{ 9 } + \\frac{ ( -2 ) \\times 2 }{ 3 \\times 2 } + 1
+        3 \\times \\frac{ 1 }{ 9 } + \\frac{ -2 }{ 3 } + 1
+        \\frac{ 1 \\times 1 \\times 3 }{ 3 \\times 3 } + \\frac{ -2 }{ 3 } + 1
+        \\frac{ 1 \\times 3 }{ 9 } + \\frac{ -2 }{ 3 } + 1
+        \\frac{ 3 }{ 9 } + \\frac{ -2 }{ 3 } + 1
+        \\frac{ 1 \\times 3 }{ 3 \\times 3 } + \\frac{ -2 }{ 3 } + 1
+        \\frac{ 1 }{ 3 } + \\frac{ -2 }{ 3 } + 1
+        \\frac{ 1 + ( -2 ) }{ 3 } + 1
+        \\frac{ -1 }{ 3 } + 1
+        \\frac{ ( -1 ) \\times 1 }{ 3 \\times 1 } + \\frac{ 1 \\times 3 }{ 1 \\times 3 }
+        \\frac{ -1 }{ 3 } + \\frac{ 3 }{ 3 }
+        \\frac{ ( -1 ) + 3 }{ 3 }
+        \\frac{ 2 }{ 3 }
         >>> P.beta.simplified()
         < Fraction 2 / 3>
 
@@ -167,20 +167,32 @@ class Polynom_deg2(Polynom):
             else:
                 return "\\tkzTabLine{, -,}"
 
-    def tbl_variation(self, limit = False):
+    def tbl_variation(self, limits = False):
         """Return the variation line for tkzTabVar
 
         :param limit: Display or not limits in tabular
 
-        >>> P = Polynom_deg2([1,1,1])
+        >>> P = Polynom_deg2([1,2,3])
+        >>> print(P.tbl_variation())
+        \\tkzTabVar{+/{}, -/{$\\frac{ 2 }{ 3 }$}, +/{}}
+        >>> print(P.tbl_variation(limits = True))
+        \\tkzTabVar{+/{$+\\infty$}, -/{$\\frac{ 2 }{ 3 }$}, +/{$+\\infty$}}
 
         """
-        alpha = -self.b / (2*self.a)
-        beta = self(alpha).simplied()
+        beta = self.beta.simplified()
+        if limits:
+            if self.a > 0:
+                return "\\tkzTabVar{+/{$+\\infty$}, -/{$" + str(beta) + "$}, +/{$+\\infty$}}"
+            else:
+                return "\\tkzTabVar{-/{$-\\infty$}, +/{$" + str(beta) + "$}, -/{$-\\infty$}}"
+        else:
+            if self.a > 0:
+                return "\\tkzTabVar{+/{}, -/{$" + str(beta) + "$}, +/{}}"
+            else:
+                return "\\tkzTabVar{-/{}, +/{$" + str(beta) + "$}, -/{}}"
 
 
     
-#\tkzTabVar{-/{}, +/{$f(-10)$}, -/{}}
 
 
 
