@@ -54,15 +54,19 @@ La simplification des expressions se fait avec les deux méthodes suivantes:
 
 Ces deux méthodes fonctionnent ensuite sur le même principe. Elles vont faire le calcul qui leurs est attribuée en enregistrant les étapes dans *steps* puis elles retourneront l'objet de fin de calcul à qui sera assigné les *steps* (ce qui nécessitera par exemple de détourner la classe *int*).
 
+Pour accéder à ces étapes, on utilisera alors la méthode *explain* qui expliqueront les étapes intermédiaires.
+
 ### Tentative d'explications
 C'est ce que je voudrai donc le render ne sera peut être pas exactement le même.
+
+Comportement avec les Polynom (ce serait similaire avec les fractions)
 
     >>> P = Polynom([0,1,2])
     >>> Q = Polynom([1,1,1])
     >>> R = P+Q
     >>> print(R)
     3x^2 + 2x + 1
-    >>> for i in explain(R):
+    >>> for i in R.explain():
     ...     print(i)
     2x^2 + x + x^2 + x + 1
     (2 + 1)x^2 + (1+1)x + 1
@@ -72,11 +76,48 @@ C'est ce que je voudrai donc le render ne sera peut être pas exactement le mêm
     >>> Q = P.simplify()
     >>> print(Q)
     7x + 3
-    >>> for i in explain(Q):
+    >>> for i in Q.explain():
     ...     print(i)
     3x + 4x + 1 + 2
     (3+4)x + (1+2)
     7x + 3
+
+Comportement avec les expressions
+
+    >>> e = Expression("1+2*3")
+    >>> e1 = e.compute_exp()
+    >>> e1
+    1 + 6
+    >>> type(e1)
+    Expression
+    >>> for i in e1.explain(): # Peu interessant mais il aurai pu y avoir des calculs de fractions
+    ...     print(i)
+    1 + 2 * 3
+    1 + 6
+    >>> e2 = e.simplify()
+    >>> e2
+    7
+    >>> type(e2)
+    FakeInt
+    >>> for i in e2.explain():
+    ...     print(i)
+    1 + 2 * 3
+    1 + 6
+    7
+    >>> f = Expression("4 - 5")
+    >>> g = e + f
+    >>> g # Les deux expressions ont été concaténée mais aucun calcul n'a été fait
+    < Expression [1, 2, 3, '*', '+', 4, 5, '-', '+']>
+    >>> for i in g.explain():
+    ...     print(i)
+    1 + 2 * 3 + 4 - 5
+    >>> for i in g.simplify().explain():
+    ...     print(i)
+    1 + 2 \times 3 + 4 - 5
+    1 + 6 + ( -1 )
+    7 + ( -1 )
+    6
+
     
 
 
