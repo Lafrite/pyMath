@@ -1,0 +1,36 @@
+* Expression importe mal 4x^2
+    In [9]: e = Expression("3x + 4x^2 - 1")
+
+    In [10]: print(e)
+    3 x + ( 4 x ) ^ 2 - 1
+
+    -> faire un test unitaire dessus
+    
+* Render ne met pas les parenthèses là où il faut.
+
+    In [31]: r
+    Out[31]: < Polynom [-4, -15, -14]>
+
+    In [35]: print(r)
+    -14 * x ^ 2 + -15 x + ( -4 )
+
+    In [36]: r.get_postfix()
+    Out[36]: [-14, 'x', 2, '^', '*', -15, 'x', '*', '+', -4, '+']
+
+    In [37]: txt(r.get_postfix())
+    Out[37]: '-14 * x ^ 2 + -15 x + ( -4 )'
+        
+
+    -> faire un test unitaire dessus
+
+* Fraction ne simplifie pas correctement
+
+    In [5]: for i in P.alpha.simplify():
+        print(i)
+    ...:     
+    \frac{ - 2 }{ 2 \times 3 }
+    \frac{ -2 }{ 6 }
+    \frac{ ( -1 ) \times 2 }{ 3 \times 2 }
+    \frac{ -1 }{ 3 }
+    \frac{ -2 }{ 6 }
+    
