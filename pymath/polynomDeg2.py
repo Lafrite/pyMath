@@ -14,7 +14,6 @@ class Polynom_deg2(Polynom):
     """
 
     def __init__(self, coefs = [0, 0, 1], letter = "x"):
-        """@todo: to be defined1. """
         if len(coefs) < 3 or len(coefs) > 4:
             raise ValueError("Polynom_deg2 have to be degree 2 polynoms, they need 3 coefficients, {} are given".format(len(coefs)))
         if coefs[2] == 0:
@@ -42,9 +41,9 @@ class Polynom_deg2(Polynom):
         >>> P.delta
         < Expression [2, 2, '^', 4, 3, 1, '*', '*', '-']>
         >>> for i in P.delta.simplify():
-            print(i)
-        2^{  2 } - 4 \times 3 \times 1
-        4 - 4 \times 3
+        ...     print(i)
+        2^{  2 } - 4 \\times 3 \\times 1
+        4 - 4 \\times 3
         4 - 12
         -8
         >>> P.delta.simplified()
@@ -52,6 +51,58 @@ class Polynom_deg2(Polynom):
         """
 
         return Expression([self.b, 2, op.pw, 4, self.a, self.c, op.mul, op.mul, op.sub])
+
+    @property
+    def alpha(self):
+        """ Compute alpha the abcisse of the extremum
+        
+        >>> P = Polynom_deg2([1,2,3])
+        >>> P.alpha
+        < Expression [2, '-', 2, 3, '*', '/']>
+        >>> for i in P.alpha.simplify():
+        ...     print(i)
+        \\frac{ - 2 }{ 2 \\times 3 }
+        \\frac{ -2 }{ 6 }
+        \\frac{ ( -1 ) \\times 2 }{ 3 \\times 2 }
+        \\frac{ -1 }{ 3 }
+        \\frac{ -2 }{ 6 }
+        >>> P.alpha.simplified() # Bug avec les fractions ici, on devrait avoir -1/3 pas -2/6...
+        < Fraction -2 / 6 >
+        
+        """
+        return Expression([self.b, op.sub1, 2, self.a, op.mul, op.div])
+
+    @property
+    def beta(self):
+        """ Compute beta the extremum of self
+
+        >>> P = Polynom_deg2([1,2,3])
+        >>> P.beta
+        < Expression [3, < Fraction -2 / 6>, 2, '^', '*', 2, < Fraction -2 / 6>, '*', '+', 1, '+']>
+        >>> for i in P.beta.simplify(): # Ça serait bien que l'on puisse enlever des étapes maintenant...
+        ...     print(i)
+        3 \times \frac{ -2 }{ 6 }^{  2 } + 2 \times \frac{ -2 }{ 6 } + 1
+        3 \times \frac{ ( -2 )^{  2 } }{ 6^{  2 } } + \frac{ ( -2 ) \times 1 \times 2 }{ 3 \times 2 } + 1
+        3 \times \frac{ 4 }{ 36 } + \frac{ ( -2 ) \times 2 }{ 6 } + 1
+        3 \times \frac{ 1 \times 4 }{ 9 \times 4 } + \frac{ -4 }{ 6 } + 1
+        3 \times \frac{ 1 }{ 9 } + \frac{ ( -2 ) \times 2 }{ 3 \times 2 } + 1
+        3 \times \frac{ 1 }{ 9 } + \frac{ -2 }{ 3 } + 1
+        \frac{ 1 \times 1 \times 3 }{ 3 \times 3 } + \frac{ -2 }{ 3 } + 1
+        \frac{ 1 \times 3 }{ 9 } + \frac{ -2 }{ 3 } + 1
+        \frac{ 3 }{ 9 } + \frac{ -2 }{ 3 } + 1
+        \frac{ 1 \times 3 }{ 3 \times 3 } + \frac{ -2 }{ 3 } + 1
+        \frac{ 1 }{ 3 } + \frac{ -2 }{ 3 } + 1
+        \frac{ 1 + ( -2 ) }{ 3 } + 1
+        \frac{ -1 }{ 3 } + 1
+        \frac{ ( -1 ) \times 1 }{ 3 \times 1 } + \frac{ 1 \times 3 }{ 1 \times 3 }
+        \frac{ -1 }{ 3 } + \frac{ 3 }{ 3 }
+        \frac{ ( -1 ) + 3 }{ 3 }
+        \frac{ 2 }{ 3 }
+        >>> P.beta.simplified()
+        < Fraction 2 / 3>
+
+        """
+        return self(self.alpha.simplified())
 
     def roots(self):
         """ Compute roots of the polynom
@@ -82,23 +133,23 @@ class Polynom_deg2(Polynom):
         """ Return the sign line for tkzTabLine
 
         >>> P = Polynom_deg2([2, 5, 2])
-        >>> P.tbl_sgn()
-        '\\tkzTabLine{, +, z, -, z , +,}'
+        >>> print(P.tbl_sgn())
+        \\tkzTabLine{, +, z, -, z , +,}
         >>> P = Polynom_deg2([2, 1, -2])
-        >>> P.tbl_sgn()
-        '\\tkzTabLine{, -, z, +, z , -,}'
+        >>> print(P.tbl_sgn())
+        \\tkzTabLine{, -, z, +, z , -,}
         >>> P = Polynom_deg2([1, 2, 1])
-        >>> P.tbl_sgn()
-        '\\tkzTabLine{, +, z, +,}'
+        >>> print(P.tbl_sgn())
+        \\tkzTabLine{, +, z, +,}
         >>> P = Polynom_deg2([0, 0, -2])
-        >>> P.tbl_sgn()
-        '\\tkzTabLine{, -, z, -,}'
+        >>> print(P.tbl_sgn())
+        \\tkzTabLine{, -, z, -,}
         >>> P = Polynom_deg2([1, 0, 1])
-        >>> P.tbl_sgn()
-        '\\tkzTabLine{, +,}'
+        >>> print(P.tbl_sgn())
+        \\tkzTabLine{, +,}
         >>> P = Polynom_deg2([-1, 0, -1])
-        >>> P.tbl_sgn()
-        '\\tkzTabLine{, -,}'
+        >>> print(P.tbl_sgn())
+        \\tkzTabLine{, -,}
         """
         if self.delta.simplified() > 0:
             if self.a > 0:
@@ -116,8 +167,20 @@ class Polynom_deg2(Polynom):
             else:
                 return "\\tkzTabLine{, -,}"
 
-    
+    def tbl_variation(self, limit = False):
+        """Return the variation line for tkzTabVar
 
+        :param limit: Display or not limits in tabular
+
+        >>> P = Polynom_deg2([1,1,1])
+
+        """
+        alpha = -self.b / (2*self.a)
+        beta = self(alpha).simplied()
+
+
+    
+#\tkzTabVar{-/{}, +/{$f(-10)$}, -/{}}
 
 
 
