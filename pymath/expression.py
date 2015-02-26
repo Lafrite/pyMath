@@ -2,17 +2,16 @@
 # encoding: utf-8
 
 from .generic import Stack, flatten_list, expand_list, isNumber, isOperator, isNumerand
-from .render import txt, tex
 from .str2tokens import str2tokens
 from .operator import op
+from .render import txt, tex
+from .explicable import Explicable
 
 from .random_expression import RdExpression
 
-__all__ = ['Expression']
+__all__ = ['Expression', 'Renderable']
 
-class Expression(object):
-    """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
-
+class Renderable(object):
     STR_RENDER = tex
     DEFAULT_RENDER = tex
 
@@ -21,7 +20,7 @@ class Expression(object):
         cls.STR_RENDER = render
 
     @classmethod
-    def get_render(cls ):
+    def get_render(cls):
         return cls.STR_RENDER
 
     @classmethod
@@ -37,23 +36,23 @@ class Expression(object):
         >>> exp = Expression("2*3/5")
         >>> print(exp)
         \\frac{ 2 \\times 3 }{ 5 }
-        >>> for i in exp.simplify():
+        >>> for i in exp.simplify().explain():
         ...     print(i)
         \\frac{ 2 \\times 3 }{ 5 }
         \\frac{ 6 }{ 5 }
         >>> with Expression.tmp_render():
-        ...     for i in exp.simplify():
+        ...     for i in exp.simplify().explain():
         ...         i
         < Expression [2, 3, '*', 5, '/']>
         < Expression [6, 5, '/']>
         < Fraction 6 / 5>
 
         >>> with Expression.tmp_render(txt):
-        ...     for i in exp.simplify():
+        ...     for i in exp.simplify().explain():
         ...         print(i)
         2 * 3 / 5
         6 / 5
-        >>> for i in exp.simplify():
+        >>> for i in exp.simplify().explain():
         ...     print(i)
         \\frac{ 2 \\times 3 }{ 5 }
         \\frac{ 6 }{ 5 }
@@ -67,6 +66,11 @@ class Expression(object):
             def __exit__(self, type, value, traceback):
                 Expression.set_render(self.old_render)
         return TmpRenderEnv()
+        
+
+class Expression(Explicable, Renderable):
+    """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
+
 
     @classmethod
     def random(self, form="", conditions=[], val_min = -10, val_max=10):
@@ -89,8 +93,7 @@ class Expression(object):
         """
         expression = object.__new__(cls)
         if type(exp) == str:
-            #self._exp = exp
-            expression.postfix_tokens = str2tokens(exp) # les tokens seront alors stockés dans self.tokens temporairement
+            expression.postfix_tokens = str2tokens(exp) 
         elif type(exp) == list:
             expression.postfix_tokens = flatten_list([tok.postfix_tokens if Expression.isExpression(tok) else tok for tok in exp])
         else:
@@ -98,25 +101,24 @@ class Expression(object):
 
         if len(expression.postfix_tokens) == 1:
             token = expression.postfix_tokens[0]
-            if hasattr(token, 'simplify'):
+            if hasattr(token, 'simplify') and hasattr(token, 'explain'):
                 return expression.postfix_tokens[0]
 
             elif type(token) == int:
             # On crée un faux int en ajoutant la méthode simplify et simplified et la caractérisique isNumber
-                simplify = lambda x:[x]
-                simplified = lambda x:x
+                simplify = lambda x:x
                 is_number = True
-                methods_attr = {'simplify':simplify, 'simplified':simplified, 'isNumber': is_number}
-                fake_token = type('fake_int', (int,), methods_attr)(token)
+                methods_attr = {'simplify':simplify, 'isNumber': is_number, 'postfix_tokens': [token]}
+                fake_token = type('fake_int', (int,Explicable, Renderable), methods_attr)(token)
                 return fake_token
 
             elif type(token) == str:
+                # TODO: Pourquoi ne pas créer directement un polynom ici? |jeu. févr. 26 18:59:24 CET 2015
             # On crée un faux str en ajoutant la méthode simplify et simplified et la caractérisique isNumber
                 simplify = lambda x:[x]
-                simplified = lambda x:x
                 is_polynom = True
-                methods_attr = {'simplify':simplify, 'simplified':simplified, '_isPolynom': is_polynom}
-                fake_token = type('fake_str', (str,), methods_attr)(token)
+                methods_attr = {'simplify':simplify, '_isPolynom': is_polynom, 'postfix_tokens': [token]}
+                fake_token = type('fake_str', (str,Explicable, Renderable), methods_attr)(token)
                 return fake_token
 
             else:
@@ -129,74 +131,98 @@ class Expression(object):
     def __str__(self):
         """
         Overload str
-        If you want to changer render use Expression.set_render(...)
+
+        If you want to changer render use Expression.set_render(...) or use tmp_render context manager.
         """
         return self.STR_RENDER(self.postfix_tokens)
 
     def __repr__(self):
-        return "< Expression " + str(self.postfix_tokens) + ">"
+        return " ".join(["<", self.__class__ , str(self.postfix_tokens), ">"])
 
-    def render(self, render = lambda  x:str(x)):
-        """ Same as __str__ but accept render as argument
-        :param render: function which render the list of token (postfix form) to string
+    #def __str__(self):
+    #    """
+    #    Overload str
+    #    If you want to changer render use Expression.set_render(...)
+    #    """
+    #    return self.STR_RENDER(self.postfix_tokens)
 
-        """
-        # TODO: I don't like the name of this method |ven. janv. 17 12:48:14 CET 2014
-        return render(self.postfix_tokens)
+    #def __repr__(self):
+    #    return "< Expression " + str(self.postfix_tokens) + ">"
+
+    #def render(self, render = lambda  x:str(x)):
+    #    """ Same as __str__ but accept render as argument
+    #    :param render: function which render the list of token (postfix form) to string
+
+    #    """
+    #    # TODO: I don't like the name of this method |ven. janv. 17 12:48:14 CET 2014
+    #    return render(self.postfix_tokens)
 
     ## ---------------------
     ## Mechanism functions
 
     def simplify(self):
-        """ Generator which return steps for computing the expression  """
-        if not self.can_go_further():
-            yield self.STR_RENDER(self.postfix_tokens) 
-        else:
-            self.compute_exp() 
-            old_s = ''
-            for s in self.steps:
-                new_s = self.STR_RENDER(s)
-                # Astuce pour éviter d'avoir deux fois la même étape (par exemple pour la transfo d'une division en fraction)
-                if new_s != old_s:
-                    old_s = new_s
-                    yield new_s
-
-        if Expression.isExpression(self.child):
-            for s in self.child.simplify():
-                if old_s != s:
-                    old_s = s
-                    yield s
-        else:
-            for s in self.child.simplify():
-                new_s = self.STR_RENDER([s])
-                # Astuce pour éviter d'avoir deux fois la même étape (par exemple pour la transfo d'une division en fraction)
-                if new_s != old_s:
-                    old_s = new_s
-                    yield new_s
-            if old_s != self.STR_RENDER([self.child]):
-                yield self.STR_RENDER([self.child])
-
-
-    def simplified(self):
-        """ Get the simplified version of the expression """
+        """ Compute entirely the expression and return the result with .steps attribute """
         self.compute_exp()
-        try:
-            return self.child.simplified()
-        except AttributeError:
-            return self.child
 
-    def can_go_further(self):
-        """Check whether it's a last step or not. If not create self.child the next expression.
-        :returns: 1 if it's not the last step, 0 otherwise
-        """
-        if len(self.postfix_tokens) == 1:
-            return 0
-        else:
-            return 1
+        self.simplified = self.child.simplify()
+        try:
+            self.simplified.steps = self.child.steps + self.simplified.steps
+        except AttributeError:
+            pass
+
+        return self.simplified
+        
+
+        # TODO: À changer |jeu. févr. 26 17:18:49 CET 2015
+        # if not self.can_go_further():
+        #     yield self.STR_RENDER(self.postfix_tokens) 
+        # else:
+        #     self.compute_exp() 
+        #     old_s = ''
+        #     for s in self.steps:
+        #         new_s = self.STR_RENDER(s)
+        #         # Astuce pour éviter d'avoir deux fois la même étape (par exemple pour la transfo d'une division en fraction)
+        #         if new_s != old_s:
+        #             old_s = new_s
+        #             yield new_s
+
+        # if Expression.isExpression(self.child):
+        #     for s in self.child.simplify():
+        #         if old_s != s:
+        #             old_s = s
+        #             yield s
+        # else:
+        #     for s in self.child.simplify():
+        #         new_s = self.STR_RENDER([s])
+        #         # Astuce pour éviter d'avoir deux fois la même étape (par exemple pour la transfo d'une division en fraction)
+        #         if new_s != old_s:
+        #             old_s = new_s
+        #             yield new_s
+        #     if old_s != self.STR_RENDER([self.child]):
+        #         yield self.STR_RENDER([self.child])
+
+
+    #def simplified(self):
+    #    """ Get the simplified version of the expression """
+    #    self.compute_exp()
+    #    try:
+    #        return self.child.simplified()
+    #    except AttributeError:
+    #        return self.child
+
+    # TODO: Normalement ne devrait plus être necessaire. Il faudra par contre s'assurer qu'il soit impossible de créer des Expressions avec une seul élément |jeu. févr. 26 17:26:28 CET 2015
+    # def can_go_further(self):
+    #     """Check whether it's a last step or not. If not create self.child the next expression.
+    #     :returns: 1 if it's not the last step, 0 otherwise
+    #     """
+    #     if len(self.postfix_tokens) == 1:
+    #         return 0
+    #     else:
+    #         return 1
 
     def compute_exp(self):
-        """ Create self.child with self.steps to go up to it """
-        self.steps = [self.postfix_tokens]
+        """ Create self.child with and stock steps in it """
+        child_steps = [self.postfix_tokens]
 
         tokenList = self.postfix_tokens.copy()
         tmpTokenList = []
@@ -256,9 +282,10 @@ class Expression(object):
         steps = expand_list(tmpTokenList)
 
         if len(steps[:-1]) > 0:
-            self.steps += [flatten_list(s) for s in steps[:-1]]
+            child_steps += [flatten_list(s) for s in steps[:-1]]
 
         self.child = Expression(steps[-1])
+        self.child.steps = child_steps
 
     @classmethod
     def isExpression(self, other):
@@ -329,9 +356,10 @@ class Expression(object):
 
 def test(exp):
     a = Expression(exp)
-    print(a)
-    for i in a.simplify():
-        print(type(i))
+    b = a.simplify()
+
+    for i in b.explain():
+        #print(type(i))
         print(i)
 
     #print(type(a.simplified()), ":", a.simplified())
@@ -366,32 +394,32 @@ if __name__ == '__main__':
     #f = -e
     #print(f)
 
-    #exp = "2 * 3 * 3 * 5"
-    #test(exp)
+    exp = "2 * 3 * 3 * 5"
+    test(exp)
 
-    #exp = "2 * 3 + 3 * 5"
-    #test(exp)
+    exp = "2 * 3 + 3 * 5"
+    test(exp)
 
-    #exp = "2 * ( 3 + 4 ) + 3 * 5"
-    #test(exp)
+    exp = "2 * ( 3 + 4 ) + 3 * 5"
+    test(exp)
 
-    #exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
-    #test(exp)
-    #
-    #exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
-    #test(exp)
-    #
-    #exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
-    #test(exp)
-    #
-    #exp = "2 + 5 * ( 3 - 4 )"
-    #test(exp)
+    exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
+    test(exp)
+    
+    exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
+    test(exp)
+    
+    exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
+    test(exp)
+    
+    exp = "2 + 5 * ( 3 - 4 )"
+    test(exp)
 
-    #exp = "( 2 + 5 ) * ( 3 - 4 )^4"
-    #test(exp)
+    exp = "( 2 + 5 ) * ( 3 - 4 )^4"
+    test(exp)
 
-    #exp = "( 2 + 5 ) * ( 3 * 4 )"
-    #test(exp)
+    exp = "( 2 + 5 ) * ( 3 * 4 )"
+    test(exp)
 
     #exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
     #test(exp)
@@ -426,8 +454,8 @@ if __name__ == '__main__':
     #for i in exp.simplify():
     #    print(i)
 
-    import doctest
-    doctest.testmod()
+    #import doctest
+    #doctest.testmod()
 
 # -----------------------------
 # Reglages pour 'vim'
