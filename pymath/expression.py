@@ -137,7 +137,7 @@ class Expression(Explicable, Renderable):
         return self.STR_RENDER(self.postfix_tokens)
 
     def __repr__(self):
-        return " ".join(["<", self.__class__ , str(self.postfix_tokens), ">"])
+        return " ".join(["<", str(self.__class__) , str(self.postfix_tokens), ">"])
 
     def simplify(self):
         """ Compute entirely the expression and return the result with .steps attribute """
@@ -255,31 +255,82 @@ class Expression(Explicable, Renderable):
             return Expression([other] + self.postfix_tokens + [operator])
 
     def __add__(self, other):
+        """ Overload +
+
+        >>> a = Expression("1+2")
+        >>> print(a.postfix_tokens)
+        [1, 2, '+']
+        >>> b = Expression("3+4")
+        >>> print(b.postfix_tokens)
+        [3, 4, '+']
+        >>> c = a + b
+        >>> print(c.postfix_tokens)
+        [1, 2, '+', 3, 4, '+', '+']
+        """
         return self.operate(other, op.add)
 
     def __radd__(self, other):
         return self.roperate(other, op.add)
 
     def __sub__(self, other):
+        """ Overload -
+
+        >>> a = Expression("1+2")
+        >>> print(a.postfix_tokens)
+        [1, 2, '+']
+        >>> b = Expression("3+4")
+        >>> print(b.postfix_tokens)
+        [3, 4, '+']
+        >>> c = a - b
+        >>> print(c.postfix_tokens)
+        [1, 2, '+', 3, 4, '+', '-']
+        """
         return self.operate(other, op.sub)
 
     def __rsub__(self, other):
         return self.roperate(other, op.sub)
 
     def __mul__(self, other):
+        """ Overload *
+
+        >>> a = Expression("1+2")
+        >>> print(a.postfix_tokens)
+        [1, 2, '+']
+        >>> b = Expression("3+4")
+        >>> print(b.postfix_tokens)
+        [3, 4, '+']
+        >>> c = a * b
+        >>> print(c.postfix_tokens)
+        [1, 2, '+', 3, 4, '+', '*']
+        """
         return self.operate(other, op.mul)
 
     def __rmul__(self, other):
         return self.roperate(other, op.mul)
 
-    def __div__(self, other):
+    def __truediv__(self, other):
+        """ Overload /
+
+        >>> a = Expression("1+2")
+        >>> print(a.postfix_tokens)
+        [1, 2, '+']
+        >>> b = Expression("3+4")
+        >>> print(b.postfix_tokens)
+        [3, 4, '+']
+        >>> c = a / b
+        >>> print(c.postfix_tokens)
+        [1, 2, '+', 3, 4, '+', '/']
+        """
         return self.operate(other, op.div)
 
     def __rdiv__(self, other):
         return self.roperate(other, op.div)
 
     def __pow__(self, other):
-        return self.operate(other, op.pow)
+        return self.operate(other, op.pw)
+
+    def __xor__(self, other):
+        return self.operate(other, op.pw)
 
     def __neg__(self):
         return Expression(self.postfix_tokens + [op.sub1])
@@ -325,32 +376,32 @@ if __name__ == '__main__':
     #f = -e
     #print(f)
 
-    exp = "2 * 3 * 3 * 5"
-    test(exp)
+    #exp = "2 * 3 * 3 * 5"
+    #test(exp)
 
-    exp = "2 * 3 + 3 * 5"
-    test(exp)
+    #exp = "2 * 3 + 3 * 5"
+    #test(exp)
 
-    exp = "2 * ( 3 + 4 ) + 3 * 5"
-    test(exp)
+    #exp = "2 * ( 3 + 4 ) + 3 * 5"
+    #test(exp)
 
-    exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
-    test(exp)
-    
-    exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
-    test(exp)
-    
-    exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
-    test(exp)
-    
-    exp = "2 + 5 * ( 3 - 4 )"
-    test(exp)
+    #exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
+    #test(exp)
+    #
+    #exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
+    #test(exp)
+    #
+    #exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
+    #test(exp)
+    #
+    #exp = "2 + 5 * ( 3 - 4 )"
+    #test(exp)
 
-    exp = "( 2 + 5 ) * ( 3 - 4 )^4"
-    test(exp)
+    #exp = "( 2 + 5 ) * ( 3 - 4 )^4"
+    #test(exp)
 
-    exp = "( 2 + 5 ) * ( 3 * 4 )"
-    test(exp)
+    #exp = "( 2 + 5 ) * ( 3 * 4 )"
+    #test(exp)
 
     #exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
     #test(exp)
@@ -385,8 +436,8 @@ if __name__ == '__main__':
     #for i in exp.simplify():
     #    print(i)
 
-    #import doctest
-    #doctest.testmod()
+    import doctest
+    doctest.testmod()
 
 # -----------------------------
 # Reglages pour 'vim'
