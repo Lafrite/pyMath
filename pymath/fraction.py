@@ -4,13 +4,15 @@
 from .arithmetic import gcd
 from .generic import isNumber
 from .operator import op
-from .expression import Expression
+from .expression import Expression, Renderable
+from .explicable import Explicable
 from .render import txt, tex
+from copy import copy
 
 
 __all__ = ['Fraction']
 
-class Fraction(object):
+class Fraction(Explicable, Renderable):
     """Fractions!"""
 
     def __init__(self, num, denom = 1):
@@ -20,6 +22,7 @@ class Fraction(object):
         :param denom: the denominator
 
         """
+        super(Fraction, self).__init__()
         self._num = num
         self._denom = denom
 
@@ -32,44 +35,57 @@ class Fraction(object):
 
         >>> f = Fraction(3, 6)
         >>> f.simplify()
-        [< Expression [1, 3, '*', 2, 3, '*', '/']>, < Fraction 1 / 2>]
+        < Fraction 1 / 2>
+        >>> for i in f.simplify().explain():
+        ...     print(i)
+        \\frac{ 3 }{ 6 }
+        \\frac{ 1 \\times 3 }{ 2 \\times 3 }
+        \\frac{ 1 }{ 2 }
+        >>> f = Fraction(6,9)
+        >>> f.simplify()
+        < Fraction 2 / 3>
+        >>> for i in f.simplify().explain():
+        ...     print(i)
+        \\frac{ 6 }{ 9 }
+        \\frac{ 2 \\times 3 }{ 3 \\times 3 }
+        \\frac{ 2 }{ 3 }
         >>> f = Fraction(0,3)
         >>> f.simplify()
-        [0]
+        0
 
         """
-        steps = []
+        ini_step = [Expression(self.postfix_tokens)]
 
         if self._num == 0:
-            steps.append(0)
+            return Expression([0])
 
-            return steps
-
-        if self._denom < 0:
+        elif self._denom < 0:
             n_frac = Fraction(-self._num, -self._denom)
-            steps.append(n_frac)
-        else: 
-            n_frac = self
+            ans = n_frac.simplify()
+            ans.steps = ini_step + ans.steps
+            return ans
 
-        gcd_ = gcd(abs(n_frac._num), abs(n_frac._denom))
-        if gcd_ == n_frac._denom:
-            n_frac = n_frac._num // gcd_
-            steps.append(n_frac)
+        gcd_ = gcd(abs(self._num), abs(self._denom))
+        if gcd_ == self._denom:
+            n_frac = self._num // gcd_
+            return Expression([n_frac])
 
         elif gcd_ != 1:
-            n_frac = Fraction(n_frac._num // gcd_ , n_frac._denom // gcd_)
-            steps.append(Expression([n_frac._num, gcd_, op.mul, n_frac._denom, gcd_, op.mul, op.div ]))
+            n_frac = Fraction(self._num // gcd_ , self._denom // gcd_)
+            ini_step += [Expression([n_frac._num, gcd_, op.mul, n_frac._denom, gcd_, op.mul, op.div ])]
 
-            steps.append(n_frac)
+            n_frac.steps = ini_step + n_frac.steps
+            return n_frac
 
-        return steps
+        else:
+            return self
 
     @property
-    def postfix(self):
+    def postfix_tokens(self):
         """Postfix form of the fraction
 
         >>> f = Fraction(3, 5)
-        >>> f.postfix
+        >>> f.postfix_tokens
         [3, 5, '/']
 
         """
@@ -79,12 +95,13 @@ class Fraction(object):
             return [self._num, self._denom, op.div]
 
     def __str__(self):
-        return str(Expression(self.postfix))
+        return str(Expression(self.postfix_tokens))
 
     def __repr__(self):
         return "< Fraction {num} / {denom}>".format(num=self._num, denom = self._denom)
 
     def __txt__(self):
+        # TODO: À simplifier je ne comprends plus le pourquoi du comment de cette méthode. |ven. févr. 27 09:21:49 CET 2015
         old_render = Expression.get_render()
         Expression.set_render(txt)
         _txt = self.__str__()
@@ -119,18 +136,28 @@ class Fraction(object):
         >>> f = Fraction(1, 2)
         >>> g = Fraction(2, 3)
         >>> f + g
-        [< Expression [1, 3, '*', 2, 3, '*', '/', 2, 2, '*', 3, 2, '*', '/', '+']>, < Expression [3, 6, '/', 4, 6, '/', '+']>, < Expression [< Fraction 3 / 6>, < Fraction 4 / 6>, '+']>, < Expression [3, 4, '+', 6, '/']>, < Expression [7, 6, '/']>, < Fraction 7 / 6>]
+        < Fraction 7 / 6>
+        >>> (f+g).steps
+        [< <class 'pymath.expression.Expression'> [1, 2, '/', 2, 3, '/', '+'] >, [1, 3, '*', 2, 3, '*', '/', 2, 2, '*', 3, 2, '*', '/', '+'], [3, 6, '/', 4, 6, '/', '+'], [< Fraction 3 / 6>, < Fraction 4 / 6>, '+'], [< Fraction 3 / 6>, < Fraction 4 / 6>, '+']]
         >>> f + 2
-        [< Expression [1, 1, '*', 2, 1, '*', '/', 2, 2, '*', 1, 2, '*', '/', '+']>, < Expression [1, 2, '/', 4, 2, '/', '+']>, < Expression [< Fraction 1 / 2>, < Fraction 4 / 2>, '+']>, < Expression [1, 4, '+', 2, '/']>, < Expression [5, 2, '/']>, < Fraction 5 / 2>]
+        < Fraction 5 / 2>
+        >>> (f+2).steps
+        [< <class 'pymath.expression.Expression'> [1, 2, '/', 2, '+'] >, [1, 1, '*', 2, 1, '*', '/', 2, 2, '*', 1, 2, '*', '/', '+'], [1, 2, '/', 4, 2, '/', '+'], [< Fraction 1 / 2>, < Fraction 4 / 2>, '+'], [< Fraction 1 / 2>, < Fraction 4 / 2>, '+']]
         >>> f = Fraction(3, 4)
         >>> g = Fraction(5, 4)
         >>> f + g
-        [< Expression [3, 5, '+', 4, '/']>, < Expression [8, 4, '/']>, 2]
+        2
+        >>> (f+g).steps
+        [< <class 'pymath.expression.Expression'> [3, 4, '/', 5, 4, '/', '+'] >, [3, 5, '+', 4, '/'], [8, 4, '/']]
+        >>> f+0
+        < Fraction 3 / 4>
+        >>> (f+0).steps
+        []
 
         """
 
         if other == 0:
-            return [self]
+            return copy(self)
 
         number = self.convert2fraction(other)
 
@@ -148,14 +175,14 @@ class Fraction(object):
 
             exp = Expression([self._num, coef1, op.mul, self._denom, coef1, op.mul, op.div, number._num, coef2, op.mul, number._denom, coef2, op.mul, op.div,op.add])
 
-        with Expression.tmp_render():
-            steps = list(exp.simplify())
-
-        return steps
+        ini_step = Expression(self.postfix_tokens) + Expression(number.postfix_tokens)
+        ans = exp.simplify()
+        ans.steps = [ini_step] + ans.steps
+        return ans
 
     def __radd__(self, other):
         if other == 0:
-            return [self]
+            return Expression(self.postfix_tokens)
 
         number = self.convert2fraction(other)
 
@@ -167,11 +194,17 @@ class Fraction(object):
         >>> f = Fraction(1, 2)
         >>> g = Fraction(2, 3)
         >>> f - g
-        [< Expression [1, 3, '*', 2, 3, '*', '/', 2, 2, '*', 3, 2, '*', '/', '-']>, < Expression [3, 6, '/', 4, 6, '/', '-']>, < Expression [< Fraction 3 / 6>, < Fraction 4 / 6>, '-']>, < Expression [3, 4, '-', 6, '/']>, < Expression [-1, 6, '/']>, < Fraction -1 / 6>]
+        < Fraction -1 / 6>
+        >>> (f-g).steps
+        [< <class 'pymath.expression.Expression'> [1, 2, '/', 2, 3, '/', '-'] >, [1, 3, '*', 2, 3, '*', '/', 2, 2, '*', 3, 2, '*', '/', '-'], [3, 6, '/', 4, 6, '/', '-'], [< Fraction 3 / 6>, < Fraction 4 / 6>, '-'], [< Fraction 3 / 6>, < Fraction 4 / 6>, '-']]
+        >>> f - 0
+        < Fraction 1 / 2>
+        >>> (f-0).steps
+        []
 
         """
         if other == 0:
-            return [self]
+            return copy(self)
 
         number = self.convert2fraction(other)
 
@@ -189,38 +222,40 @@ class Fraction(object):
 
             exp = Expression([self._num, coef1, op.mul, self._denom, coef1, op.mul, op.div, number._num, coef2, op.mul, number._denom, coef2, op.mul, op.div,op.sub])
 
-        with Expression.tmp_render():
-            steps = list(exp.simplify())
-
-        return steps
+        ini_step = Expression(self.postfix_tokens) - Expression(number.postfix_tokens)
+        ans = exp.simplify()
+        ans.steps = [ini_step] + ans.steps
+        return ans
 
     def __rsub__(self, other):
         if other == 0:
-            return [self]
+            return copy(self)
 
         number = self.convert2fraction(other)
 
         return number - self
 
     def __neg__(self):
-        """ overload - (as arity 1 operator
+        """ overload - (as arity 1 operator)
 
         >>> f = Fraction(1, 2)
         >>> -f
-        [< Fraction -1 / 2>]
+        < Fraction -1 / 2>
+        >>> (-f).steps
+        []
         >>> f = Fraction(1, -2)
         >>> f
         < Fraction 1 / -2>
         >>> -f
-        [< Fraction -1 / -2>, < Fraction 1 / 2>]
+        < Fraction 1 / 2>
+        >>> (-f).steps
+        [< <class 'pymath.expression.Expression'> [-1, -2, '/'] >]
 
         """
         f = Fraction(-self._num, self._denom)
+        ans =  f.simplify()
 
-        with Expression.tmp_render():
-            steps = [f] + f.simplify()
-
-        return steps
+        return ans
     
     def __mul__(self, other):
         """ overload *
@@ -228,21 +263,29 @@ class Fraction(object):
         >>> f = Fraction(1, 2)
         >>> g = Fraction(2, 3)
         >>> f*g
-        [< Expression [1, 1, 2, '*', '*', 1, 2, '*', 3, '*', '/']>, < Expression [1, 2, '*', 2, 3, '*', '/']>, < Expression [2, 6, '/']>, < Expression [1, 2, '*', 3, 2, '*', '/']>, < Fraction 1 / 3>]
+        < Fraction 1 / 3>
+        >>> (f*g).steps
+        [< <class 'pymath.expression.Expression'> [1, 2, '/', 2, 3, '/', '*'] >, [1, 1, 2, '*', '*', 1, 2, '*', 3, '*', '/'], [1, 2, '*', 2, 3, '*', '/'], [2, 6, '/'], < <class 'pymath.expression.Expression'> [2, 6, '/'] >, < <class 'pymath.expression.Expression'> [1, 2, '*', 3, 2, '*', '/'] >]
         >>> f * 0
-        [0]
+        0
+        >>> (f*0).steps
+        []
         >>> f*1
-        [< Fraction 1 / 2>]
+        < Fraction 1 / 2>
+        >>> (f*1).steps
+        []
         >>> f*4
-        [< Expression [1, 2, '*', 2, '*', 1, 2, '*', '/']>, < Expression [2, 2, '*', 2, '/']>, < Expression [4, 2, '/']>, 2]
+        2
+        >>> (f*4).steps
+        [< <class 'pymath.expression.Expression'> [1, 2, '/', 4, '*'] >, [1, 2, '*', 2, '*', 1, 2, '*', '/'], [2, 2, '*', 2, '/'], [4, 2, '/']]
 
         """
         steps = []
 
         if other == 0:
-            return [0]
+            return Expression([0])
         elif other == 1:
-            return [self]
+            return copy(self)
 
         # TODO: Changer dans le cas où il y a trop de 1 |dim. déc. 28 10:44:10 CET 2014
 
@@ -256,6 +299,7 @@ class Fraction(object):
                 denom = [self._denom]
 
             exp = Expression(num + denom + [op.div])
+            ini_step = Expression(self.postfix_tokens) * Expression([other])
 
         else:
             number = self.convert2fraction(other)
@@ -279,28 +323,45 @@ class Fraction(object):
 
             exp = Expression(num1 +  num2 + [ op.mul] +  denom1 +  denom2 + [op.mul, op.div])
 
-        with Expression.tmp_render():
-            steps = list(exp.simplify())
-
-        return steps
+            ini_step = Expression(self.postfix_tokens) * Expression(number.postfix_tokens)
+        ans = exp.simplify()
+        ans.steps = [ini_step] + ans.steps
+        return ans
 
     def __rmul__(self, other):
         return self * other
 
     def __truediv__(self, other):
+        """ overload /
+
+        >>> f = Fraction(1,2)
+        >>> g = Fraction(3,4)
+        >>> f / 0
+        Traceback (most recent call last):
+        ...
+        ZeroDivisionError: division by zero
+        >>> f / 1
+        < Fraction 1 / 2>
+        >>> (f/1).steps
+        []
+        >>> f / g
+        < Fraction 2 / 3>
+
+        """
         if other == 0:
             raise ZeroDivisionError("division by zero")
         elif other == 1:
-            return [self]
+            return copy(self)
 
         number = self.convert2fraction(other)
 
-        steps = []
-        number = Fraction(number._denom, number._num)
-        steps.append(Expression([self, number, op.mul]))
-        steps += self * number
+        ini_step = Expression(self.postfix_tokens) / Expression(number.postfix_tokens)
 
-        return steps
+        number = Fraction(number._denom, number._num)
+        ans = self * number
+
+        ans.steps = [ini_step] + ans.steps
+        return ans
 
     def __rtruediv__(self, other):
         number = self.convert2fraction(other)
@@ -312,44 +373,51 @@ class Fraction(object):
         
         >>> f = Fraction(3, 4)
         >>> f**0
-        [1]
+        1
+        >>> (f**0).steps
+        []
         >>> f**1
-        [< Fraction 3 / 4>]
+        < Fraction 3 / 4>
+        >>> (f**1).steps
+        []
         >>> f**3
-        [< Expression [3, 3, '^', 4, 3, '^', '/']>, < Expression [27, 64, '/']>, < Fraction 27 / 64>]
+        < Fraction 27 / 64>
+        >>> (f**3).steps
+        [< <class 'pymath.expression.Expression'> [3, 4, '/', 3, '^'] >, [3, 3, '^', 4, 3, '^', '/'], [27, 64, '/'], [27, 64, '/']]
         >>> f = Fraction(6, 4)
         >>> f**3
-        [< Expression [6, 3, '^', 4, 3, '^', '/']>, < Expression [216, 64, '/']>, < Expression [27, 8, '*', 8, 8, '*', '/']>, < Fraction 27 / 8>]
+        < Fraction 27 / 8>
+        >>> (f**3).steps
+        [< <class 'pymath.expression.Expression'> [6, 4, '/', 3, '^'] >, [6, 3, '^', 4, 3, '^', '/'], [216, 64, '/'], < <class 'pymath.expression.Expression'> [216, 64, '/'] >, < <class 'pymath.expression.Expression'> [27, 8, '*', 8, 8, '*', '/'] >]
         
         """
         if not type(power) == int:
             raise ValueError("Can't raise fraction to power {}".format(str(power)))
 
         if power == 0:
-            return [1]
+            return Expression([1])
         elif power == 1:
-            return [self]
+            return copy(self)
         else:
+            ini_step = Expression(self.postfix_tokens) ** power
             exp = Expression([self._num, power, op.pw, self._denom, power, op.pw, op.div])
-            with Expression.tmp_render():
-                steps = list(exp.simplify())
-            return steps
+
+            ans = exp.simplify()
+            ans.steps = [ini_step] + ans.steps
+            return ans
 
     def __xor__(self, power):
         """ overload ^
 
+        Work like **
 
         >>> f = Fraction(3, 4)
         >>> f^0
-        [1]
+        1
         >>> f^1
-        [< Fraction 3 / 4>]
+        < Fraction 3 / 4>
         >>> f^3
-        [< Expression [3, 3, '^', 4, 3, '^', '/']>, < Expression [27, 64, '/']>, < Fraction 27 / 64>]
-        >>> f = Fraction(6, 4)
-        >>> f^3
-        [< Expression [6, 3, '^', 4, 3, '^', '/']>, < Expression [216, 64, '/']>, < Expression [27, 8, '*', 8, 8, '*', '/']>, < Fraction 27 / 8>]
-        
+        < Fraction 27 / 64>
         """
         
         return self.__pow__(power)
@@ -382,17 +450,22 @@ class Fraction(object):
         """ >= """
         return float(self) >= float(other)
 
+    def __copy__(self):
+        """ Copying the fraction removing steps where it is from """
+        return Fraction(self._num, self._denom)
+
 
 
 if __name__ == '__main__':
-    #f = Fraction(1, 12)
-    #g = Fraction(1, 12)
-    #h = Fraction(1,-5)
-    #t = Fraction(10,3)
-    #print("---------")
-    #print("1 + ", str(h))
-    #for i in (1 + h):
-    #    print(i)
+    f = Fraction(1, 12)
+    g = Fraction(6, 12)
+    for i in g.simplify().explain():
+        print("g = ",i)
+    h = Fraction(1,-5)
+    t = Fraction(10,3)
+    print("---------")
+    for i in (0 + h).explain():
+        print('0 + h = ',i)
     #print("---------")
     #print(str(f) , "+", str(t))
     #for i in (f + t):
