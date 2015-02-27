@@ -139,27 +139,6 @@ class Expression(Explicable, Renderable):
     def __repr__(self):
         return " ".join(["<", self.__class__ , str(self.postfix_tokens), ">"])
 
-    #def __str__(self):
-    #    """
-    #    Overload str
-    #    If you want to changer render use Expression.set_render(...)
-    #    """
-    #    return self.STR_RENDER(self.postfix_tokens)
-
-    #def __repr__(self):
-    #    return "< Expression " + str(self.postfix_tokens) + ">"
-
-    #def render(self, render = lambda  x:str(x)):
-    #    """ Same as __str__ but accept render as argument
-    #    :param render: function which render the list of token (postfix form) to string
-
-    #    """
-    #    # TODO: I don't like the name of this method |ven. janv. 17 12:48:14 CET 2014
-    #    return render(self.postfix_tokens)
-
-    ## ---------------------
-    ## Mechanism functions
-
     def simplify(self):
         """ Compute entirely the expression and return the result with .steps attribute """
         self.compute_exp()
@@ -171,54 +150,6 @@ class Expression(Explicable, Renderable):
             pass
 
         return self.simplified
-        
-
-        # TODO: À changer |jeu. févr. 26 17:18:49 CET 2015
-        # if not self.can_go_further():
-        #     yield self.STR_RENDER(self.postfix_tokens) 
-        # else:
-        #     self.compute_exp() 
-        #     old_s = ''
-        #     for s in self.steps:
-        #         new_s = self.STR_RENDER(s)
-        #         # Astuce pour éviter d'avoir deux fois la même étape (par exemple pour la transfo d'une division en fraction)
-        #         if new_s != old_s:
-        #             old_s = new_s
-        #             yield new_s
-
-        # if Expression.isExpression(self.child):
-        #     for s in self.child.simplify():
-        #         if old_s != s:
-        #             old_s = s
-        #             yield s
-        # else:
-        #     for s in self.child.simplify():
-        #         new_s = self.STR_RENDER([s])
-        #         # Astuce pour éviter d'avoir deux fois la même étape (par exemple pour la transfo d'une division en fraction)
-        #         if new_s != old_s:
-        #             old_s = new_s
-        #             yield new_s
-        #     if old_s != self.STR_RENDER([self.child]):
-        #         yield self.STR_RENDER([self.child])
-
-
-    #def simplified(self):
-    #    """ Get the simplified version of the expression """
-    #    self.compute_exp()
-    #    try:
-    #        return self.child.simplified()
-    #    except AttributeError:
-    #        return self.child
-
-    # TODO: Normalement ne devrait plus être necessaire. Il faudra par contre s'assurer qu'il soit impossible de créer des Expressions avec une seul élément |jeu. févr. 26 17:26:28 CET 2015
-    # def can_go_further(self):
-    #     """Check whether it's a last step or not. If not create self.child the next expression.
-    #     :returns: 1 if it's not the last step, 0 otherwise
-    #     """
-    #     if len(self.postfix_tokens) == 1:
-    #         return 0
-    #     else:
-    #         return 1
 
     def compute_exp(self):
         """ Create self.child with and stock steps in it """
