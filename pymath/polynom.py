@@ -42,13 +42,13 @@ class Polynom(Explicable):
         /!\ variables need to be in brackets {}
 
         >>> Polynom.random(["{b}", "{a}"]) # doctest:+ELLIPSIS
-        ...
+        < Polynom ...
         >>> Polynom.random(degree = 2) # doctest:+ELLIPSIS
-        ...
+        < Polynom ...
         >>> Polynom.random(degree = 2, conditions=["{b**2-4*a*c}>0"]) # Polynom deg 2 with positive Delta (ax^2 + bx + c)
-        ...
+        < Polynom ...
         >>> Polynom.random(["{c}", "{b}", "{a}"], conditions=["{b**2-4*a*c}>0"]) # Same as above
-        ...
+        < Polynom ...
 
         """
         if (degree > 0 and degree < 26):
@@ -326,7 +326,7 @@ class Polynom(Explicable):
         >>> Q = P.reduce()
         >>> Q
         < Polynom [1, 2, 3]>
-        >>> Q.steps()
+        >>> Q.steps
         []
         >>> P = Polynom([[1,2], [3,4,5], 6])
         >>> Q = P.reduce()
@@ -437,7 +437,8 @@ class Polynom(Explicable):
         return ans
 
     def __radd__(self, other):
-        return self.__add__(other)
+        o_poly = self.conv2poly(other)
+        return o_poly.__add__(self)
 
     def __neg__(self):
         """ overload - (as arity 1 operator)
@@ -478,27 +479,35 @@ class Polynom(Explicable):
     def __rsub__(self, other):
         o_poly = self.conv2poly(other)
         
-        return o_poly.__sub__(-self)
+        return o_poly.__sub__(self)
     
     def __mul__(self, other):
         """ Overload *
 
         >>> p = Polynom([1,2])
         >>> p*3
-        [< Polynom [3, < Expression [2, 3, '*']>]>, < Polynom [3, < Expression [2, 3, '*']>]>, < Polynom [3, 6]>]
+        < Polynom [3, 6]>
+        >>> (p*3).steps
+        [[< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 3, '*'] >], < Polynom [3, < <class 'pymath.expression.Expression'> [2, 3, '*'] >]>, < Polynom [3, < <class 'pymath.expression.Expression'> [2, 3, '*'] >]>]
         >>> q = Polynom([0,0,4])
         >>> q*3
-        [< Polynom [0, 0, < Expression [4, 3, '*']>]>, < Polynom [0, 0, < Expression [4, 3, '*']>]>, < Polynom [0, 0, 12]>]
+        < Polynom [0, 0, 12]>
+        >>> (q*3).steps
+        [[< <class 'pymath.expression.Expression'> [4, 'x', 2, '^', '*', 3, '*'] >], < Polynom [0, 0, < <class 'pymath.expression.Expression'> [4, 3, '*'] >]>, < Polynom [0, 0, < <class 'pymath.expression.Expression'> [4, 3, '*'] >]>]
         >>> r = Polynom([0,1])
         >>> r*3
-        [< Polynom [0, 3]>, < Polynom [0, 3]>]
+        < Polynom [0, 3]>
+        >>> (r*3).steps
+        [[< <class 'pymath.expression.Expression'> ['x', 3, '*'] >]]
         >>> p*q
-        [< Polynom [0, 0, 4, < Expression [2, 4, '*']>]>, < Polynom [0, 0, 4, < Expression [2, 4, '*']>]>, < Polynom [0, 0, 4, 8]>]
+        < Polynom [0, 0, 4, 8]>
+        >>> (p*q).steps
+        [[< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 4, 'x', 2, '^', '*', '*'] >], < Polynom [0, 0, 4, < <class 'pymath.expression.Expression'> [2, 4, '*'] >]>, < Polynom [0, 0, 4, < <class 'pymath.expression.Expression'> [2, 4, '*'] >]>]
         >>> p*r
-        [< Polynom [0, 1, 2]>, < Polynom [0, 1, 2]>]
+        < Polynom [0, 1, 2]>
 
         """
-        steps = []
+        # TODO: Je trouve qu'elle grille trop d'étapes... |ven. févr. 27 19:08:44 CET 2015
         o_poly = self.conv2poly(other)
 
         coefs = []
@@ -521,13 +530,11 @@ class Polynom(Explicable):
                     coefs.append(elem)
 
         p = Polynom(coefs, letter = self._letter)
-        steps.append(p)
+        ini_step = [Expression(self.postfix_tokens + o_poly.postfix_tokens + [op.mul])]
+        ans = p.simplify()
 
-        steps += p.simplify()
-
-        #print("steps -> \n", "\n".join(["\t {}".format(s.postfix) for s in steps]))
-        
-        return steps
+        ans.steps = [ini_step] + ans.steps
+        return ans
 
     def __rmul__(self, other):
         o_poly = self.conv2poly(other)
@@ -617,17 +624,21 @@ def test(p,q):
 if __name__ == '__main__':
     #from .fraction import Fraction
     with Expression.tmp_render(txt):
-        p = Polynom([10, -5])
-        print(p.reduce())
-        q = Polynom([[1,2], [3,4,5], 6])
-        print("q = ", q)
-        r = q.reduce()
-        print("r = ", r)
-        for i in r.explain():
-            print("q = ", i)
-        #print(p-q)
-        #for i in p-q:
-        #    print(i)
+        p = Polynom([1,2,3])
+        q = Polynom([0, 2])
+        for i in (p*q).explain():
+            print(i)
+        r = Polynom([0,1])
+        for i in (r*3).explain():
+            print(i)
+    #     print("q = ", q)
+    #     r = q.reduce()
+    #     print("r = ", r)
+    #     for i in r.explain():
+    #         print("q = ", i)
+    #    print(p-q)
+    #    for i in p-q:
+    #        print(i)
 
 
     import doctest
