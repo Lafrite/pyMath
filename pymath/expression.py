@@ -320,10 +320,11 @@ class Expression(Explicable, Renderable):
         >>> c = a / b
         >>> print(c.postfix_tokens)
         [1, 2, '+', 3, 4, '+', '/']
+        >>> 
         """
         return self.operate(other, op.div)
 
-    def __rdiv__(self, other):
+    def __rtruediv__(self, other):
         return self.roperate(other, op.div)
 
     def __pow__(self, other):
