@@ -4,7 +4,7 @@
 from .arithmetic import gcd
 from .generic import isNumber
 from .operator import op
-from .expression import Expression, Renderable
+from .expression import Expression
 from .explicable import Explicable
 from .render import txt, tex
 from copy import copy
@@ -12,7 +12,7 @@ from copy import copy
 
 __all__ = ['Fraction']
 
-class Fraction(Explicable, Renderable):
+class Fraction(Explicable):
     """Fractions!"""
 
     def __init__(self, num, denom = 1):

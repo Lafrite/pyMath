@@ -1,7 +1,58 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-class Explicable(object):
+from .render import txt, tex
+
+class Renderable(object):
+    STR_RENDER = tex
+    DEFAULT_RENDER = tex
+
+    @classmethod
+    def set_render(cls, render):
+        cls.STR_RENDER = render
+
+    @classmethod
+    def get_render(cls):
+        return cls.STR_RENDER
+
+    @classmethod
+    def set_default_render(cls):
+        cls.set_render(cls.DEFAULT_RENDER)
+
+    @classmethod
+    def tmp_render(cls, render = tex):
+        """ Create a container in which Expression render is temporary modify
+
+        The default temporary render is Expression in order to perform calculus inside numbers
+
+        >>> exp = Expression("2*3/5")
+        >>> print(exp)
+        2 \\times \\frac{ 3 }{ 5 }
+        >>> for i in exp.simplify().explain():
+        ...     print(i)
+        2 \\times \\frac{ 3 }{ 5 }
+        \\frac{ 6 }{ 5 }
+        >>> with Expression.tmp_render(txt):
+        ...     for i in exp.simplify().explain():
+        ...         print(i)
+        2 * 3 / 5
+        6 / 5
+        >>> for i in exp.simplify().explain():
+        ...     print(i)
+        2 \\times \\frac{ 3 }{ 5 }
+        \\frac{ 6 }{ 5 }
+
+        """
+        class TmpRenderEnv(object):
+            def __enter__(self):
+                self.old_render = Renderable.get_render()
+                Renderable.set_render(render)
+
+            def __exit__(self, type, value, traceback):
+                Renderable.set_render(self.old_render)
+        return TmpRenderEnv()
+        
+class Explicable(Renderable):
 
     """ An Explicable object is an object which can be explicable!
     

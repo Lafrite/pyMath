@@ -4,71 +4,14 @@
 from .generic import Stack, flatten_list, expand_list, isNumber, isOperator, isNumerand
 from .str2tokens import str2tokens
 from .operator import op
-from .render import txt, tex
 from .explicable import Explicable
 
 from .random_expression import RdExpression
 
-__all__ = ['Expression', 'Renderable']
+__all__ = ['Expression']
 
-class Renderable(object):
-    STR_RENDER = tex
-    DEFAULT_RENDER = tex
 
-    @classmethod
-    def set_render(cls, render):
-        cls.STR_RENDER = render
-
-    @classmethod
-    def get_render(cls):
-        return cls.STR_RENDER
-
-    @classmethod
-    def set_default_render(cls):
-        cls.set_render(cls.DEFAULT_RENDER)
-
-    @classmethod
-    def tmp_render(cls, render = lambda _,x:Expression(x)):
-        """ Create a container in which Expression render is temporary modify
-
-        The default temporary render is Expression in order to perform calculus inside numbers
-
-        >>> exp = Expression("2*3/5")
-        >>> print(exp)
-        \\frac{ 2 \\times 3 }{ 5 }
-        >>> for i in exp.simplify().explain():
-        ...     print(i)
-        \\frac{ 2 \\times 3 }{ 5 }
-        \\frac{ 6 }{ 5 }
-        >>> with Expression.tmp_render():
-        ...     for i in exp.simplify().explain():
-        ...         i
-        < Expression [2, 3, '*', 5, '/']>
-        < Expression [6, 5, '/']>
-        < Fraction 6 / 5>
-
-        >>> with Expression.tmp_render(txt):
-        ...     for i in exp.simplify().explain():
-        ...         print(i)
-        2 * 3 / 5
-        6 / 5
-        >>> for i in exp.simplify().explain():
-        ...     print(i)
-        \\frac{ 2 \\times 3 }{ 5 }
-        \\frac{ 6 }{ 5 }
-
-        """
-        class TmpRenderEnv(object):
-            def __enter__(self):
-                self.old_render = Expression.get_render()
-                Expression.set_render(render)
-
-            def __exit__(self, type, value, traceback):
-                Expression.set_render(self.old_render)
-        return TmpRenderEnv()
-        
-
-class Expression(Explicable, Renderable):
+class Expression(Explicable):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
 
 
@@ -84,6 +27,38 @@ class Expression(Explicable, Renderable):
         """
         random_generator = RdExpression(form, conditions)
         return Expression(random_generator(val_min, val_max))
+
+    @classmethod
+    def tmp_render(cls, render = lambda _,x:Expression(x)):
+        """ Same ad tmp_render for Renderable but default render is Expression
+
+        >>> exp = Expression("2*3/5")
+        >>> print(exp)
+        2 \\times \\frac{ 3 }{ 5 }
+        >>> for i in exp.simplify().explain():
+        ...     print(i)
+        2 \\times \\frac{ 3 }{ 5 }
+        \\frac{ 6 }{ 5 }
+        >>> with Expression.tmp_render():
+        ...     for i in exp.simplify().explain():
+        ...         i
+        < <class '__main__.Expression'> [2, 3, 5, '/', '*'] >
+        < <class '__main__.Expression'> [2, < Fraction 3 / 5>, '*'] >
+        < <class '__main__.Expression'> [2, < Fraction 3 / 5>, '*'] >
+        < <class '__main__.Expression'> [6, 5, '/'] >
+        >>> from .render import txt
+        >>> with Expression.tmp_render(txt):
+        ...     for i in exp.simplify().explain():
+        ...         print(i)
+        2 * 3 / 5
+        6 / 5
+        >>> for i in exp.simplify().explain():
+        ...     print(i)
+        2 \\times \\frac{ 3 }{ 5 }
+        \\frac{ 6 }{ 5 }
+
+        """
+        return super(Expression, cls).tmp_render(render)
 
     def __new__(cls, exp):
         """Create Expression objects
@@ -109,7 +84,7 @@ class Expression(Explicable, Renderable):
                 simplify = lambda x:x
                 is_number = True
                 methods_attr = {'simplify':simplify, 'isNumber': is_number, 'postfix_tokens': [token]}
-                fake_token = type('fake_int', (int,Explicable, Renderable), methods_attr)(token)
+                fake_token = type('fake_int', (int,Explicable, ), methods_attr)(token)
                 return fake_token
 
             elif type(token) == str:
@@ -118,7 +93,7 @@ class Expression(Explicable, Renderable):
                 simplify = lambda x:[x]
                 is_polynom = True
                 methods_attr = {'simplify':simplify, '_isPolynom': is_polynom, 'postfix_tokens': [token]}
-                fake_token = type('fake_str', (str,Explicable, Renderable), methods_attr)(token)
+                fake_token = type('fake_str', (str,Explicable, ), methods_attr)(token)
                 return fake_token
 
             else:
