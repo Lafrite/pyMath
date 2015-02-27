@@ -101,7 +101,6 @@ class Fraction(Explicable):
         return "< Fraction {num} / {denom}>".format(num=self._num, denom = self._denom)
 
     def __txt__(self):
-        # TODO: À simplifier je ne comprends plus le pourquoi du comment de cette méthode. |ven. févr. 27 09:21:49 CET 2015
         old_render = Expression.get_render()
         Expression.set_render(txt)
         _txt = self.__str__()
@@ -112,10 +111,10 @@ class Fraction(Explicable):
     def __tex__(self):
         old_render = Expression.get_render()
         Expression.set_render(tex)
-        _txt = self.__str__()
+        _tex = self.__str__()
         Expression.set_render(old_render)
 
-        return _txt
+        return _tex
 
     def __float__(self):
         return self._num / self._denom
