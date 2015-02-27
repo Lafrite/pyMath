@@ -9,6 +9,7 @@ from .generic import spe_zip, expand_list, isNumber, transpose_fill, flatten_lis
 from .render import txt
 from .random_expression import RdExpression
 from itertools import chain
+from functools import wraps
 
 __all__ = ["Polynom"]
 
@@ -16,6 +17,7 @@ __all__ = ["Polynom"]
 def power_cache(fun):
     """Decorator which cache calculated powers of polynoms """
     cache  = {}
+    @wraps(fun)
     def cached_fun(self, power):
         #print("cache -> ", cache)
         if (tuple(self._coef), power) in cache.keys():
@@ -83,6 +85,7 @@ class Polynom(Explicable):
         >>> Polynom([1, 2, 3], "y")._letter
         'y'
         """
+        super(Polynom, self).__init__()
         self.feed_coef(coef)
         self._letter = letter
 
@@ -547,39 +550,42 @@ class Polynom(Explicable):
 
         >>> p = Polynom([0,0,3])
         >>> p**2
-        [< Polynom [0, 0, 0, 0, < Expression [3, 2, '^']>]>, < Polynom [0, 0, 0, 0, < Expression [3, 2, '^']>]>, < Polynom [0, 0, 0, 0, 9]>, < Polynom [0, 0, 0, 0, 9]>]
+        < Polynom [0, 0, 0, 0, 9]>
+        >>> (p**2).steps
+        [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, '^'] >, < Polynom [0, 0, 0, 0, < <class 'pymath.expression.Expression'> [3, 2, '^'] >]>, < Polynom [0, 0, 0, 0, < <class 'pymath.expression.Expression'> [3, 2, '^'] >]>]
         >>> p = Polynom([1,2])
         >>> p**2
-        [[< Polynom [1, 2]>, < Polynom [1, 2]>, '*'], < Polynom [< Expression [1, 1, '*']>, [< Expression [1, 2, '*']>, < Expression [2, 1, '*']>], < Expression [2, 2, '*']>]>, < Polynom [< Expression [1, 1, '*']>, < Expression [1, 2, '*', 2, 1, '*', '+']>, < Expression [2, 2, '*']>]>, < Polynom [1, < Expression [2, 2, '+']>, 4]>, < Polynom [1, 4, 4]>]
+        < Polynom [1, 4, 4]>
+        >>> (p**2).steps
+        [< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 2, '^'] >, [< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 2, 'x', '*', 1, '+', '*'] >], < Polynom [1, < <class 'pymath.expression.Expression'> [2, 2, '+'] >, < <class 'pymath.expression.Expression'> [2, 2, '*'] >]>, < Polynom [1, < <class 'pymath.expression.Expression'> [2, 2, '+'] >, < <class 'pymath.expression.Expression'> [2, 2, '*'] >]>]
         >>> p = Polynom([0,0,1])
         >>> p**3
-        [< Polynom [0, 0, 0, 0, 0, 0, 1]>]
-
+        < Polynom [0, 0, 0, 0, 0, 0, 1]>
 
         """
         if not type(power):
             raise ValueError("Can't raise Polynom to {} power".format(str(power)))
 
-        steps = []
+        ini_step = [Expression(self.postfix_tokens) ^ power]
 
         if self.is_monom():
             if self._coef[self.degree] == 1:
                 coefs = [0]*self.degree*power + [1]
                 p = Polynom(coefs, letter = self._letter)
-                steps.append(p)
+                ans = p
             else:
                 coefs = [0]*self.degree*power + [Expression([self._coef[self.degree] , power, op.pw])]
                 p = Polynom(coefs, letter = self._letter)
-                steps.append(p)
-                
-                steps += p.simplify()
+                ans = p.simplify()
         else:
             if power == 2:
-                return [[self, self, op.mul]] + self * self
+                ans = self * self
             else:
+                # TODO: faudrait changer ça c'est pas très sérieux |ven. févr. 27 22:08:00 CET 2015
                 raise AttributeError("__pw__ not implemented yet when power is greatter than 2")
 
-        return steps
+        ans.steps = ini_step + ans.steps
+        return ans
 
     def __xor__(self, power):
         return self.__pow__(power)
