@@ -56,7 +56,7 @@ class Polynom(Explicable):
         if (degree > 0 and degree < 26):
             # Générer assez de lettre pour les coefs
             coefs_name = map(chr, range(97, 98+degree))
-            coefs_form = ["{" + i + "}" for i in coefs_name].reverse()
+            coefs_form = ["{" + i + "}" for i in coefs_name][::-1]
 
         form = str(coefs_form)
         # On créé les valeurs toutes concaténées dans un string
@@ -629,14 +629,14 @@ def test(p,q):
 
 if __name__ == '__main__':
     #from .fraction import Fraction
-    with Expression.tmp_render(txt):
-        p = Polynom([1,2,3])
-        q = Polynom([0, 2])
-        for i in (p*q).explain():
-            print(i)
-        r = Polynom([0,1])
-        for i in (r*3).explain():
-            print(i)
+    # with Expression.tmp_render(txt):
+    #     p = Polynom([1,2,3])
+    #     q = Polynom([0, 2])
+    #     for i in (p*q).explain():
+    #         print(i)
+    #     r = Polynom([0,1])
+    #     for i in (r*3).explain():
+    #         print(i)
     #     print("q = ", q)
     #     r = q.reduce()
     #     print("r = ", r)
@@ -645,10 +645,11 @@ if __name__ == '__main__':
     #    print(p-q)
     #    for i in p-q:
     #        print(i)
+    Polynom.random(degree = 2, conditions=["{b**2-4*a*c}>0"]) # Polynom deg 2 with positive Delta (ax^2 + bx + c)
 
 
     import doctest
-    doctest.testmod()
+    doctest.testmod(optionflags=doctest.ELLIPSIS)
 
 
 # -----------------------------
