@@ -3,6 +3,7 @@
 
 
 from .expression import Expression
+from .explicable import Explicable
 from .operator import op
 from .generic import spe_zip, expand_list, isNumber, transpose_fill, flatten_list, isPolynom
 from .render import txt
@@ -25,7 +26,7 @@ def power_cache(fun):
             return poly_powered
     return cached_fun
 
-class Polynom(object):
+class Polynom(Explicable):
 
     """Docstring for Polynom. """
 
@@ -100,9 +101,9 @@ class Polynom(object):
 
         """
         if isNumber(value):
-            postfix_exp = [value if i==self._letter else i for i in self.postfix]
+            postfix_exp = [value if i==self._letter else i for i in self.postfix_tokens]
         else:
-            postfix_exp = [Expression(value) if i==self._letter else i for i in self.postfix]
+            postfix_exp = [Expression(value) if i==self._letter else i for i in self.postfix_tokens]
 
         return Expression(postfix_exp)
 
@@ -147,10 +148,16 @@ class Polynom(object):
             return 0
 
     def __str__(self):
-        return str(Expression(self.postfix))
+        return str(Expression(self.postfix_tokens))
 
     def __repr__(self):
         return  "< Polynom " + str(self._coef) + ">"
+
+    def __txt__(self):
+        return self.postfix_tokens
+
+    def __tex__(self):
+        return self.postfix_tokens
 
     def coef_postfix(self, a, i):
         """Return the postfix display of a coeficient
@@ -188,34 +195,34 @@ class Polynom(object):
         return ans
 
     @property
-    def postfix(self):
+    def postfix_tokens(self):
         """Return the postfix form of the polynom
 
         :returns: the postfix list of polynom's tokens
 
         >>> p = Polynom([1, 2])
-        >>> p.postfix
+        >>> p.postfix_tokens
         [2, 'x', '*', 1, '+']
         >>> p = Polynom([1, -2])
-        >>> p.postfix
+        >>> p.postfix_tokens
         [2, 'x', '*', '-', 1, '+']
         >>> p = Polynom([1,2,3])
-        >>> p.postfix
+        >>> p.postfix_tokens
         [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+']
         >>> p = Polynom([1,[2,3]])
-        >>> p.postfix
+        >>> p.postfix_tokens
         [2, 'x', '*', 3, 'x', '*', '+', 1, '+']
         >>> p = Polynom([1,[2,-3]])
-        >>> p.postfix
+        >>> p.postfix_tokens
         [2, 'x', '*', 3, 'x', '*', '-', 1, '+']
         >>> p = Polynom([1,[-2,-3]])
-        >>> p.postfix
+        >>> p.postfix_tokens
         [2, 'x', '*', '-', 3, 'x', '*', '-', 1, '+']
         >>> from pymath.expression import Expression
         >>> from pymath.operator import op
         >>> e = Expression([2,3,op.add])
         >>> p = Polynom([1,e])
-        >>> p.postfix
+        >>> p.postfix_tokens
         [2, 3, '+', 'x', '*', 1, '+']
 
         """
@@ -298,8 +305,22 @@ class Polynom(object):
         """Compute coefficients which have same degree
 
         :returns: new Polynom with numbers coefficients
+
+        >>> P = Polynom([1,2,3])
+        >>> Q = P.reduce()
+        >>> Q
+        < Polynom [1, 2, 3]>
+        >>> Q.steps()
+        []
+        >>> P = Polynom([[1,2], [3,4,5], 6])
+        >>> Q = P.reduce()
+        >>> Q
+        < Polynom [3, 12, 6]>
+        >>> Q.steps
         """
-        steps = []
+    
+        # TODO: It doesn't not compute quick enough |ven. févr. 27 18:04:01 CET 2015
+
         # gather steps for every coeficients
         coefs_steps = []
         for coef in self._coef:
@@ -311,20 +332,20 @@ class Polynom(object):
                 coef_exp = Expression(postfix_add)
 
                 with Expression.tmp_render():
-                    coef_steps = list(coef_exp.simplify())
+                    coef_steps = list(coef_exp.simplify().explain())
 
                 #print('\t 1.coef_steps -> ', coef_steps)
 
             elif type(coef) == Expression:
 
                 with Expression.tmp_render():
-                    coef_steps = list(coef.simplify())
+                    coef_steps = list(coef.simplify().explain())
 
                 #print('\t 2.coef_steps -> ', coef_steps)
 
             else:
                 try:
-                    coef_steps += coef.simplify()
+                    coef_steps += coef.simplify().explaine()
                 except AttributeError:
                     coef_steps = [coef]
 
@@ -335,9 +356,12 @@ class Polynom(object):
         #print('\t coefs_steps -> ', coefs_steps)
 
         # On retourne la matrice
-        ans = []
+        steps = []
         for coefs in transpose_fill(coefs_steps):
-            ans.append(Polynom(coefs, self._letter))
+            steps.append(Polynom(coefs, self._letter))
+
+        ans, steps = steps[-1], steps[:-1]
+        ans.steps = steps
             
         return ans
 
@@ -513,19 +537,19 @@ def test(p,q):
     print(p, "+", q)
     for i in (p + q):
         #print(repr(i))
-        #print("\t", str(i.postfix))
+        #print("\t", str(i.postfix_tokens))
         print(i)
 
     print("\n Moins ------")
     for i in (p - q):
         #print(repr(i))
-        #print("\t", str(i.postfix))
+        #print("\t", str(i.postfix_tokens))
         print(i)
 
     print("\n Multiplier ------")
     for i in (p * q):
         #print(repr(i))
-        #print("\t", str(i.postfix))
+        #print("\t", str(i.postfix_tokens))
         print(i)
 
     print("\n Evaluer p ------")
@@ -541,14 +565,20 @@ if __name__ == '__main__':
     #from .fraction import Fraction
     with Expression.tmp_render(txt):
         p = Polynom([10, -5])
-        q = Polynom([3, -9])
-        print(p-q)
-        for i in p-q:
-            print(i)
+        print(p.reduce())
+        q = Polynom([[1,2], [3,4,5], 6])
+        print("q = ", q)
+        r = q.reduce()
+        print("r = ", r)
+        for i in r.explain():
+            print("q = ", i)
+        #print(p-q)
+        #for i in p-q:
+        #    print(i)
 
 
-    import doctest
-    doctest.testmod()
+    #import doctest
+    #doctest.testmod()
 
 
 # -----------------------------
