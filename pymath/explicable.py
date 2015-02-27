@@ -70,7 +70,10 @@ class Explicable(Renderable):
         # les étapes pour l'atteindre
         try:
             for s in self.steps:
-                new_s = self.STR_RENDER(s)
+                if hasattr(s, 'postfix_tokens'):
+                    new_s = self.STR_RENDER(s.postfix_tokens)
+                else:
+                    new_s = self.STR_RENDER(s)
                 if new_s != old_s:
                     old_s = new_s
                     yield new_s
