@@ -209,6 +209,12 @@ class Polynom(Explicable):
         >>> p = Polynom([1,2,3])
         >>> p.postfix_tokens
         [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+']
+        >>> p = Polynom([1])
+        >>> p.postfix_tokens
+        [1]
+        >>> p = Polynom([0])
+        >>> p.postfix_tokens
+        [0]
         >>> p = Polynom([1,[2,3]])
         >>> p.postfix_tokens
         [2, 'x', '*', 3, 'x', '*', '+', 1, '+']
@@ -226,6 +232,8 @@ class Polynom(Explicable):
         [2, 3, '+', 'x', '*', 1, '+']
 
         """
+        if self == 0:
+            return [0]
         # TODO: Faudrait factoriser un peu tout ça..! |dim. déc. 21 16:02:34 CET 2014
         postfix = []
         for (i,a) in list(enumerate(self._coef))[::-1]:
@@ -293,7 +301,15 @@ class Polynom(Explicable):
         return flatten_list(postfix)
 
     def conv2poly(self, other):
-        """Convert anything number into a polynom"""
+        """Convert anything number into a polynom
+        
+        >>> P = Polynom([1,2,3])
+        >>> P.conv2poly(1)
+        < Polynom [1]>
+        >>> P.conv2poly(0)
+        < Polynom [0]>
+        
+        """
         if isNumber(other) and not isPolynom(other):
             return Polynom([other], letter = self._letter)
         elif isPolynom(other):
@@ -317,6 +333,7 @@ class Polynom(Explicable):
         >>> Q
         < Polynom [3, 12, 6]>
         >>> Q.steps
+        [< Polynom [< <class 'pymath.expression.Expression'> [1, 2, '+'] >, < <class 'pymath.expression.Expression'> [3, 4, '+', 5, '+'] >, 6]>, < Polynom [< <class 'pymath.expression.Expression'> [1, 2, '+'] >, < <class 'pymath.expression.Expression'> [7, 5, '+'] >, 6]>, < Polynom [3, < <class 'pymath.expression.Expression'> [7, 5, '+'] >, 6]>]
         """
     
         # TODO: It doesn't not compute quick enough |ven. févr. 27 18:04:01 CET 2015
@@ -399,28 +416,64 @@ class Polynom(Explicable):
             return 0
 
     def __add__(self, other):
-        steps = []
+        """ Overload + 
 
+        >>> P = Polynom([1,2,3])
+        >>> Q = Polynom([4,5])
+        >>> R = P+Q
+        >>> R
+        < Polynom [5, 7, 3]>
+        >>> R.steps
+        [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', 5, 'x', '*', 4, '+', '+'] >, < Polynom [< <class 'pymath.expression.Expression'> [1, 4, '+'] >, < <class 'pymath.expression.Expression'> [2, 5, '+'] >, 3]>, < Polynom [< <class 'pymath.expression.Expression'> [1, 4, '+'] >, < <class 'pymath.expression.Expression'> [2, 5, '+'] >, 3]>]
+        """
         o_poly = self.conv2poly(other)
 
         n_coef = spe_zip(self._coef, o_poly._coef)
         p = Polynom(n_coef, letter = self._letter)
-        steps.append(p)
 
-        steps += p.simplify()
-        return steps
+        ini_step = [Expression(self.postfix_tokens) + Expression(o_poly.postfix_tokens)]
+        ans = p.simplify()
+        ans.steps = ini_step + ans.steps
+        return ans
 
     def __radd__(self, other):
         return self.__add__(other)
 
     def __neg__(self):
-        return Polynom([-i for i in self._coef], letter = self._letter)
+        """ overload - (as arity 1 operator)
+
+        >>> P = Polynom([1,2,3])
+        >>> Q = -P
+        >>> Q
+        < Polynom [-1, -2, -3]>
+        >>> Q.steps
+        [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', '-'] >]
+        """
+        ini_step = [- Expression(self.postfix_tokens)]
+        ans = Polynom([-i for i in self._coef], letter = self._letter).simplify()
+        ans.steps = ini_step + ans.steps
+        return ans
 
     def __sub__(self, other):
-        o_poly = self.conv2poly(other)
-        o_poly = -o_poly
+        """ overload -
 
-        return self.__add__(o_poly)
+        >>> P = Polynom([1,2,3])
+        >>> Q = Polynom([4,5,6])
+        >>> R = P - Q
+        >>> R
+        < Polynom [-3, -3, -3]>
+        >>> R.steps
+        [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', 6, 'x', 2, '^', '*', 5, 'x', '*', '+', 4, '+', '-'] >, < <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', 6, 'x', 2, '^', '*', '-', 5, 'x', '*', '-', 4, '-', '+'] >, < Polynom [< <class 'pymath.expression.Expression'> [1, -4, '+'] >, < <class 'pymath.expression.Expression'> [2, -5, '+'] >, < <class 'pymath.expression.Expression'> [3, -6, '+'] >]>, < Polynom [< <class 'pymath.expression.Expression'> [1, -4, '+'] >, < <class 'pymath.expression.Expression'> [2, -5, '+'] >, < <class 'pymath.expression.Expression'> [3, -6, '+'] >]>]
+        """
+        o_poly = self.conv2poly(other)
+        ini_step = [Expression(self.postfix_tokens) - Expression(o_poly.postfix_tokens)]
+        o_poly = -o_poly
+        #ini_step += o_poly.steps
+
+        ans = self + o_poly
+        ans.steps = ini_step + ans.steps
+
+        return ans
 
     def __rsub__(self, other):
         o_poly = self.conv2poly(other)
@@ -577,8 +630,8 @@ if __name__ == '__main__':
         #    print(i)
 
 
-    #import doctest
-    #doctest.testmod()
+    import doctest
+    doctest.testmod()
 
 
 # -----------------------------
