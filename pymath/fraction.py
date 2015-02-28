@@ -174,7 +174,7 @@ class Fraction(Explicable):
 
             exp = Expression([self._num, coef1, op.mul, self._denom, coef1, op.mul, op.div, number._num, coef2, op.mul, number._denom, coef2, op.mul, op.div,op.add])
 
-        ini_step = Expression(self.postfix_tokens) + Expression(number.postfix_tokens)
+        ini_step = Expression(self.postfix_tokens + number.postfix_tokens + [op.add])
         ans = exp.simplify()
         ans.steps = [ini_step] + ans.steps
         return ans
@@ -221,7 +221,7 @@ class Fraction(Explicable):
 
             exp = Expression([self._num, coef1, op.mul, self._denom, coef1, op.mul, op.div, number._num, coef2, op.mul, number._denom, coef2, op.mul, op.div,op.sub])
 
-        ini_step = Expression(self.postfix_tokens) - Expression(number.postfix_tokens)
+        ini_step = Expression(self.postfix_tokens + number.postfix_tokens + [op.sub])
         ans = exp.simplify()
         ans.steps = [ini_step] + ans.steps
         return ans
@@ -298,7 +298,7 @@ class Fraction(Explicable):
                 denom = [self._denom]
 
             exp = Expression(num + denom + [op.div])
-            ini_step = Expression(self.postfix_tokens) * Expression([other])
+            ini_step = Expression(self.postfix_tokens + [other, op.mul])
 
         else:
             number = self.convert2fraction(other)
@@ -322,7 +322,7 @@ class Fraction(Explicable):
 
             exp = Expression(num1 +  num2 + [ op.mul] +  denom1 +  denom2 + [op.mul, op.div])
 
-            ini_step = Expression(self.postfix_tokens) * Expression(number.postfix_tokens)
+            ini_step = Expression(self.postfix_tokens + number.postfix_tokens + [op.mul])
         ans = exp.simplify()
         ans.steps = [ini_step] + ans.steps
         return ans
@@ -354,7 +354,7 @@ class Fraction(Explicable):
 
         number = self.convert2fraction(other)
 
-        ini_step = Expression(self.postfix_tokens) / Expression(number.postfix_tokens)
+        ini_step = Expression(self.postfix_tokens + number.postfix_tokens + [op.div])
 
         number = Fraction(number._denom, number._num)
         ans = self * number
@@ -398,7 +398,7 @@ class Fraction(Explicable):
         elif power == 1:
             return copy(self)
         else:
-            ini_step = Expression(self.postfix_tokens) ** power
+            ini_step = Expression(self.postfix_tokens + [power, op.pw])
             exp = Expression([self._num, power, op.pw, self._denom, power, op.pw, op.div])
 
             ans = exp.simplify()
