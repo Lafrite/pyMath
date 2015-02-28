@@ -25,6 +25,7 @@ class Renderable(object):
 
         The default temporary render is Expression in order to perform calculus inside numbers
 
+        >>> from .expression import Expression
         >>> exp = Expression("2*3/5")
         >>> print(exp)
         2 \\times \\frac{ 3 }{ 5 }

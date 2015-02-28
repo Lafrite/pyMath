@@ -42,10 +42,10 @@ class Expression(Explicable):
         >>> with Expression.tmp_render():
         ...     for i in exp.simplify().explain():
         ...         i
-        < <class '__main__.Expression'> [2, 3, 5, '/', '*'] >
-        < <class '__main__.Expression'> [2, < Fraction 3 / 5>, '*'] >
-        < <class '__main__.Expression'> [2, < Fraction 3 / 5>, '*'] >
-        < <class '__main__.Expression'> [6, 5, '/'] >
+        < <class 'pymath.expression.Expression'> [2, 3, 5, '/', '*'] >
+        < <class 'pymath.expression.Expression'> [2, < Fraction 3 / 5>, '*'] >
+        < <class 'pymath.expression.Expression'> [2, < Fraction 3 / 5>, '*'] >
+        < <class 'pymath.expression.Expression'> [6, 5, '/'] >
         >>> from .render import txt
         >>> with Expression.tmp_render(txt):
         ...     for i in exp.simplify().explain():
