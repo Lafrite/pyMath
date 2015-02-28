@@ -71,6 +71,8 @@ class Expression(Explicable):
             expression.postfix_tokens = str2tokens(exp) 
         elif type(exp) == list:
             expression.postfix_tokens = flatten_list([tok.postfix_tokens if Expression.isExpression(tok) else tok for tok in exp])
+        elif type(exp) == Expression:
+            return exp 
         else:
             raise ValueError("Can't build Expression with {} object".format(type(exp)))
 
@@ -95,7 +97,6 @@ class Expression(Explicable):
                 methods_attr = {'simplify':simplify, '_isPolynom': is_polynom, 'postfix_tokens': [token]}
                 fake_token = type('fake_str', (str,Explicable, ), methods_attr)(token)
                 return fake_token
-
             else:
                 raise ValueError("Unknow type in Expression: {}".format(type(token)))
 
