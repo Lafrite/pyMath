@@ -434,7 +434,7 @@ class Polynom(Explicable):
         n_coef = spe_zip(self._coef, o_poly._coef)
         p = Polynom(n_coef, letter = self._letter)
 
-        ini_step = [Expression(self.postfix_tokens) + Expression(o_poly.postfix_tokens)]
+        ini_step = [Expression(self.postfix_tokens + o_poly.postfix_tokens + [op.add])]
         ans = p.simplify()
         ans.steps = ini_step + ans.steps
         return ans
@@ -453,7 +453,7 @@ class Polynom(Explicable):
         >>> Q.steps
         [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', '-'] >]
         """
-        ini_step = [- Expression(self.postfix_tokens)]
+        ini_step = [Expression(self.postfix_tokens + [op.sub1])]
         ans = Polynom([-i for i in self._coef], letter = self._letter).simplify()
         ans.steps = ini_step + ans.steps
         return ans
@@ -470,7 +470,7 @@ class Polynom(Explicable):
         [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', 6, 'x', 2, '^', '*', 5, 'x', '*', '+', 4, '+', '-'] >, < <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', 6, 'x', 2, '^', '*', '-', 5, 'x', '*', '-', 4, '-', '+'] >, < Polynom [< <class 'pymath.expression.Expression'> [1, -4, '+'] >, < <class 'pymath.expression.Expression'> [2, -5, '+'] >, < <class 'pymath.expression.Expression'> [3, -6, '+'] >]>, < Polynom [< <class 'pymath.expression.Expression'> [1, -4, '+'] >, < <class 'pymath.expression.Expression'> [2, -5, '+'] >, < <class 'pymath.expression.Expression'> [3, -6, '+'] >]>]
         """
         o_poly = self.conv2poly(other)
-        ini_step = [Expression(self.postfix_tokens) - Expression(o_poly.postfix_tokens)]
+        ini_step = [Expression(self.postfix_tokens + o_poly.postfix_tokens + [op.sub])]
         o_poly = -o_poly
         #ini_step += o_poly.steps
 
@@ -566,7 +566,7 @@ class Polynom(Explicable):
         if not type(power):
             raise ValueError("Can't raise Polynom to {} power".format(str(power)))
 
-        ini_step = [Expression(self.postfix_tokens) ^ power]
+        ini_step = [Expression(self.postfix_tokens + [power, op.pw])]
 
         if self.is_monom():
             if self._coef[self.degree] == 1:
