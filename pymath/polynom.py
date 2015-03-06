@@ -385,6 +385,23 @@ class Polynom(Explicable):
             
         return ans
 
+    def derivate(self):
+        """ Return the derivated polynom 
+        
+        >>> P = Polynom([1, 2, 3])
+        >>> Q = P.derivate()
+        >>> Q
+        < Polynom [2, 6]>
+        >>> for i in Q.explain():
+        ...     print(i)
+        2 \\times 3 x + 1 \\times 2
+        6 x + 2
+        """
+        derv_coefs = []
+        for (i,c) in enumerate(self._coef):
+            derv_coefs += [Expression([i, c, op.mul])]
+        return Polynom(derv_coefs[1:]).simplify()
+
     @staticmethod
     def postfix_add(numbers):
         """Convert a list of numbers into a postfix addition
