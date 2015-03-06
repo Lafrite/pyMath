@@ -105,7 +105,7 @@ class Polynom_deg2(Polynom):
         """
         return self(self.alpha).simplify()
 
-    def roots(self):
+    def roots(self, after_coma = 2):
         """ Compute roots of the polynom
 
         /!\ Can't manage exact solution because of pymath does not handle sqare root yet
@@ -123,12 +123,21 @@ class Polynom_deg2(Polynom):
         [-1.0, 1.0]
         """
         if self.delta > 0:
-            self.roots = [(-self.b - sqrt(self.delta))/(2*self.a), (-self.b + sqrt(self.delta))/(2*self.a)]
+            self._roots = [round((-self.b - sqrt(self.delta))/(2*self.a),after_coma), round((-self.b + sqrt(self.delta))/(2*self.a),after_coma)]
         elif self.delta == 0:
-            self.roots = [-self.b /(2*self.a)]
+            self._roots = [round(-self.b /(2*self.a), after_coma)]
         else:
-            self.roots = []
-        return self.roots
+            self._roots = []
+        return self._roots
+
+    def tbl_sgn_header(self):
+        """ Return header of the sign line for tkzTabLine"""
+        if self.delta > 0:
+            return  "{$-\\infty$, " + str(min(self.roots())) + " , " + str( max(self.roots())) + " , $+\\infty$}"
+        elif self.delta == 0:
+            return  "{$-\\infty$, " +  str(self.roots()[0])  + " , $+\\infty$}"
+        else:
+            return  "{$-\\infty$, $+\\infty$}"
 
     def tbl_sgn(self):
         """ Return the sign line for tkzTabLine
