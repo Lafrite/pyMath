@@ -39,18 +39,16 @@ class Polynom_deg2(Polynom):
 
         >>> P = Polynom_deg2([1,2,3])
         >>> P.delta
-        < Expression [2, 2, '^', 4, 3, 1, '*', '*', '-']>
-        >>> for i in P.delta.simplify():
+        -8
+        >>> for i in P.delta.explain():
         ...     print(i)
         2^{  2 } - 4 \\times 3 \\times 1
         4 - 4 \\times 3
         4 - 12
         -8
-        >>> P.delta.simplified()
-        -8
         """
 
-        return Expression([self.b, 2, op.pw, 4, self.a, self.c, op.mul, op.mul, op.sub])
+        return Expression([self.b, 2, op.pw, 4, self.a, self.c, op.mul, op.mul, op.sub]).simplify()
 
     @property
     def alpha(self):
@@ -58,19 +56,15 @@ class Polynom_deg2(Polynom):
         
         >>> P = Polynom_deg2([1,2,3])
         >>> P.alpha
-        < Expression [2, '-', 2, 3, '*', '/']>
-        >>> for i in P.alpha.simplify():
+        < Fraction -1 / 3>
+        >>> for i in P.alpha.explain():
         ...     print(i)
         \\frac{ - 2 }{ 2 \\times 3 }
         \\frac{ -2 }{ 6 }
         \\frac{ ( -1 ) \\times 2 }{ 3 \\times 2 }
         \\frac{ -1 }{ 3 }
-        \\frac{ -2 }{ 6 }
-        >>> P.alpha.simplified() # Bug avec les fractions ici, on devrait avoir -1/3 pas -2/6...
-        < Fraction -2 / 6>
-        
         """
-        return Expression([self.b, op.sub1, 2, self.a, op.mul, op.div])
+        return Expression([self.b, op.sub1, 2, self.a, op.mul, op.div]).simplify()
 
     @property
     def beta(self):
@@ -78,31 +72,16 @@ class Polynom_deg2(Polynom):
 
         >>> P = Polynom_deg2([1,2,3])
         >>> P.beta
-        < Expression [3, < Fraction -2 / 6>, 2, '^', '*', 2, < Fraction -2 / 6>, '*', '+', 1, '+']>
-        >>> for i in P.beta.simplify(): # Ça serait bien que l'on puisse enlever des étapes maintenant...
-        ...     print(i)
-        3 \\times \\frac{ -2 }{ 6 }^{  2 } + 2 \\times \\frac{ -2 }{ 6 } + 1
-        3 \\times \\frac{ ( -2 )^{  2 } }{ 6^{  2 } } + \\frac{ ( -2 ) \\times 1 \\times 2 }{ 3 \\times 2 } + 1
-        3 \\times \\frac{ 4 }{ 36 } + \\frac{ ( -2 ) \\times 2 }{ 6 } + 1
-        3 \\times \\frac{ 1 \\times 4 }{ 9 \\times 4 } + \\frac{ -4 }{ 6 } + 1
-        3 \\times \\frac{ 1 }{ 9 } + \\frac{ ( -2 ) \\times 2 }{ 3 \\times 2 } + 1
-        3 \\times \\frac{ 1 }{ 9 } + \\frac{ -2 }{ 3 } + 1
-        \\frac{ 1 \\times 1 \\times 3 }{ 3 \\times 3 } + \\frac{ -2 }{ 3 } + 1
-        \\frac{ 1 \\times 3 }{ 9 } + \\frac{ -2 }{ 3 } + 1
-        \\frac{ 3 }{ 9 } + \\frac{ -2 }{ 3 } + 1
-        \\frac{ 1 \\times 3 }{ 3 \\times 3 } + \\frac{ -2 }{ 3 } + 1
-        \\frac{ 1 }{ 3 } + \\frac{ -2 }{ 3 } + 1
-        \\frac{ 1 + ( -2 ) }{ 3 } + 1
-        \\frac{ -1 }{ 3 } + 1
-        \\frac{ ( -1 ) \\times 1 }{ 3 \\times 1 } + \\frac{ 1 \\times 3 }{ 1 \\times 3 }
-        \\frac{ -1 }{ 3 } + \\frac{ 3 }{ 3 }
-        \\frac{ ( -1 ) + 3 }{ 3 }
-        \\frac{ 2 }{ 3 }
-        >>> P.beta.simplified()
         < Fraction 2 / 3>
-
+        >>> for i in P.beta.explain(): # Ça serait bien que l'on puisse enlever des étapes maintenant...
+        ...     print(i)
+        3 \\times \\frac{ -1 }{ 3 }^{  2 } + 2 \\times \\frac{ -1 }{ 3 } + 1
+        3 \\times \\frac{ 1 }{ 9 } + \\frac{ -2 }{ 3 } + 1
+        \\frac{ 1 }{ 3 } + \\frac{ -2 }{ 3 } + 1
+        \\frac{ -1 }{ 3 } + 1
+        \\frac{ 2 }{ 3 }
         """
-        return self(self.alpha.simplified())
+        return self(self.alpha).simplify()
 
     def roots(self):
         """ Compute roots of the polynom
@@ -121,9 +100,9 @@ class Polynom_deg2(Polynom):
         >>> P.roots()
         [-1.0, 1.0]
         """
-        if self.delta.simplified() > 0:
-            self.roots = [(-self.b - sqrt(self.delta.simplified()))/(2*self.a), (-self.b + sqrt(self.delta.simplified()))/(2*self.a)]
-        elif self.delta.simplified() == 0:
+        if self.delta > 0:
+            self.roots = [(-self.b - sqrt(self.delta))/(2*self.a), (-self.b + sqrt(self.delta))/(2*self.a)]
+        elif self.delta == 0:
             self.roots = [-self.b /(2*self.a)]
         else:
             self.roots = []
@@ -151,12 +130,12 @@ class Polynom_deg2(Polynom):
         >>> print(P.tbl_sgn())
         \\tkzTabLine{, -,}
         """
-        if self.delta.simplified() > 0:
+        if self.delta > 0:
             if self.a > 0:
                 return "\\tkzTabLine{, +, z, -, z , +,}"
             else:
                 return "\\tkzTabLine{, -, z, +, z , -,}"
-        elif self.delta.simplified() == 0:
+        elif self.delta == 0:
             if self.a > 0:
                 return "\\tkzTabLine{, +, z, +,}"
             else:
@@ -179,7 +158,7 @@ class Polynom_deg2(Polynom):
         \\tkzTabVar{+/{$+\\infty$}, -/{$\\frac{ 2 }{ 3 }$}, +/{$+\\infty$}}
 
         """
-        beta = self.beta.simplified()
+        beta = self.beta
         if limits:
             if self.a > 0:
                 return "\\tkzTabVar{+/{$+\\infty$}, -/{$" + str(beta) + "$}, +/{$+\\infty$}}"
