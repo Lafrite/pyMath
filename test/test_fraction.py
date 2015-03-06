@@ -22,43 +22,21 @@ class TestFraction(unittest.TestCase):
         ans = [[Fraction(2, 3), 1, Fraction(17, 15), 0, 0,  Fraction(4,3)], \
                 [Fraction(4,3), Fraction(5,3), Fraction(9,5), Fraction(2,3), Fraction(2,3),  2] \
                 ]
-        # TODO: Bug pour 1 + 1/-3 |sam. févr. 22 07:01:29 CET 2014
 
         for (i, f1) in enumerate(self.listFrom):
             for (j, f2) in enumerate(self.listAgainst):
                 res = f1 + f2
-
-                #print("-----------")
-                #print("f1 : ", f1)
-                #print("f2 : ", f2)
-                #print(res)
-
-                # On est obligé de faire ça pour gérer le cas de 1+1 qui ne passe pas par la classe Fraction
-                if type(res) == list:
-                    self.assertEqual(res[-1], ans[i][j])
-                else:
-                    self.assertEqual(res, ans[i][j])
+                self.assertEqual(res, ans[i][j])
 
     def test_sub(self):
         ans = [[0, Fraction(-1,3), Fraction(-7, 15), Fraction(2,3), Fraction(2,3), Fraction(-2,3)], \
                 [Fraction(2,3), Fraction(1,3), Fraction(1,5), Fraction(4,3), Fraction(4,3), 0] \
                 ]
-        # TODO: bug pour 1 - 1/-3 |sam. févr. 22 07:05:15 CET 2014
 
         for (i, f1) in enumerate(self.listFrom):
             for (j, f2) in enumerate(self.listAgainst):
                 res = f1 - f2
-
-                #print("-----------")
-                #print("f1 : ", f1)
-                #print("f2 : ", f2)
-                #print(res)
-
-                # On est obligé de faire ça pour gérer le cas de 1-1 qui ne passe pas par la classe Fraction
-                if type(res) == list:
-                    self.assertEqual(res[-1], ans[i][j])
-                else:
-                    self.assertEqual(res, ans[i][j])
+                self.assertEqual(res, ans[i][j])
 
     def test_neg(self):
         ans = [ Fraction(-1,3), \
@@ -70,10 +48,7 @@ class TestFraction(unittest.TestCase):
             ]
         for (j, f) in enumerate(self.listAgainst):
             res = -f
-            if type(res) == list:
-                self.assertEqual(res[-1], ans[j])
-            else:
-                self.assertEqual(res, ans[j])
+            self.assertEqual(res, ans[j])
 
     def test_mul(self):
         ans = [[Fraction(1, 9), Fraction(2,9), Fraction(4, 15), Fraction(-1,9), Fraction(-1,9), Fraction(1,3)], \
@@ -83,17 +58,7 @@ class TestFraction(unittest.TestCase):
         for (i, f1) in enumerate(self.listFrom):
             for (j, f2) in enumerate(self.listAgainst):
                 res = f1 * f2
-
-                #print("-----------")
-                #print("f1 : ", f1)
-                #print("f2 : ", f2)
-                #print(res)
-
-                # On est obligé de faire ça pour gérer le cas de 1*1 qui ne passe pas par la classe Fraction
-                if type(res) == list:
-                    self.assertEqual(res[-1], ans[i][j])
-                else:
-                    self.assertEqual(res, ans[i][j])
+                self.assertEqual(res, ans[i][j])
 
     def test_truediv(self):
         ans = [[1, Fraction(1,2), Fraction(5, 12), -1, -1, Fraction(1,3)], \
@@ -103,17 +68,7 @@ class TestFraction(unittest.TestCase):
         for (i, f1) in enumerate(self.listFrom):
             for (j, f2) in enumerate(self.listAgainst):
                 res = f1 / f2
-
-                #print("-----------")
-                #print("f1 : ", f1)
-                #print("f2 : ", f2)
-                #print(res)
-
-                # On est obligé de faire ça pour gérer le cas de 1/1 qui ne passe pas par la classe Fraction
-                if type(res) == list:
-                    self.assertEqual(res[-1], ans[i][j])
-                else:
-                    self.assertEqual(res, ans[i][j])
+                self.assertEqual(res, ans[i][j])
 
     def test_lt(self):
         pass
@@ -130,8 +85,6 @@ class TestFraction(unittest.TestCase):
         f = Fraction(2, 3)
         ans = "2 / 3"
         self.assertEqual(f.__txt__(), ans)
-    
-
 
 if __name__ == '__main__':
     unittest.main()
