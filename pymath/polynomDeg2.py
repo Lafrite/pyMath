@@ -4,14 +4,36 @@
 from .polynom import Polynom
 from .expression import Expression
 from .operator import op
+from .random_expression import RdExpression
 from math import sqrt
 
+__all__ = ["Polynom_deg2"]
 
 class Polynom_deg2(Polynom):
 
     """ Degree 2 polynoms
     Child of Polynom with some extra tools
     """
+
+    @classmethod
+    def random(self, coefs_form = ["{c}", "{b}", "{a}"], conditions = [], letter = "x"):
+        """ Create a 2nd degree poly from coefs_form ans conditions
+
+        :param coefs_form: list of forms (one by coef) (ascending degree sorted)
+        :param conditions: condition on variables 
+        :param letter: the letter for the polynom
+
+        """
+        if len(coefs_form) != 3:
+            raise ValueError("Polynom_deg2 have to be degree 2 polynoms, they need 3 coefficients, {} are given".format(len(coefs_form)))
+
+        form = str(coefs_form)
+        # On créé les valeurs toutes concaténées dans un string
+        coefs = RdExpression(form, conditions)()
+        # On "parse" ce string pour créer les coefs
+        coefs = [eval(i) if type(i)==str else i for i in eval(coefs)]
+        # Création du polynom
+        return Polynom_deg2(coefs = coefs, letter = letter)
 
     def __init__(self, coefs = [0, 0, 1], letter = "x"):
         if len(coefs) < 3 or len(coefs) > 4:

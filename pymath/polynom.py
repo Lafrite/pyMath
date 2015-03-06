@@ -64,9 +64,9 @@ class Polynom(Explicable):
         # On "parse" ce string pour créer les coefs
         coefs = [eval(i) if type(i)==str else i for i in eval(coefs)]
         # Création du polynom
-        return Polynom(coef = coefs, letter = letter)
+        return Polynom(coefs = coefs, letter = letter)
 
-    def __init__(self, coef = [1], letter = "x" ):
+    def __init__(self, coefs = [1], letter = "x" ):
         """Initiate the polynom
 
         :param coef: coefficients of the polynom (ascending degree sorted)
@@ -86,7 +86,7 @@ class Polynom(Explicable):
         'y'
         """
         super(Polynom, self).__init__()
-        self.feed_coef(coef)
+        self.feed_coef(coefs)
         self._letter = letter
 
         
