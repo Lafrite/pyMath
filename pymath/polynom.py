@@ -76,11 +76,13 @@ class Polynom(Explicable):
                 - a: a Expression. [1, Expression("2+3"), 4] designate 1 + (2+3)x + 4x^2
         :param letter: the string describing the unknown
 
-        >>> Polynom([1,2,3]).mainOp
+        >>> Polynom([1, 2, 3]).mainOp
         '+'
         >>> Polynom([1]).mainOp
         '*'
-        >>> Polynom([1,2, 3])._letter
+        >>> Polynom([0, 0, 3]).mainOp
+        '*'
+        >>> Polynom([1, 2, 3])._letter
         'x'
         >>> Polynom([1, 2, 3], "y")._letter
         'y'
@@ -91,9 +93,9 @@ class Polynom(Explicable):
 
         
         if self.is_monom():
-            self.mainOp = "*"
+            self.mainOp = op.mul
         else:
-            self.mainOp = "+"
+            self.mainOp = op.add
 
         self._isPolynom = 1
 
