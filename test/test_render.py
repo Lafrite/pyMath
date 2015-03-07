@@ -67,12 +67,14 @@ class TestTexRender(unittest.TestCase):
             [ 2, 3, op.mul, 4, op.add],\
             [ 2, 3, 4, op.mul, op.add],\
             [ 2, 3, 4, op.add, op.add],\
+            [ 2, 3, 4, op.add, op.sub],\
             ]
         wanted_render = [\
                 '( 2 + 3 ) \\times 4',\
                 '2 \\times 3 + 4',\
                 '2 + 3 \\times 4',\
                 '2 + 3 + 4',\
+                '2 - ( 3 + 4 )',\
                 ]
         for (i,e) in enumerate(exps):
             rend = tex(e)
@@ -92,8 +94,8 @@ class TestTexRender(unittest.TestCase):
                 '2 + 3 x^{  2 } + 2 x + 1' ,\
                 '2 - ( 3 x^{  2 } + 2 x + 1 )' ,\
                 '2 - ( 3 x^{  2 } + 2 x + 1 ) ( 3 x^{  2 } + 2 x + 1 )' ,\
-                '( 6 x^{  2 } + 5 x + 4 ) + 3 x^{  2 } + 2 x + 1' ,\
-                '( 6 x^{  2 } + 5 x +   4 ) - ( 3 x^{  2 } + 2 x + 1 )' ,\
+                '6 x^{  2 } + 5 x + 4 + 3 x^{  2 } + 2 x + 1' ,\
+                '6 x^{  2 } + 5 x + 4 - ( 3 x^{  2 } + 2 x + 1 )' ,\
                 ]
         for (i,e) in enumerate(exps):
             rend = tex(e)
