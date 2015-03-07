@@ -1,3 +1,7 @@
+* Soustraction de Polynômes!!!!
+
+
+
 * Expression importe mal 4x^2
     In [9]: e = Expression("3x + 4x^2 - 1")
 
