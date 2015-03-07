@@ -55,7 +55,7 @@ class TestTexRender(unittest.TestCase):
                 ]
         wanted_render = [ "2 ( 3 x^{  2 } + 2 x + 1 )",
                 "( 3 x^{  2 } + 2 x + 1 ) \\times 2",
-                "( 3 x^{  2 } + 2 x + 1 ) ( 3 x^{  2 } + 2 x + 1 )",
+                "( 3 x^{  2 } + 2 x + 1 ) ( 6 x^{  2 } + 5 x + 4 )",
                 ]
         for (i,e) in enumerate(exps):
             rend = tex(e)
@@ -129,11 +129,20 @@ class TesttxtRender(unittest.TestCase):
             self.assertEqual(rend, wanted_render[i])
 
     def test_mult_letter(self):
-        exps = [ [2, "a", op.get_op("*", 2)], \
-                ["a", 3, op.get_op("*", 2)], \
-                [-2, "a", op.get_op("*", 2)], \
-                ["a", -2, op.get_op("*", 2)]]
-        wanted_render = [ "2 a", "a * 3", "-2 a", "a * ( -2 )"]
+        exps = [ [2, "a", op.mul], \
+                ["a", 3, op.mul], \
+                [-2, "a", op.mul], \
+                ["a", -2, op.mul],
+                ["a", -2, op.mul, -2, op.mul],
+                ["a", -2, op.mul, "a", op.mul],
+                ]
+        wanted_render = [ "2 a",
+                "a * 3",
+                "-2 a",
+                "a * ( -2 )",
+                "a * ( -2 ) * ( -2 )",
+                "a * ( -2 ) a",
+                ]
         for (i,e) in enumerate(exps):
             rend = txt(e)
             self.assertEqual(rend, wanted_render[i])

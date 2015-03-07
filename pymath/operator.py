@@ -386,8 +386,14 @@ class op(object):
         2
         >>> mul.__tex__('1','2')
         '1 \\times 2'
+        >>> mul.__tex__('2','a')
+        '2 a'
         >>> mul.__txt__('1','2')
         '1 * 2'
+        >>> mul.__txt__('2','a')
+        '2 a'
+        >>> mul.__txt__('a','2')
+        'a * 2'
         >>> mul.__tex__('1','-2')
         '1 \\times (-2)'
         """
@@ -514,24 +520,24 @@ class op(object):
         return caract
 
 if __name__ == '__main__':
-    print(op.add.__tex__('1','2'))
-    print(op.mul.__tex__('1','2'))
-    print(op.sub.__tex__('1','2'))
-    f = save_mainOp('2 + 3',op.add)
-    print(op.mul.__txt__(f, '4'))
-    f = save_mainOp('-3',op.sub1)
-    print(op.sub1.__txt__(f))
-    print(op.sub1.__txt__('-3'))
-    f = save_mainOp('2 + 3',op.add)
-    print(op.sub1.__txt__(f))
+    #print(op.add.__tex__('1','2'))
+    #print(op.mul.__tex__('1','2'))
+    #print(op.sub.__tex__('1','2'))
+    #f = save_mainOp('2 + 3',op.add)
+    #print(op.mul.__txt__(f, '4'))
+    #f = save_mainOp('-3',op.sub1)
+    #print(op.sub1.__txt__(f))
+    #print(op.sub1.__txt__('-3'))
+    #f = save_mainOp('2 + 3',op.add)
+    #print(op.sub1.__txt__(f))
 
-    from .fraction import Fraction
-    f = Fraction(1, 2)
-    print(op.add.__txt__(f.__txt__(),'2'))
-    print(op.add.__tex__(f.__tex__(),'2'))
+    #from .fraction import Fraction
+    #f = Fraction(1, 2)
+    #print(op.add.__txt__(f.__txt__(),'2'))
+    #print(op.add.__tex__(f.__tex__(),'2'))
 
-    print("\t op.can_be_operator('+') :" + str(op.can_be_operator('+')))
-    print("\t op.can_be_operator('t') :" + str(op.can_be_operator('t')))
+    #print("\t op.can_be_operator('+') :" + str(op.can_be_operator('+')))
+    #print("\t op.can_be_operator('t') :" + str(op.can_be_operator('t')))
     
 
     import doctest
