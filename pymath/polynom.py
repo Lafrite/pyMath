@@ -5,7 +5,7 @@
 from .expression import Expression
 from .explicable import Explicable
 from .operator import op
-from .generic import spe_zip, expand_list, isNumber, transpose_fill, flatten_list, isPolynom
+from .generic import spe_zip, expand_list, isNumber, transpose_fill, flatten_list, isPolynom, isNumerand
 from .render import txt
 from .random_expression import RdExpression
 from itertools import chain
@@ -102,13 +102,27 @@ class Polynom(Explicable):
 
         :returns: Expression ready to be simplify
 
+        >>> P = Polynom([1, 2, 3])
+        >>> P(2)
+        17
+        >>> for i in P(2).explain():
+        ...     print(i)
+        3 \\times 2^{  2 } + 2 \\times 2 + 1
+        3 \\times 4 + 4 + 1
+        12 + 4 + 1
+        16 + 1
+        17
+        >>> Q = P("1+h")
+        >>> print(Q)
+        3 h^{  2 } + 8 h + 6
+        >>> R = P(Q)
         """
-        if isNumber(value):
+        if isNumerand(value) or Expression.isExpression(value):
             postfix_exp = [value if i==self._letter else i for i in self.postfix_tokens]
         else:
             postfix_exp = [Expression(value) if i==self._letter else i for i in self.postfix_tokens]
 
-        return Expression(postfix_exp)
+        return Expression(postfix_exp).simplify()
 
     def feed_coef(self, l_coef):
         """Feed coef of the polynom. Manage differently whether it's a number or an expression
@@ -525,12 +539,15 @@ class Polynom(Explicable):
         [[< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 4, 'x', 2, '^', '*', '*'] >], < Polynom [0, 0, 4, < <class 'pymath.expression.Expression'> [2, 4, '*'] >]>, < Polynom [0, 0, 4, < <class 'pymath.expression.Expression'> [2, 4, '*'] >]>]
         >>> p*r
         < Polynom [0, 1, 2]>
-
+        >>> P = Polynom([1,2,3])
+        >>> Q = Polynom([4,5,6])
+        >>> P*Q
+        < Polynom [4, 13, 28, 27, 18]>
         """
         # TODO: Je trouve qu'elle grille trop d'étapes... |ven. févr. 27 19:08:44 CET 2015
         o_poly = self.conv2poly(other)
 
-        coefs = []
+        coefs = [0]*(self.degree + o_poly.degree + 1)
         for (i,a) in enumerate(self._coef):
             for (j,b) in enumerate(o_poly._coef):
                 if a == 0 or b == 0:
@@ -541,13 +558,14 @@ class Polynom(Explicable):
                     elem = a
                 else:
                     elem = Expression([a, b, op.mul])
-                try:
-                    if coefs[i+j]==0:
-                        coefs[i+j] = elem
-                    elif elem != 0:
-                        coefs[i+j] = [coefs[i+j], elem]
-                except IndexError:
-                    coefs.append(elem)
+
+                if coefs[i+j]==0:
+                    coefs[i+j] = elem
+                elif elem != 0:
+                    if type(coefs[i+j]) == list:
+                        coefs[i+j] += [elem]
+                    else:
+                        coefs[i+j] = [coefs[i+j] , elem]
 
         p = Polynom(coefs, letter = self._letter)
         ini_step = [Expression(self.postfix_tokens + o_poly.postfix_tokens + [op.mul])]
@@ -578,6 +596,9 @@ class Polynom(Explicable):
         >>> p = Polynom([0,0,1])
         >>> p**3
         < Polynom [0, 0, 0, 0, 0, 0, 1]>
+        >>> p = Polynom([1,2,3])
+        >>> p**2
+        < Polynom [1, 4, 10, 12, 9]>
 
         """
         if not type(power):
@@ -646,11 +667,11 @@ def test(p,q):
 
 if __name__ == '__main__':
     #from .fraction import Fraction
-    # with Expression.tmp_render(txt):
-    #     p = Polynom([1,2,3])
-    #     q = Polynom([0, 2])
-    #     for i in (p*q).explain():
-    #         print(i)
+    #with Expression.tmp_render(txt):
+    #    p = Polynom([1, 2, 3])
+    #    q = Polynom([4, 5, 6])
+    #    for i in (p*q).explain():
+    #        print(i)
     #     r = Polynom([0,1])
     #     for i in (r*3).explain():
     #         print(i)
@@ -662,7 +683,7 @@ if __name__ == '__main__':
     #    print(p-q)
     #    for i in p-q:
     #        print(i)
-    Polynom.random(degree = 2, conditions=["{b**2-4*a*c}>0"]) # Polynom deg 2 with positive Delta (ax^2 + bx + c)
+    #Polynom.random(degree = 2, conditions=["{b**2-4*a*c}>0"]) # Polynom deg 2 with positive Delta (ax^2 + bx + c)
 
 
     import doctest
