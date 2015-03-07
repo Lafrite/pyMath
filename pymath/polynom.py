@@ -6,7 +6,7 @@ from .expression import Expression
 from .explicable import Explicable
 from .operator import op
 from .generic import spe_zip, expand_list, isNumber, transpose_fill, flatten_list, isPolynom, isNumerand
-from .render import txt
+from .render import txt,tex
 from .random_expression import RdExpression
 from itertools import chain
 from functools import wraps
@@ -171,10 +171,10 @@ class Polynom(Explicable):
         return  "< Polynom " + str(self._coef) + ">"
 
     def __txt__(self):
-        return self.postfix_tokens
+        return txt(self.postfix_tokens)
 
     def __tex__(self):
-        return self.postfix_tokens
+        return tex(self.postfix_tokens)
 
     def coef_postfix(self, a, i):
         """Return the postfix display of a coeficient
