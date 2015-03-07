@@ -54,8 +54,8 @@ class Operator(str):
             ans = link.format(op1 = op1)
 
         elif self.arity == 2:
-            op1 = self.r_parenthesis(args[0], True)
-            op2 = self.l_parenthesis(args[1], True)
+            op1 = self.l_parenthesis(args[0], True)
+            op2 = self.r_parenthesis(args[1], True)
             ans = link.format(op1 = op1, op2 = op2)
 
         ans = save_mainOp(ans, self)
@@ -144,8 +144,8 @@ class Operator(str):
         ans = save_mainOp(ans, self)
         return ans
 
-    def l_parenthesis(self, op, str_join=False):
-        """ Add parenthesis for left operand if necessary """
+    def all_parenthesis(self, op, str_join=False):
+        """ Add parenthesis if necessary (left and rigth)"""
         try:
             if op.mainOp.priority < self.priority:
                 op = flatten_list(["(", op, ")"])
@@ -161,9 +161,13 @@ class Operator(str):
             ans = ' '.join([str(i) for i in ans])
         return ans
 
+    def l_parenthesis(self, op, str_join=False):
+        """ Add parenthesis for left operand if necessary """
+        return self.all_parenthesis(op, str_join)
+
     def r_parenthesis(self, op, str_join=False):
         """ Add parenthesis for left operand if necessary """
-        return self.l_parenthesis(op, str_join)
+        return self.all_parenthesis(op, str_join)
 
 def save_mainOp(obj, mainOp):
     """Create a temporary class build over built-in type to stock the main operation of a calculus
@@ -196,6 +200,7 @@ def operatorize(fun):
         * "_render": action use in __txt__ and __tex__
         * "__txt__": txt rendering
         * "__tex__": tex rendering
+        * "all_parenthesis": mechanism to add parenthesis for left or rigth operande
         * "l_parenthesis": mechanism to add parenthesis for left operande
         * "r_parenthesis": mechanism to add parenthesis for rigth operande
     """
@@ -303,7 +308,11 @@ class op(object):
         '1 - 2'
         >>> sub.__tex__('1','-2')
         '1 - (-2)'
+        >>> sub.__tex__('-1','2')
+        'i-1 - 2'
         """
+        def l_parenthesis(self, op, str_join=False):
+            return op
         caract = {
             "operator" : "-", \
             "name" : "sub",\
@@ -312,6 +321,7 @@ class op(object):
             "actions" : ("__sub__","__rsub__"), \
             "txt" :  "{op1} - {op2}",\
             "tex" :  "{op1} - {op2}",\
+            "l_parenthesis": l_parenthesis,\
         }
 
         return caract
