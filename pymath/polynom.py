@@ -175,6 +175,9 @@ class Polynom(Explicable):
         else:
             return 0
 
+    def give_name(self, name):
+        self.name = name
+
     def __str__(self):
         return str(Expression(self.postfix_tokens))
 
