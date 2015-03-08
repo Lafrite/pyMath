@@ -16,7 +16,7 @@ class Polynom_deg2(Polynom):
     """
 
     @classmethod
-    def random(self, coefs_form = ["{c}", "{b}", "{a}"], conditions = [], letter = "x"):
+    def random(self, coefs_form = ["{c}", "{b}", "{a}"], conditions = [], letter = "x", name = "P"):
         """ Create a 2nd degree poly from coefs_form ans conditions
 
         :param coefs_form: list of forms (one by coef) (ascending degree sorted)
@@ -33,7 +33,7 @@ class Polynom_deg2(Polynom):
         # On "parse" ce string pour créer les coefs
         coefs = [eval(i) if type(i)==str else i for i in eval(coefs)]
         # Création du polynom
-        return Polynom_deg2(coefs = coefs, letter = letter)
+        return Polynom_deg2(coefs = coefs, letter = letter, name = name)
 
     def __init__(self, coefs = [0, 0, 1], letter = "x", name = "P"):
         if len(coefs) < 3 or len(coefs) > 4:
