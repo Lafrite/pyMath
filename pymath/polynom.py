@@ -5,8 +5,8 @@
 from .expression import Expression
 from .explicable import Explicable
 from .operator import op
-from .generic import spe_zip, expand_list, isNumber, transpose_fill, flatten_list, isPolynom
-from .render import txt
+from .generic import spe_zip, expand_list, isNumber, transpose_fill, flatten_list, isPolynom, isNumerand
+from .render import txt,tex
 from .random_expression import RdExpression
 from itertools import chain
 from functools import wraps
@@ -33,7 +33,7 @@ class Polynom(Explicable):
     """Docstring for Polynom. """
 
     @classmethod
-    def random(self, coefs_form=[], conditions=[], letter = "x", degree = 0):
+    def random(self, coefs_form=[], conditions=[], letter = "x", degree = 0, name = "P"):
         """ Create a random polynom from coefs_form and conditions 
 
         :param coefs_form: list of forms (one by coef) (ascending degree sorted)
@@ -64,9 +64,9 @@ class Polynom(Explicable):
         # On "parse" ce string pour créer les coefs
         coefs = [eval(i) if type(i)==str else i for i in eval(coefs)]
         # Création du polynom
-        return Polynom(coefs = coefs, letter = letter)
+        return Polynom(coefs = coefs, letter = letter, name = name)
 
-    def __init__(self, coefs = [1], letter = "x" ):
+    def __init__(self, coefs = [1], letter = "x", name = "P"):
         """Initiate the polynom
 
         :param coef: coefficients of the polynom (ascending degree sorted)
@@ -75,25 +75,36 @@ class Polynom(Explicable):
                 - [a,b,c]: list of coeficient for same degree. [1,[2,3],4] designate 1 + 2x + 3x + 4x^2
                 - a: a Expression. [1, Expression("2+3"), 4] designate 1 + (2+3)x + 4x^2
         :param letter: the string describing the unknown
+        :param name: Name of the polynom
 
-        >>> Polynom([1,2,3]).mainOp
+        >>> P = Polynom([1, 2, 3])
+        >>> P.mainOp
         '+'
+        >>> P.name
+        'P'
+        >>> P._letter
+        'x'
         >>> Polynom([1]).mainOp
         '*'
-        >>> Polynom([1,2, 3])._letter
+        >>> Polynom([0, 0, 3]).mainOp
+        '*'
+        >>> Polynom([1, 2, 3])._letter
         'x'
         >>> Polynom([1, 2, 3], "y")._letter
         'y'
+        >>> Polynom([1, 2, 3], name = "Q").name
+        'Q'
         """
         super(Polynom, self).__init__()
         self.feed_coef(coefs)
         self._letter = letter
+        self.name = name
 
         
         if self.is_monom():
-            self.mainOp = "*"
+            self.mainOp = op.mul
         else:
-            self.mainOp = "+"
+            self.mainOp = op.add
 
         self._isPolynom = 1
 
@@ -102,13 +113,27 @@ class Polynom(Explicable):
 
         :returns: Expression ready to be simplify
 
+        >>> P = Polynom([1, 2, 3])
+        >>> P(2)
+        17
+        >>> for i in P(2).explain():
+        ...     print(i)
+        3 \\times 2^{  2 } + 2 \\times 2 + 1
+        3 \\times 4 + 4 + 1
+        12 + 4 + 1
+        16 + 1
+        17
+        >>> Q = P("1+h")
+        >>> print(Q)
+        3 h^{  2 } + 8 h + 6
+        >>> R = P(Q)
         """
-        if isNumber(value):
+        if isNumerand(value) or Expression.isExpression(value):
             postfix_exp = [value if i==self._letter else i for i in self.postfix_tokens]
         else:
             postfix_exp = [Expression(value) if i==self._letter else i for i in self.postfix_tokens]
 
-        return Expression(postfix_exp)
+        return Expression(postfix_exp).simplify()
 
     def feed_coef(self, l_coef):
         """Feed coef of the polynom. Manage differently whether it's a number or an expression
@@ -157,10 +182,10 @@ class Polynom(Explicable):
         return  "< Polynom " + str(self._coef) + ">"
 
     def __txt__(self):
-        return self.postfix_tokens
+        return txt(self.postfix_tokens)
 
     def __tex__(self):
-        return self.postfix_tokens
+        return tex(self.postfix_tokens)
 
     def coef_postfix(self, a, i):
         """Return the postfix display of a coeficient
@@ -392,6 +417,8 @@ class Polynom(Explicable):
         >>> Q = P.derivate()
         >>> Q
         < Polynom [2, 6]>
+        >>> print(Q.name)
+        P'
         >>> for i in Q.explain():
         ...     print(i)
         2 \\times 3 x + 1 \\times 2
@@ -400,7 +427,10 @@ class Polynom(Explicable):
         derv_coefs = []
         for (i,c) in enumerate(self._coef):
             derv_coefs += [Expression([i, c, op.mul])]
-        return Polynom(derv_coefs[1:]).simplify()
+
+        ans = Polynom(derv_coefs[1:]).simplify()
+        ans.name = self.name + "'"
+        return ans
 
     @staticmethod
     def postfix_add(numbers):
@@ -525,12 +555,15 @@ class Polynom(Explicable):
         [[< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 4, 'x', 2, '^', '*', '*'] >], < Polynom [0, 0, 4, < <class 'pymath.expression.Expression'> [2, 4, '*'] >]>, < Polynom [0, 0, 4, < <class 'pymath.expression.Expression'> [2, 4, '*'] >]>]
         >>> p*r
         < Polynom [0, 1, 2]>
-
+        >>> P = Polynom([1,2,3])
+        >>> Q = Polynom([4,5,6])
+        >>> P*Q
+        < Polynom [4, 13, 28, 27, 18]>
         """
         # TODO: Je trouve qu'elle grille trop d'étapes... |ven. févr. 27 19:08:44 CET 2015
         o_poly = self.conv2poly(other)
 
-        coefs = []
+        coefs = [0]*(self.degree + o_poly.degree + 1)
         for (i,a) in enumerate(self._coef):
             for (j,b) in enumerate(o_poly._coef):
                 if a == 0 or b == 0:
@@ -541,13 +574,14 @@ class Polynom(Explicable):
                     elem = a
                 else:
                     elem = Expression([a, b, op.mul])
-                try:
-                    if coefs[i+j]==0:
-                        coefs[i+j] = elem
-                    elif elem != 0:
-                        coefs[i+j] = [coefs[i+j], elem]
-                except IndexError:
-                    coefs.append(elem)
+
+                if coefs[i+j]==0:
+                    coefs[i+j] = elem
+                elif elem != 0:
+                    if type(coefs[i+j]) == list:
+                        coefs[i+j] += [elem]
+                    else:
+                        coefs[i+j] = [coefs[i+j] , elem]
 
         p = Polynom(coefs, letter = self._letter)
         ini_step = [Expression(self.postfix_tokens + o_poly.postfix_tokens + [op.mul])]
@@ -578,6 +612,9 @@ class Polynom(Explicable):
         >>> p = Polynom([0,0,1])
         >>> p**3
         < Polynom [0, 0, 0, 0, 0, 0, 1]>
+        >>> p = Polynom([1,2,3])
+        >>> p**2
+        < Polynom [1, 4, 10, 12, 9]>
 
         """
         if not type(power):
@@ -646,11 +683,11 @@ def test(p,q):
 
 if __name__ == '__main__':
     #from .fraction import Fraction
-    # with Expression.tmp_render(txt):
-    #     p = Polynom([1,2,3])
-    #     q = Polynom([0, 2])
-    #     for i in (p*q).explain():
-    #         print(i)
+    #with Expression.tmp_render(txt):
+    #    p = Polynom([1, 2, 3])
+    #    q = Polynom([4, 5, 6])
+    #    for i in (p*q).explain():
+    #        print(i)
     #     r = Polynom([0,1])
     #     for i in (r*3).explain():
     #         print(i)
@@ -662,7 +699,7 @@ if __name__ == '__main__':
     #    print(p-q)
     #    for i in p-q:
     #        print(i)
-    Polynom.random(degree = 2, conditions=["{b**2-4*a*c}>0"]) # Polynom deg 2 with positive Delta (ax^2 + bx + c)
+    #Polynom.random(degree = 2, conditions=["{b**2-4*a*c}>0"]) # Polynom deg 2 with positive Delta (ax^2 + bx + c)
 
 
     import doctest

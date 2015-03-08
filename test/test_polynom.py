@@ -33,20 +33,19 @@ class TestPolynom(unittest.TestCase):
 
     def test_eval_base(self):
         p = Polynom([1, 2])
-        self.assertEqual(p(3).simplify(), 7)
+        self.assertEqual(p(3), 7)
 
     def test_eval_const(self):
         p = Polynom([1])
-        self.assertEqual(p(3).simplify(), 1)
+        self.assertEqual(p(3), 1)
 
     def test_eval_const_neg(self):
         p = Polynom([-1])
-        self.assertEqual(p(3).simplify(), -1)
+        self.assertEqual(p(3), -1)
 
     def test_eval_poly(self):
         p = Polynom([1, 2])
-        hp1 = Expression("h+1")
-        self.assertEqual(p(hp1).simplify(), Polynom([3,2], "h"))
+        self.assertEqual(p("h+1"), Polynom([3,2], "h"))
 
     #def test_print(self):
     #    p = Polynom([1,2,3])

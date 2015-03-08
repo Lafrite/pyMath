@@ -139,10 +139,15 @@ class Operator(str):
         return ans
 
     def add_parenthesis(self, op):
-        """ Add parenthesis if necessary """
+        """ Add parenthesis if necessary 
+        
+        >>> from pymath.polynom import Polynom
+        >>> P = Polynom([1,2,3])
+        
+        """
         try:
             if op.mainOp.priority < self.priority:
-                op = flatten_list(["("] + [op] + [")"])
+                op = flatten_list(["(", op, ")"])
         except AttributeError:
             # op has not the attribute priority
             try:
@@ -293,7 +298,7 @@ class op(object):
         caract = {
             "operator" : "-", \
             "name" : "sub",\
-            "priority" : 1, \
+            "priority" : 2, \
             "arity" : 2, \
             "actions" : ("__sub__","__rsub__"), \
             "txt" :  "{op1} - {op2}",\
@@ -336,7 +341,7 @@ class op(object):
         caract = {
             "operator" : "-", \
             "name" : "sub1",\
-            "priority" : 2, \
+            "priority" : 3, \
             "arity" : 1, \
             "actions" : "__neg__",\
             "txt" :  "- {op1}",\
@@ -461,7 +466,7 @@ class op(object):
         caract = {
             "operator" : "^", \
             "name" : "pw",\
-            "priority" : 5, \
+            "priority" : 6, \
             "arity" : 2, \
             "actions" : ("__pow__",""), \
             "txt" :  "{op1} ^ {op2}",\
