@@ -65,3 +65,11 @@
 
     TypeError: unsupported operand type(s) for +: 'type' and 'str'
 
+* Parenthèses abhérentes
+
+    In [7]: P = Polynom([-6, 12, -20])
+
+    In [8]: print(P)
+    ( - 20 x^{  2 } + 12 x ) - 6
+    
+    
