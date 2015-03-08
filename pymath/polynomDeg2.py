@@ -13,12 +13,12 @@ class Polynom_deg2(Polynom):
     Child of Polynom with some extra tools
     """
 
-    def __init__(self, coefs = [0, 0, 1], letter = "x"):
+    def __init__(self, coefs = [0, 0, 1], letter = "x", name = "P"):
         if len(coefs) < 3 or len(coefs) > 4:
             raise ValueError("Polynom_deg2 have to be degree 2 polynoms, they need 3 coefficients, {} are given".format(len(coefs)))
         if coefs[2] == 0:
             raise ValueError("Polynom_deg2 have to be degree 2 polynoms, coefficient of x^2 can't be 0")
-        Polynom.__init__(self, coefs, letter)
+        Polynom.__init__(self, coefs, letter, name = name)
 
     @property
     def a(self):
