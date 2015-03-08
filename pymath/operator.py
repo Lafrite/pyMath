@@ -313,6 +313,23 @@ class op(object):
         """
         def l_parenthesis(self, op, str_join=False):
             return op
+
+        def r_parenthesis(self, op, str_join=False):
+            try:
+                if op.mainOp.priority <= self.priority:
+                    op = flatten_list(["(", op, ")"])
+            except AttributeError:
+                # op has not the attribute priority
+                try:
+                    if int(op) < 0:
+                        op = ['(', op, ')']
+                except ValueError:
+                    pass
+            ans = flatten_list([op])
+            if str_join:
+                ans = ' '.join([str(i) for i in ans])
+            return ans
+
         caract = {
             "operator" : "-", \
             "name" : "sub",\
@@ -322,6 +339,7 @@ class op(object):
             "txt" :  "{op1} - {op2}",\
             "tex" :  "{op1} - {op2}",\
             "l_parenthesis": l_parenthesis,\
+            "r_parenthesis": r_parenthesis,\
         }
 
         return caract
