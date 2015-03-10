@@ -434,7 +434,12 @@ class op(object):
                 return True
             elif op2.isalpha():
                 return False
-            elif (op2[0] == "(" or op2[0].isdecimal()) and not ("+" in op2):
+            elif op2[0].isdecimal():
+                return True
+            elif op2[0] == "(" and not ("+" in op2 or "-" in op2[3:]):
+                return True
+            # Giga bricolage...
+            elif "frac" in op2:
                 return True
             else:
                 return False
@@ -585,6 +590,9 @@ if __name__ == '__main__':
     print("-----------------")
     from .polynom import Polynom
     print(tex([Polynom([1,2,3]), 2, op.mul]))
+    print("-----------------")
+    from .fraction import Fraction
+    print(tex([2, Fraction(1,2), op.mul]))
     print("-----------------")
 
     #import doctest

@@ -9,7 +9,7 @@ def test_mul_is_visible():
     assert op.mul.is_visible(2,-3) == True
     assert op.mul.is_visible(-2,3) == True
     assert op.mul.is_visible('a',2) == True
-    assert op.mul.is_visible('2a + 1', 2) == True
+    assert op.mul.is_visible('(2a + 1)', 2) == True
     assert op.mul.is_visible(2, '(-2)') == True
     assert op.mul.is_visible(2, '2a') == True
     assert op.mul.is_visible(2, '(-2a)') == True
