@@ -27,15 +27,77 @@ class TestTexRender(unittest.TestCase):
         P = Polynom([1,2,3])
         self.assertEqual(tex([P]), "3 x^{  2 } + 2 x + 1")
 
+    def test_add_interger(self):
+        exps = [ [2, 3, op.add ],
+                [2, -3, op.add ],
+                [-2, 3, op.add ],
+                ]
+        wanted_render = [ "2 + 3",
+                "2 + ( -3 )",
+                "-2 + 3",
+                ]
+        for (i,e) in enumerate(exps):
+            rend = tex(e)
+            self.assertEqual(rend, wanted_render[i])
+
+    def test_add_letter(self):
+        exps = [[2, "a",  op.add ],
+                ["a", 3,  op.add ],
+                [-2, "a", op.add ],
+                ["a", -2, op.add ],
+                ]
+        wanted_render = [ "2 + a",
+                "a + 3",
+                "-2 + a",
+                "a + ( -2 )",
+                ]
+        for (i,e) in enumerate(exps):
+            rend = tex(e)
+            self.assertEqual(rend, wanted_render[i])
+
+    def test_add_fraction(self):
+        exps = [[2, Fraction(1,2), op.add],
+                [Fraction(1,2), 3, op.add],
+                ]
+        wanted_render = [ "2 + \\frac{ 1 }{ 2 }",
+                "\\frac{ 1 }{ 2 } + 3",
+                ]
+        for (i,e) in enumerate(exps):
+            rend = tex(e)
+            self.assertEqual(rend, wanted_render[i])
+
+    def test_add_poly(self):
+        exps = [[2, Polynom([1,2,3]), op.mul],
+                [Polynom([1,2,3]), 2, op.mul],
+                [Polynom([1,2,3]), Polynom([4,5,6]), op.mul],
+                ]
+        wanted_render = [ "2 ( 3 x^{  2 } + 2 x + 1 )",
+                "( 3 x^{  2 } + 2 x + 1 ) \\times 2",
+                "( 3 x^{  2 } + 2 x + 1 ) ( 6 x^{  2 } + 5 x + 4 )",
+                ]
+        for (i,e) in enumerate(exps):
+            rend = tex(e)
+            self.assertEqual(rend, wanted_render[i])
+
     def test_mult_interger(self):
-        exps = [ [2, 3, op.get_op("*", 2)], [2, -3, op.get_op("*", 2)], [-2, 3, op.get_op("*", 2)]]
-        wanted_render = [ "2 \\times 3", "2 \\times ( -3 )", "-2 \\times 3"]
+        exps = [[2, 3,  op.mul],
+                [2, -3, op.mul],
+                [-2, 3, op.mul],
+                ]
+        wanted_render = [ "2 \\times 3",
+                "2 \\times ( -3 )",
+                "-2 \\times 3",
+                ]
         for (i,e) in enumerate(exps):
             rend = tex(e)
             self.assertEqual(rend, wanted_render[i])
 
     def test_mult_letter(self):
-        exps = [ [2, "a", op.get_op("*", 2)], ["a", 3, op.get_op("*", 2)], [-2, "a", op.get_op("*", 2)], ["a", -2, op.get_op("*", 2)]]
+        exps = [[2, "a",  op.mul],
+                ["a", 3,  op.mul],
+                [-2, "a", op.mul],
+                ["a", -2, op.mul],
+                ]
         wanted_render = [ "2 a", "a \\times 3", "-2 a", "a \\times ( -2 )"]
         for (i,e) in enumerate(exps):
             rend = tex(e)
@@ -120,9 +182,9 @@ class TesttxtRender(unittest.TestCase):
         self.assertEqual(txt([Fraction(1,2)]), "1 / 2")
 
     def test_mult_interger(self):
-        exps = [ [2, 3, op.get_op("*", 2)], \
-                [2, -3, op.get_op("*", 2)], \
-                [-2, 3, op.get_op("*", 2)]]
+        exps = [ [2, 3, op.mul], \
+                [2, -3, op.mul], \
+                [-2, 3, op.mul]]
         wanted_render = [ "2 * 3", "2 * ( -3 )", "-2 * 3"]
         for (i,e) in enumerate(exps):
             rend = txt(e)
@@ -148,8 +210,8 @@ class TesttxtRender(unittest.TestCase):
             self.assertEqual(rend, wanted_render[i])
 
     def test_mult_fraction(self):
-        exps = [ [2, Fraction(1,2), op.get_op("*", 2)], \
-                [Fraction(1,2), 3, op.get_op("*", 2)]]
+        exps = [ [2, Fraction(1,2), op.mul], \
+                [Fraction(1,2), 3,  op.mul]]
         wanted_render = [ "2 * 1 / 2", "1 / 2 * 3"]
         for (i,e) in enumerate(exps):
             rend = txt(e)
