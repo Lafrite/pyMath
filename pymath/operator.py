@@ -144,8 +144,26 @@ class Operator(str):
         ans = save_mainOp(ans, self)
         return ans
 
-    def all_parenthesis(self, op, str_join=False):
-        """ Add parenthesis if necessary (left and rigth)"""
+    def l_parenthesis(self, opl, str_join=False):
+        """ Add parenthesis for left operand if necessary """
+        ans = opl
+        try:
+            if opl.mainOp == op.sub1:
+                ans = opl
+            elif opl.mainOp.priority < self.priority:
+                ans = flatten_list(["(", opl, ")"])
+        except AttributeError as e:
+            # op has not the attribute priority
+            pass
+
+        ans = flatten_list([ans])
+        if str_join:
+            ans = ' '.join([str(i) for i in ans])
+        return ans
+
+    def r_parenthesis(self, op, str_join=False):
+        """ Add parenthesis for left operand if necessary """
+        # TODO: /!\ Parenthèses pour -2abc et l'opérateur * |lun. mars  9 19:02:32 CET 2015
         try:
             if op.mainOp.priority < self.priority:
                 op = flatten_list(["(", op, ")"])
@@ -161,14 +179,6 @@ class Operator(str):
             ans = ' '.join([str(i) for i in ans])
         return ans
 
-    def l_parenthesis(self, op, str_join=False):
-        """ Add parenthesis for left operand if necessary """
-        return self.all_parenthesis(op, str_join)
-
-    def r_parenthesis(self, op, str_join=False):
-        """ Add parenthesis for left operand if necessary """
-        return self.all_parenthesis(op, str_join)
-
 def save_mainOp(obj, mainOp):
     """Create a temporary class build over built-in type to stock the main operation of a calculus
     
@@ -176,12 +186,6 @@ def save_mainOp(obj, mainOp):
     :mainOp: the main operator
     :returns: the same object with the main operation attribute
     """
-    #class Fake(type(obj)):
-    #    """ The fake class """
-    #    def __new__(cls, obj):
-    #        op = type(obj).__new__(cls, obj)
-    #        op.mainOp = mainOp
-    #        return op
     Fake = type('fake_'+str(type(obj)), (type(obj),), {'mainOp': mainOp})
 
     return Fake(obj)
@@ -200,7 +204,6 @@ def operatorize(fun):
         * "_render": action use in __txt__ and __tex__
         * "__txt__": txt rendering
         * "__tex__": tex rendering
-        * "all_parenthesis": mechanism to add parenthesis for left or rigth operande
         * "l_parenthesis": mechanism to add parenthesis for left operande
         * "r_parenthesis": mechanism to add parenthesis for rigth operande
     """
@@ -416,21 +419,38 @@ class op(object):
         '1 \\times (-2)'
         """
         # * can not be display in some cases
+        def is_visible(self, op1, op2):
+            """ Tells whether self has to be visible or not
+
+            :param op1: left operande
+            :param op2: rigth operande
+
+            """
+            # TODO: À finir!!! |lun. mars  9 00:03:40 CET 2015
+            if type(op2) == int:
+                # op2 est maintenant une chaine de caractères
+                return True
+            elif op2.isdecimal():
+                return True
+            elif op2.isalpha():
+                return False
+            elif (op2[0] == "(" or op2[0].isdecimal()) and not ("+" in op2):
+                return True
+            else:
+                return False
+
         def _render(self, link, *args):
 
-            op1 = self.r_parenthesis(args[0], True)
-            op2 = self.l_parenthesis(args[1], True)
-            ans = link.format(op1 = op1, op2 = op2)
+            op1 = self.l_parenthesis(args[0], True)
+            op2 = self.r_parenthesis(args[1], True)
 
-            if not self.visibility or op2[0] == "(" or \
-                    (type(op2[0]) == str and op2[0].isalpha()):
+            if not self.is_visible(op1, op2):
                 ans = "{op1} {op2}".format(op1 = op1, op2 = op2)
-                ans = save_mainOp(ans, self)
-                return ans
             else:
                 ans = link.format(op1 = op1, op2 = op2)
-                ans = save_mainOp(ans, self)
-                return ans
+
+            ans = save_mainOp(ans, self)
+            return ans
 
         caract = {
             "operator" : "*", \
@@ -441,7 +461,8 @@ class op(object):
             "txt" :  "{op1} * {op2}",\
             "tex" :  "{op1} \\times {op2}",\
             "visibility": 1,\
-            "_render": _render
+            "_render": _render,\
+            "is_visible": is_visible,\
         }
 
         return caract
@@ -556,10 +577,18 @@ if __name__ == '__main__':
 
     #print("\t op.can_be_operator('+') :" + str(op.can_be_operator('+')))
     #print("\t op.can_be_operator('t') :" + str(op.can_be_operator('t')))
-    
 
-    import doctest
-    doctest.testmod()
+    from .render import tex
+    print(tex([-2, 3, op.add ]))
+    print("-----------------")
+    print(tex([-2, 3, op.mul ]))
+    print("-----------------")
+    from .polynom import Polynom
+    print(tex([Polynom([1,2,3]), 2, op.mul]))
+    print("-----------------")
+
+    #import doctest
+    #doctest.testmod()
 
 
 
