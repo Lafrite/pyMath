@@ -393,7 +393,8 @@ class Polynom(Explicable):
 
             else:
                 try:
-                    coef_steps += coef.simplify().explaine()
+                    with Expression.tmp_render():
+                        coef_steps += coef.simplify().explain()
                 except AttributeError:
                     coef_steps = [coef]
 
@@ -450,9 +451,13 @@ class Polynom(Explicable):
         [1, 2, '+', 3, '+']
         >>> Polynom.postfix_add(1)
         [1]
+        >>> Polynom.postfix_add([])
+        [0]
         """
         if not type(numbers) == list:
             return [numbers]
+        elif numbers == []:
+            return [0]
         else:
             ans = [[a, op.add] if i!=0 else [a] for (i,a) in enumerate(numbers)]
             return list(chain.from_iterable(ans))
@@ -703,7 +708,6 @@ if __name__ == '__main__':
     #    for i in p-q:
     #        print(i)
     #Polynom.random(degree = 2, conditions=["{b**2-4*a*c}>0"]) # Polynom deg 2 with positive Delta (ax^2 + bx + c)
-
 
     import doctest
     doctest.testmod(optionflags=doctest.ELLIPSIS)
