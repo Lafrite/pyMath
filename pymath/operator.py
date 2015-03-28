@@ -281,8 +281,32 @@ class op(object):
         >>> add.__txt__('1','2')
         '1 + 2'
         >>> add.__tex__('1','-2')
-        '1 + (-2)'
+        '1 - 2'
         """
+
+        def _render(self, link, *args):
+            """Global step for __txt__ and __tex__
+
+            :param link: the link between operators
+            :param *args: the operands
+            :returns: the string with operator and operands
+
+            """
+            if args[1][0] == "-":
+                op1 = self.l_parenthesis(args[0], True)
+                op2 = self.r_parenthesis(args[1][1:], True)
+                ans = link.replace('+','-').format(op1 = op1, op2 = op2)
+
+                ans = save_mainOp(ans, self)
+                return ans
+            else:
+                op1 = self.l_parenthesis(args[0], True)
+                op2 = self.r_parenthesis(args[1], True)
+                ans = link.format(op1 = op1, op2 = op2)
+
+                ans = save_mainOp(ans, self)
+                return ans
+
         caract = {
             "operator" : "+", \
             "name" : "add",\
@@ -291,6 +315,7 @@ class op(object):
             "actions" : ("__add__","__radd__"), \
             "txt" :  "{op1} + {op2}",\
             "tex" :  "{op1} + {op2}",\
+            "_render": _render,\
         }
 
         return caract
@@ -320,6 +345,8 @@ class op(object):
         def r_parenthesis(self, op, str_join=False):
             try:
                 if op.mainOp.priority <= self.priority:
+                    op = flatten_list(["(", op, ")"])
+                elif op[0] == '-':
                     op = flatten_list(["(", op, ")"])
             except AttributeError:
                 # op has not the attribute priority

@@ -33,7 +33,7 @@ class TestTexRender(unittest.TestCase):
                 [-2, 3, op.add ],
                 ]
         wanted_render = [ "2 + 3",
-                "2 + ( -3 )",
+                "2 - 3",
                 "-2 + 3",
                 ]
         for (i,e) in enumerate(exps):
@@ -49,7 +49,7 @@ class TestTexRender(unittest.TestCase):
         wanted_render = [ "2 + a",
                 "a + 3",
                 "-2 + a",
-                "a + ( -2 )",
+                "a - 2",
                 ]
         for (i,e) in enumerate(exps):
             rend = tex(e)
