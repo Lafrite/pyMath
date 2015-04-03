@@ -3,6 +3,7 @@
 
 
 from .generic import flatten_list, isNumber
+from functools import wraps
 import types
 
 class Operator(str):
@@ -207,6 +208,7 @@ def operatorize(fun):
         * "l_parenthesis": mechanism to add parenthesis for left operande
         * "r_parenthesis": mechanism to add parenthesis for rigth operande
     """
+    @wraps(fun)
     def mod_fun(self, *args):
         ans = fun(self, *args)
 
@@ -271,17 +273,8 @@ class op(object):
     def add(cls):
         """ The operator +
         
-        >>> add = op.add
-        >>> add
-        '+'
-        >>> add(1, 2)
-        3
-        >>> add.__tex__('1','2')
-        '1 + 2'
-        >>> add.__txt__('1','2')
-        '1 + 2'
-        >>> add.__tex__('1','-2')
-        '1 - 2'
+        For doctest see test/test_operator.py
+        
         """
 
         def _render(self, link, *args):
@@ -337,7 +330,7 @@ class op(object):
         >>> sub.__tex__('1','-2')
         '1 - (-2)'
         >>> sub.__tex__('-1','2')
-        'i-1 - 2'
+        '-1 - 2'
         """
         def l_parenthesis(self, op, str_join=False):
             return op
