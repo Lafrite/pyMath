@@ -8,7 +8,24 @@ from .generic import isNumerand
 from .random_expression import RdExpression
 from .abstract_polynom import AbstractPolynom
 
+from functools import wraps
+import inspect
+
 __all__ = ["Polynom"]
+
+def polynom_factory(func):
+    """ Decorator which specify the type of polynom that the function returns """
+    @wraps(func)
+    def wrapper(*args, **kwrds):
+        P = func(*args, **kwrds)
+        if isinstance(P,Polynom) and P.degree == 2:
+            from .polynomDeg2 import Polynom_deg2
+            new_P = Polynom_deg2(poly=P)
+            new_P.steps = P.steps
+            return new_P
+        else:
+            return P
+    return wrapper
 
 class Polynom(AbstractPolynom):
 
@@ -138,6 +155,15 @@ class Polynom(AbstractPolynom):
         ans = Polynom(derv_coefs[1:]).simplify()
         ans.name = self.name + "'"
         return ans
+
+# Decorate methods which may return Polynoms
+methods_list = ["__add__", "__call__", "__mul__", "__neg__", "__pow__",
+        "__radd__", "__rmul__", "__rsub__", "__sub__", "derivate", 
+        "reduce", "simplify", "random"]
+for name, func in inspect.getmembers(Polynom):
+    if name in methods_list:
+        setattr(Polynom, name, polynom_factory(func))
+
 
 def test(p,q):
     print("---------------------")

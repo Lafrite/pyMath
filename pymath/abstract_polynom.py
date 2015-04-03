@@ -57,6 +57,14 @@ class AbstractPolynom(Explicable):
         'Q'
         """
         super(AbstractPolynom, self).__init__()
+
+        try:
+            # Remove 0 at the end of the coefs
+            while coefs[-1] == 0:
+                coefs = coefs[:-1]
+        except IndexError:
+            pass
+
         self.feed_coef(coefs)
         self._letter = letter
         self.name = name
