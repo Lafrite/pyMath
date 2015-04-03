@@ -35,7 +35,12 @@ class Polynom_deg2(Polynom):
         # Création du polynom
         return Polynom_deg2(coefs = coefs, letter = letter, name = name)
 
-    def __init__(self, coefs = [0, 0, 1], letter = "x", name = "P"):
+    def __init__(self, coefs = [0, 0, 1], letter = "x", name = "P", poly = 0):
+        if poly:
+            coefs = poly._coef
+            letter = poly._letter
+            name = poly.name
+
         if len(coefs) < 3 or len(coefs) > 4:
             raise ValueError("Polynom_deg2 have to be degree 2 polynoms, they need 3 coefficients, {} are given".format(len(coefs)))
         if coefs[2] == 0:
