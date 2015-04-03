@@ -1,0 +1,79 @@
+* Soustraction de Polynômes!!!!
+
+
+
+* Expression importe mal 4x^2
+    In [9]: e = Expression("3x + 4x^2 - 1")
+
+    In [10]: print(e)
+    3 x + ( 4 x ) ^ 2 - 1
+
+    -> faire un test unitaire dessus
+    
+*(solved) Render ne met pas les parenthèses là où il faut.
+
+    In [31]: r
+    Out[31]: < Polynom [-4, -15, -14]>
+
+    In [35]: print(r)
+    -14 * x ^ 2 + -15 x + ( -4 )
+
+    In [36]: r.get_postfix()
+    Out[36]: [-14, 'x', 2, '^', '*', -15, 'x', '*', '+', -4, '+']
+
+    In [37]: txt(r.get_postfix())
+    Out[37]: '-14 * x ^ 2 + -15 x + ( -4 )'
+        
+
+    -> faire un test unitaire dessus
+
+*(solved) Fraction ne simplifie pas correctement 
+
+    In [5]: for i in P.alpha.simplify():
+        print(i)
+    ...:     
+    \frac{ - 2 }{ 2 \times 3 }
+    \frac{ -2 }{ 6 }
+    \frac{ ( -1 ) \times 2 }{ 3 \times 2 }
+    \frac{ -1 }{ 3 }
+    \frac{ -2 }{ 6 }
+
+* Opération entre une expression et une fraction ou un Polynom
+
+    In [3]: P = Polynom([1,2,1])
+
+    In [4]: e = Expression("1+2*3")
+
+    In [5]: e + P
+    Out[5]: < <class 'pymath.expression.Expression'> [1, 2, 3, '*', '+', < Polynom [1, 2, 1]>, '+'] >
+
+    In [6]: P + e
+    ---------------------------------------------------------------------------
+    TypeError                                 Traceback (most recent call last)
+    <ipython-input-6-ff312ef36cdb> in <module>()
+    ----> 1 P + e
+
+    /home/lafrite/scripts/pyMath/pymath/polynom.py in __add__(self, other)
+        430         [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', 5, 'x', '*', 4, '+', '+'] >, < Polynom [< <class 'pymath.expression.Expression'> [1, 4, '+'] >, < <class 'pymath.expression.Expression'> [2, 5, '+'] >, 3]>, < Polynom [< <class 'pymath.expression.Expression'> [1, 4, '+'] >, < <class 'pymath.expression.Expression'> [2, 5, '+'] >, 3]>]
+        431         """
+    --> 432         o_poly = self.conv2poly(other)
+        433 
+        434         n_coef = spe_zip(self._coef, o_poly._coef)
+
+    /home/lafrite/scripts/pyMath/pymath/polynom.py in conv2poly(self, other)
+        319             return other
+        320         else:
+    --> 321             raise ValueError(type(other) + " can't be converted into a polynom")
+        322 
+        323     def reduce(self):
+
+    TypeError: unsupported operand type(s) for +: 'type' and 'str'
+
+* Parenthèses abhérentes
+
+    In [7]: P = Polynom([-6, 12, -20])
+
+    In [8]: print(P)
+    ( - 20 x^{  2 } + 12 x ) - 6
+    
+    

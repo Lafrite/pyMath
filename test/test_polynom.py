@@ -33,19 +33,19 @@ class TestPolynom(unittest.TestCase):
 
     def test_eval_base(self):
         p = Polynom([1, 2])
-        self.assertEqual(p(3).simplified(), 7)
+        self.assertEqual(p(3), 7)
 
     def test_eval_const(self):
         p = Polynom([1])
-        self.assertEqual(p(3).simplified(), 1)
+        self.assertEqual(p(3), 1)
 
     def test_eval_const_neg(self):
         p = Polynom([-1])
-        self.assertEqual(p(3).simplified(), -1)
+        self.assertEqual(p(3), -1)
 
     def test_eval_poly(self):
         p = Polynom([1, 2])
-        self.assertEqual(p("1+h").simplified(), Polynom([3,2], "h"))
+        self.assertEqual(p("h+1"), Polynom([3,2], "h"))
 
     #def test_print(self):
     #    p = Polynom([1,2,3])
@@ -71,97 +71,104 @@ class TestPolynom(unittest.TestCase):
         p = Polynom([1,2,3])
         #ans = [1, 2, "x", "*", "+", 3, "x", 2, "^", "*", "+"]
         ans = [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+']
-        self.assertEqual(ans, p.postfix)
+        self.assertEqual(ans, p.postfix_tokens)
 
     def test_postfix_monom(self):
         p = Polynom([0,2])
         ans = [2, "x", "*"]
-        self.assertEqual(ans, p.postfix)
+        self.assertEqual(ans, p.postfix_tokens)
 
     def test_postfix_0_coef(self):
         p = Polynom([0,2,0,4])
         #ans = [2, "x", "*", 4, "x", 3, "^", "*", "+"]
         ans = [4, 'x', 3, '^', '*', 2, 'x', '*', '+']
-        self.assertEqual(ans, p.postfix)
+        self.assertEqual(ans, p.postfix_tokens)
 
     def test_postfix_1_coef(self):
         p = Polynom([0,1,1])
         #ans = ["x", "x", 2, "^", "+"]
         ans = ["x", 2, "^", "x", "+"]
-        self.assertEqual(ans, p.postfix)
+        self.assertEqual(ans, p.postfix_tokens)
 
     def test_postfix_neg_coef(self):
         # TODO: Choix arbitraire (vis à vis des + et des -) il faudra faire en fonction de render |sam. juin 14 09:45:55 CEST 2014
         p = Polynom([-1,-2,-3])
         #ans = [-1, -2, "x", "*", "+", -3, "x", 2, "^", "*", "+"]
         ans = [3, 'x', 2, '^', '*', '-', 2, 'x', '*', '-', 1, '-']
-        self.assertEqual(ans, p.postfix)
+        self.assertEqual(ans, p.postfix_tokens)
 
     def test_postfix_multi_coef(self):
         p = Polynom([1,[2, 3],4])
         #ans = [1, 2, "x", "*", "+", 3, "x", "*", "+", 4, "x", 2, "^", "*", "+"]
         ans = [4, 'x', 2, '^', '*', 2, 'x', '*', '+', 3, 'x', '*', '+', 1, '+']
-        self.assertEqual(ans, p.postfix)
+        self.assertEqual(ans, p.postfix_tokens)
 
     def test_postfix_arithm_coef(self):
         p = Polynom([1,Expression([2, 3, "+"]),4])
         #ans = [1, 2, 3, "+", "x", "*", "+", 4, "x", 2, "^", "*", "+"]
         ans = [4, 'x', 2, '^', '*', 2, 3, '+', 'x', '*', '+', 1, '+']
-        self.assertEqual(ans, p.postfix)
+        self.assertEqual(ans, p.postfix_tokens)
 
-    #def test_reduce_nilpo(self):
-    #    p = Polynom([1, 2, 3])
-    #    self.assertEqual(p, p.reduce()[-1])
+    def test_reduce_nilpo(self):
+        p = Polynom([1, 2, 3])
+        self.assertEqual(p, p.reduce())
 
     def test_reduce(self):
         p = Polynom([1, [2, 3], 4])
-        self.assertEqual(str(p.reduce()[-1]),'4 x ^ 2 + 5 x + 1')
+        ans =  '4 x^{  2 } + 5 x + 1'
+        self.assertEqual(str(p.reduce()), ans)
 
     def test_add_int(self):
         p = Polynom([1, 2, 3])
-        q = (p + 2)[-1]
-        self.assertEqual(str(q), '3 x ^ 2 + 2 x + 3')
+        q = p + 2
+        ans = '3 x^{  2 } + 2 x + 3'
+        self.assertEqual(str(q), ans)
 
     def test_add_frac(self):
         p = Polynom([1, 2, 3])
         f = Fraction(1, 2)
-        q = (p + f)[-1]
-        #ans = repr(Polynom([Expression(Fraction(3, 2)), Expression(2), Expression(3)]))
-        self.assertEqual(str(q),'3 x ^ 2 + 2 x + 3 / 2')
+        q = p + f
+        ans = '3 x^{  2 } + 2 x + \\frac{ 3 }{ 2 }'
+        self.assertEqual(str(q),ans)
 
     def test_add_poly(self):
         p = Polynom([1, 0, 3])
         q = Polynom([0, 2, 3])
-        r = (p + q)[-1]
-        self.assertEqual(str(r), '6 x ^ 2 + 2 x + 1')
+        r = p + q
+        ans = '6 x^{  2 } + 2 x + 1'
+        self.assertEqual(str(r), ans)
 
     def test_sub_int(self):
         p = Polynom([1, 2, 3])
-        q = (p - 2)[-1]
-        self.assertEqual(str(q), '3 x ^ 2 + 2 x - 1')
+        q = p - 2
+        ans = '3 x^{  2 } + 2 x - 1'
+        self.assertEqual(str(q),ans )
 
     def test_sub_frac(self):
         p = Polynom([1, 2, 3])
         f = Fraction(1, 2)
-        q = (p - f)[-1]
-        #ans = repr(Polynom([Expression(Fraction(3, 2)), Expression(2), Expression(3)]))
-        self.assertEqual(str(q),'3 x ^ 2 + 2 x + 1 / 2')
+        q = p - f
+        ans = '3 x^{  2 } + 2 x + \\frac{ 1 }{ 2 }'
+        self.assertEqual(str(q), ans)
 
     def test_sub_poly(self):
         p = Polynom([1, 0, 2])
         q = Polynom([0, 2, 3])
-        r = (p - q)[-1]
-        self.assertEqual(str(r), '- x ^ 2 - 2 x + 1')
+        r = p - q
+        ans = '- x^{  2 } - 2 x + 1'
+        self.assertEqual(str(r), ans)
 
     def test_pow_monome(self):
         p = Polynom([0,-2])
-        r = (p**3)[-1]
-        self.assertEqual(str(r), '- 8 x ^ 3')
+        r = p**3
+        ans = '- 8 x^{  3 }'
+        self.assertEqual(str(r), ans)
 
     def test_pow2_monome(self):
         p = Polynom([0,-2])
-        r = (p^3)[-1]
-        self.assertEqual(str(r), '- 8 x ^ 3')
+        r = p^3
+        ans = '- 8 x^{  3 }'
+        self.assertEqual(str(r), ans)
 
 
 

@@ -9,7 +9,7 @@ Ces objets doivent pouvoir être afficher en *txt* ou en *tex* avec les méthode
 ### Operator
 Cette classe regroupe les operateurs. Que l'on s'autorise à utiliser. On y accède à partir de deux caractérisiques le symbole et l'arité.
 
-Liste des attributs mportants:
+Liste des attributs importants:
     * arity: nombre d'opérande accepté
     * priority: où se place l'opérateur dans la règles des priorités parmis les autres opérateurs
     * isOperator: permet de vérifier que c'est bien un opérateur
@@ -34,10 +34,90 @@ Pour définir ces anneaux, il faudra contre avoir les méthodes suivantes:
 
 #### Quotient de polynomes (racines)
 
-
 ## Expression
 
-
 ## Render
+
+## Simplify-simplified / compute-child
+
+Dans cette partie, on va expliquer le fonctionnement des mécanismes de simplification des expressions/objets mathématiques.
+
+La simplification des expressions se fait avec les deux méthodes suivantes:
+
+* *simplify()* pour:
+    * un polynôme permet d'accéder à la forme canonique d'un polynôme
+    * une fraction permet d'avoir la fraction irréductible associée
+    * une expression permet de faire tous les calculs possibles de cette expression (à la fin il ne doit y avoir qu'un élément de la liste de tokens)
+* *compute_exp()* pour:
+    * un polynôme ou une fraction fait la même chose que $simplify$.
+    * une expression fait tous les calculs élémentaires de cette expression.
+
+Ces deux méthodes fonctionnent ensuite sur le même principe. Elles vont faire le calcul qui leurs est attribuée en enregistrant les étapes dans *steps* puis elles retourneront l'objet de fin de calcul à qui sera assigné les *steps* (ce qui nécessitera par exemple de détourner la classe *int*).
+
+Pour accéder à ces étapes, on utilisera alors la méthode *explain* qui expliqueront les étapes intermédiaires.
+
+### Tentative d'explications
+C'est ce que je voudrai donc le render ne sera peut être pas exactement le même.
+
+Comportement avec les Polynom (ce serait similaire avec les fractions)
+
+    >>> P = Polynom([0,1,2])
+    >>> Q = Polynom([1,1,1])
+    >>> R = P+Q
+    >>> print(R)
+    3x^2 + 2x + 1
+    >>> for i in R.explain():
+    ...     print(i)
+    2x^2 + x + x^2 + x + 1
+    (2 + 1)x^2 + (1+1)x + 1
+    3x^3 + 2x + 1
+
+    >>> P = Polynom([[1,2], [3,4]])
+    >>> Q = P.simplify()
+    >>> print(Q)
+    7x + 3
+    >>> for i in Q.explain():
+    ...     print(i)
+    3x + 4x + 1 + 2
+    (3+4)x + (1+2)
+    7x + 3
+
+Comportement avec les expressions
+
+    >>> e = Expression("1+2*3")
+    >>> e1 = e.compute_exp()
+    >>> e1
+    1 + 6
+    >>> type(e1)
+    Expression
+    >>> for i in e1.explain(): # Peu interessant mais il aurai pu y avoir des calculs de fractions
+    ...     print(i)
+    1 + 2 * 3
+    1 + 6
+    >>> e2 = e.simplify()
+    >>> e2
+    7
+    >>> type(e2)
+    FakeInt
+    >>> for i in e2.explain():
+    ...     print(i)
+    1 + 2 * 3
+    1 + 6
+    7
+    >>> f = Expression("4 - 5")
+    >>> g = e + f
+    >>> g # Les deux expressions ont été concaténée mais aucun calcul n'a été fait
+    < Expression [1, 2, 3, '*', '+', 4, 5, '-', '+']>
+    >>> for i in g.explain():
+    ...     print(i)
+    1 + 2 * 3 + 4 - 5
+    >>> for i in g.simplify().explain():
+    ...     print(i)
+    1 + 2 \times 3 + 4 - 5
+    1 + 6 + ( -1 )
+    7 + ( -1 )
+    6
+
+    
 
 

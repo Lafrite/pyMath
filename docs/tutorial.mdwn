@@ -8,7 +8,10 @@ pyMath est un module python qui permet la manipulation d'expressions mathématiq
 
     >>> from pymath.expression import Expression
     >>> ajout_fractions = Expression("2 / 5 + 2 / 3")
-    >>> for i in ajout_fractions.simpliy():
+    >>> resultat = ajout_fractions.simplify()
+    >>> print(resultat)
+    \frac{ 16 }{ 15 }
+    >>> for i in resultat.explain():
     ...     print(i)
     ...
     \frac{ 2 }{ 5 } + \frac{ 2 }{ 3 }
@@ -38,16 +41,16 @@ pyMath est un module python qui permet la manipulation d'expressions mathématiq
 
     >>> from pymath.expression import Expression
     >>> ajout_fractions = Expression("2 / 5 + 2 / 3")
-    >>> for i in ajout_fractions.simpliy():
+    >>> for i in ajout_fractions.simpliy().explain():
     ...     print(i)
     \frac{ 2 }{ 5 } + \frac{ 2 }{ 3 }
     \frac{ 2 \times 3 }{ 5 \times 3 } + \frac{ 2 \times 5 }{ 3 \times 5 }
     \frac{ 6 + 10 }{ 15 }
     \frac{ 16 }{ 15 }
     >>> from pymath.render import txt
-    >>> Expression.set_render(txt)
-    >>> for i in ajout_fractions.simpliy():
-    ...     print(i)
+    >>> with Expression.tmp_render(txt):
+    ...     for i in ajout_fractions.simpliy():
+    ...         print(i)
     ...
     2 / 5 + 2 / 3
     2 * 3 / 5 * 3 + 2 * 5 / 3 * 5
@@ -84,14 +87,18 @@ Et si l'on souhaite un rendu plus adapté à la console:
     2 / 5 + 2 / 3
 
 ### Simplification des expressions
-Une fois les expressions créées, elles peuvent se réduire en expliquant les étapes et en respectant les règles de priorités. Les exemples suivants seront données avec un rendu texte.
+Une fois les expressions créées, elles peuvent se réduire en expliquant les étapes et en respectant les règles de priorités. Ces étapes de calcul sont stockés dans l'objet résultat du calcul et sont accéssibles à travers la méthode *explain*.
+Les exemples suivants seront données avec un rendu texte.
 
     >>> from pymath.expression import Expression
     >>> from pymath.renders import txt
     >>> Expression.set_render(txt)
 
     >>> exp = Expression("1 + 2 * 3")
-    >>> for i in exp.simplify():
+    >>> exp_simplifiee = exp.simplify()
+    >>> print(exp_simplifiee)
+    7
+    >>> for i in exp_simplifiee.explain():
     ...     print(i)
     ... 
     1 + 2 * 3
@@ -102,7 +109,7 @@ Une fois les expressions créées, elles peuvent se réduire en expliquant les �
 Les opérations autorisées sont les opérations "classique": + - * / ^. L'utilisation des parenthèses est aussi gérée.
 
     >>> exp = Expression("1 + 2 / 5")
-    >>> for i in exp.simplify():
+    >>> for i in exp.simplify().explain():
     ...     print(i)
     ... 
     1 + 2 / 5
@@ -111,7 +118,7 @@ Les opérations autorisées sont les opérations "classique": + - * / ^. L'utili
     7 / 5
 
     >>> exp = Expression("(2 + 4)(3 - 4 * 2)")
-    >>> for i in exp.simplify():
+    >>> for i in exp.simplify().explain():
     ...     print(i)
     ... 
     ( 2 + 4 ) ( 3 - ( 4 * 2 ) )
@@ -126,7 +133,7 @@ On peut vouloir créer directement des objets (fractions ou polynômes) sans pas
     >>> fraction1 = Fraction(1,2)
     >>> fraction2 = Fraction(2,3)
     >>> print(fraction1)
-
+    1 / 2
     >>> from pymath.polynom import Polynom
     >>> p = Polynom([1,2,3])
     >>> print(p)
@@ -134,7 +141,7 @@ On peut vouloir créer directement des objets (fractions ou polynômes) sans pas
     >>> q = Polynom([0,0,1])
     x ^ 2
 
-Contrairement aux opérations sur les Expressions, qui renvoient une nouvelle expression
+On peut effectuer des opérations entre les Expressions.
 
     >>> fraction_expression = Expression("2 / 3")
     >>> autre_fraction_expression = Expression("4 / 9")
@@ -143,17 +150,19 @@ Contrairement aux opérations sur les Expressions, qui renvoient une nouvelle ex
 
 les opérations sur les fractions ou les polynômes renvoient la liste des étapes jusqu'à leur forme simplifiée
 
-    >>> fraction1 + fraction2
-    [< Expression [1, 3, '*', 2, 3, '*', '/', 2, 2, '*', 3, 2, '*', '/', '+']>, < Expression [3, 4, '+', 6, '/']>, < Fraction 7 / 6>]
-    >>> for i in (fraction1 + fraction2):
+    >>> addition_fraction = fraction1 + fraction2
+    >>> print(addition_fraction)
+    7 / 6
+    >>> for i in addition_fraction.explain():
     ...     print(i)
     ...
     1 * 3 / 2 * 3 + 2 * 2 / 3 * 2
     ( 3 + 4 ) / 6
     7 / 6
-    >>> p + q
-    [< Polynom [[1, 0], [2, 0], [3, 1]]>, < Polynom [1, 2, < Expression [3, 1, '+']>]>, < Polynom [1, 2, 4]>
-    >>> for i in (p+q):
+    >>> r = p + q
+    >>> print(r)
+    4 x ^ 2 + 2 x + 1
+    >>> for i in r.explain():
     ...     print(i)
     ...
     3 x ^ 2 + x ^ 2 + 2 x + 1
@@ -166,7 +175,7 @@ Comme dit dans l'introduction, il y a deux types de rendus: un rendu texte (util
 Voici un exemple de l'utilisation du rendu latex (par défaut). 
 
     >>> exp = Expression("1 + 2 / 5")
-    >>> for i in exp.simplify():
+    >>> for i in exp.simplify().explain():
     ...     print(i)
     ... 
     1  +  \frac{ 2 }{ 5 }
@@ -181,7 +190,7 @@ Voici un exemple d'utilisation du rendu txt
     >>> from pymath.render import txt
     >>> Expression.set_render(txt)
     >>> exp = Expression("1 + 2 / 5")
-    >>> for i in exp.simplify():
+    >>> for i in exp.simplify().explain():
     ...     print(i)
     ... 
     2 / 5 + 2 / 3
@@ -192,33 +201,23 @@ Voici un exemple d'utilisation du rendu txt
 
 ## Générer des expressions aléatoirement.
 
-Le module qui permet de générer des expressions aléatoirement est *pymath.random_expression*
-
-    >>> from pymath.random_expression import RdExpression
-
 ### Créer un expression
 Pour créer une expression il faut au moins une chose: la forme de l'expression. Toutes les lettres entre accolades seront remplacées par des valeurs aléatoires (par défaut entre -10 et 10 et non nulles).
 
     >>> form = "2* {a} + 3"
-    >>> random_expression_generator = RdExpression(form)
-    >>> generated_expression = random_expression_generator()
-    >>> type(generated_expression)
-    pymath.expression.Expression
-    >>> print(generated_expression)
+    >>> expression_aleatoire = Expression.random(form)
+    >>> print(expression_aleatoire)
     '2 \times 9  +  3'
-    >>> print(random_expression_generator(30, 40))
+    >>> print(Expression.random(form,val_min = 30, val_max = 40))
     '2 \times 31  +  3'
-
-On remarque que ici que *random_expression_generator* renvoie une expression. Cela permettra ensuite de simplifier ou manipuler les expressions
- On verra plus tard comment se passer de cette classe pour par exemple créer des expressions avec des opérateurs non implémentés dans Expression.
 
 ### Créer une expression avec conditions
 Parfois il peut être nécessaire d'imposer des conditions sur les éléments à générer pour créer des exercices spécifiques.
 
     >>> form = "{a} / {b} + {c} / {d}"
     >>> conditions = ["abs({b}) != 1", "{d} > 1", "{b} != {d}", "gcd({a},{b}) == 1", "gcd({c},{d}) == 1"]
-    >>> random_frac_add_generator = RdExpression(form, conditions)
-    >>> print(random_frac_add_generator())
+    >>> addition_fraction_alea = Expression.random(form, conditions)
+    >>> print(addition_fraction_alea)
     '\frac{ 4 }{ 5 }  +  \frac{ 9 }{ 7 }'
 
 La méthode pour créer les valeurs avec des conditions est la méthode par rejet. Elle n'est pas très efficace et rien n'est encore prévu dans le cas où aucune valeur n'est possible. 
@@ -233,23 +232,22 @@ Pour éviter de faire tourner la méthode par rejet trop longtemps, il est possi
     '\frac{ -9 }{ 7 }  +  \frac{ 1 }{ 28 }
 
 ### Rendu des expressions
-On peut vouloir ne pas passer par la classe Expression pour obtenir notre expression (si l'on veut utiliser la racine carré par exemple, ou pour créer n'importe quoi qui ne fait pas intervenir d'expression). Pour cela il va falloir changer la forme du rendu
+On peut vouloir ne pas passer par la classe Expression pour obtenir notre expression (si l'on veut utiliser la racine carré par exemple, ou pour créer n'importe quoi qui ne fait pas intervenir d'expression). Ainsi pymath ne gère plus le rendu de l'expression ni son calcul.
 
-    >>> RdExpression.set_form("raw")
+La fonction qui permet de faire cela est *random_str*:
+
+    >>> from pymath.random_expression import random_str
     >>> form = "{a} / {b} + {c} / {k*b}"
     >>> conditions = ["abs({b}) != 1", "{d} > 1", "{b} != {d}", "gcd({a},{b}) == 1", "gcd({c},{k*b}) == 1"]
-    >>> random_frac_add_generator = RdExpression(form, conditions)
-    >>> exp = random_frac_add_generator()
-    >>> type(exp)
+    >>> str_addition_fraction = random_str(form, conditions)
+    >>> type(str_addition_fraction)
     str
-    >>> print(exp)
+    >>> print(str_addition_fraction)
     -2 / 5 + -8 / 35
     
-    >>> form = "{a**2}x^2 + {2*a*b} x + {b**2}"
-    >>> random_id_rmq_generator = RdExpression(form)
-    >>> print(random_id_rmq_generator())
-    '100x^2 + -180 x + 81'
-    >>> random_id_rmq_generator()
-    '49x^2 + 42 x + 9'
+    >>> form = "A({a},{b}), B({2*a}, {3*b})"
+    >>> points_alea = random_str(form)
+    >>> points_alea
+    'A(7,5), B(14, 15)'
 
 On remarque le défaut d'utiliser cette forme, le rendu est moins bien fait (dans l'exemple, il n'y a pas de parenthèses autour du -8).
