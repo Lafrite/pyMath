@@ -186,13 +186,31 @@ class Expression(Explicable):
 
         tmpTokenList += tokenList
 
-        steps = expand_list(tmpTokenList)
+        #print(repr(self))
+        #print(" tmpTokenList -> ", tmpTokenList)
+        #steps = expand_list([i.explain() for i in tmpTokenList])
+        #print("steps -> ", steps)
 
-        if len(steps[:-1]) > 0:
-            child_steps += [flatten_list(s) for s in steps[:-1]]
+        #if len(steps[:-1]) > 0:
+        #    child_steps += [flatten_list(s) for s in steps[:-1]]
 
-        self.child = Expression(steps[-1])
-        self.child.steps = child_steps
+        self.child = Expression(tmpTokenList)
+        self.child.steps = self.develop_steps(tmpTokenList)
+
+    def develop_steps(self, tokenList):
+        """ From a list of tokens, it develops steps of each tokens """
+        tmp_steps = []
+        with Expression.tmp_render():
+            for t in tokenList:
+                if hasattr(t, "explain"):
+                    tmp_steps.append([i for i in t.explain()])
+                else:
+                    tmp_steps.append(t)
+        tmp_steps = expand_list(tmp_steps)
+        #print("tmp_steps -> ", tmp_steps)
+        steps = [Expression(s) for s in tmp_steps]
+
+        return steps
 
     @classmethod
     def isExpression(self, other):
