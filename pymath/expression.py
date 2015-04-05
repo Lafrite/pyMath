@@ -186,14 +186,6 @@ class Expression(Explicable):
 
         tmpTokenList += tokenList
 
-        #print(repr(self))
-        #print(" tmpTokenList -> ", tmpTokenList)
-        #steps = expand_list([i.explain() for i in tmpTokenList])
-        #print("steps -> ", steps)
-
-        #if len(steps[:-1]) > 0:
-        #    child_steps += [flatten_list(s) for s in steps[:-1]]
-
         self.child = Expression(tmpTokenList)
         self.child.steps = self.develop_steps(tmpTokenList)
 
@@ -207,7 +199,6 @@ class Expression(Explicable):
                 else:
                     tmp_steps.append(t)
         tmp_steps = expand_list(tmp_steps)
-        #print("tmp_steps -> ", tmp_steps)
         steps = [Expression(s) for s in tmp_steps]
 
         return steps
