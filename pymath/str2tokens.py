@@ -91,7 +91,7 @@ def in2post_fix(infix_tokens):
     @return: the corresponding postfix list of tokens.
 
     >>> in2post_fix([op.par, 2, op.add, 5, op.sub, 1, ')', op.div, op.par, 3, op.mul, 4, ')'])
-    [2, 5, '+', 1, '-', 3, 4, '*', '/']
+    [2, 5, 1, '-', '+', 3, 4, '*', '/']
     >>> in2post_fix([op.sub1, op.par, op.sub1, 2, ')'])
     [2, '-', '-']
     >>> in2post_fix([op.sub1, op.par, op.sub1, 2, op.add, 3, op.mul, 4, ')'])

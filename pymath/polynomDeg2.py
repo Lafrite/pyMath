@@ -83,7 +83,7 @@ class Polynom_deg2(Polynom):
         ...     print(i)
         \\frac{ - 2 }{ 2 \\times 3 }
         \\frac{ -2 }{ 6 }
-        \\frac{ ( -1 ) \\times 2 }{ 3 \\times 2 }
+        \\frac{ -1 \\times 2 }{ 3 \\times 2 }
         \\frac{ -1 }{ 3 }
         """
         return Expression([self.b, op.sub1, 2, self.a, op.mul, op.div]).simplify()
@@ -97,10 +97,21 @@ class Polynom_deg2(Polynom):
         < Fraction 2 / 3>
         >>> for i in P.beta.explain(): # Ça serait bien que l'on puisse enlever des étapes maintenant...
         ...     print(i)
-        3 \\times \\frac{ -1 }{ 3 }^{  2 } + 2 \\times \\frac{ -1 }{ 3 } + 1
+        3 \\times ( \\frac{ -1 }{ 3 } )^{  2 } + 2 \\times \\frac{ -1 }{ 3 } + 1
+        3 \\times ( \\frac{ -1 }{ 3 } )^{  2 } + \\frac{ -1 }{ 3 } \\times 2 + 1
+        3 \\times \\frac{ -1^{  2 } }{ 3^{  2 } } + \\frac{ -1 \\times 2 }{ 3 } + 1
         3 \\times \\frac{ 1 }{ 9 } + \\frac{ -2 }{ 3 } + 1
+        \\frac{ 1 }{ 9 } \\times 3 + \\frac{ -1 }{ 3 } \\times 2 + 1
+        \\frac{ 1 \\times 1 \\times 3 }{ 3 \\times 3 } + \\frac{ -1 \\times 2 }{ 3 } + 1
+        \\frac{ 1 \\times 3 }{ 9 } + \\frac{ -2 }{ 3 } + 1
+        \\frac{ 3 }{ 9 } + \\frac{ -2 }{ 3 } + 1
+        \\frac{ 1 \\times 3 }{ 3 \\times 3 } + \\frac{ -2 }{ 3 } + 1
         \\frac{ 1 }{ 3 } + \\frac{ -2 }{ 3 } + 1
+        \\frac{ 1 - 2 }{ 3 } + 1
         \\frac{ -1 }{ 3 } + 1
+        \\frac{ -1 \\times 1 }{ 3 \\times 1 } + \\frac{ 1 \\times 3 }{ 1 \\times 3 }
+        \\frac{ -1 }{ 3 } + \\frac{ 3 }{ 3 }
+        \\frac{ -1 + 3 }{ 3 }
         \\frac{ 2 }{ 3 }
         """
         return self(self.alpha).simplify()

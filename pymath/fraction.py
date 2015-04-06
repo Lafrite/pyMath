@@ -136,18 +136,29 @@ class Fraction(Explicable):
         >>> g = Fraction(2, 3)
         >>> f + g
         < Fraction 7 / 6>
-        >>> (f+g).steps
-        [< <class 'pymath.expression.Expression'> [1, 2, '/', 2, 3, '/', '+'] >, [1, 3, '*', 2, 3, '*', '/', 2, 2, '*', 3, 2, '*', '/', '+'], [3, 6, '/', 4, 6, '/', '+'], [< Fraction 3 / 6>, < Fraction 4 / 6>, '+'], [< Fraction 3 / 6>, < Fraction 4 / 6>, '+']]
+        >>> print("\\n".join([repr(i) for i in (f+g).steps]))
+        < <class 'pymath.expression.Expression'> [1, 2, '/', 2, 3, '/', '+'] >
+        < <class 'pymath.expression.Expression'> [1, 3, '*', 2, 3, '*', '/', 2, 2, '*', 3, 2, '*', '/', '+'] >
+        < <class 'pymath.expression.Expression'> [3, 6, '/', 4, 6, '/', '+'] >
+        < <class 'pymath.expression.Expression'> [< Fraction 3 / 6>, < Fraction 4 / 6>, '+'] >
+        < <class 'pymath.expression.Expression'> [3, 6, '/', 4, 6, '/', '+'] >
+        < <class 'pymath.expression.Expression'> [3, 4, '+', 6, '/'] >
         >>> f + 2
         < Fraction 5 / 2>
-        >>> (f+2).steps
-        [< <class 'pymath.expression.Expression'> [1, 2, '/', 2, '+'] >, [1, 1, '*', 2, 1, '*', '/', 2, 2, '*', 1, 2, '*', '/', '+'], [1, 2, '/', 4, 2, '/', '+'], [< Fraction 1 / 2>, < Fraction 4 / 2>, '+'], [< Fraction 1 / 2>, < Fraction 4 / 2>, '+']]
+        >>> print("\\n".join([repr(i) for i in (f+2).steps]))
+        < <class 'pymath.expression.Expression'> [1, 2, '/', 2, '+'] >
+        < <class 'pymath.expression.Expression'> [1, 1, '*', 2, 1, '*', '/', 2, 2, '*', 1, 2, '*', '/', '+'] >
+        < <class 'pymath.expression.Expression'> [1, 2, '/', 4, 2, '/', '+'] >
+        < <class 'pymath.expression.Expression'> [< Fraction 1 / 2>, < Fraction 4 / 2>, '+'] >
+        < <class 'pymath.expression.Expression'> [1, 2, '/', 4, 2, '/', '+'] >
+        < <class 'pymath.expression.Expression'> [1, 4, '+', 2, '/'] >
         >>> f = Fraction(3, 4)
         >>> g = Fraction(5, 4)
         >>> f + g
         2
-        >>> (f+g).steps
-        [< <class 'pymath.expression.Expression'> [3, 4, '/', 5, 4, '/', '+'] >, [3, 5, '+', 4, '/'], [8, 4, '/']]
+        >>> print("\\n".join([repr(i) for i in (f+g).steps]))
+        < <class 'pymath.expression.Expression'> [3, 4, '/', 5, 4, '/', '+'] >
+        < <class 'pymath.expression.Expression'> [3, 5, '+', 4, '/'] >
         >>> f+0
         < Fraction 3 / 4>
         >>> (f+0).steps
@@ -174,8 +185,8 @@ class Fraction(Explicable):
 
             exp = Expression([self._num, coef1, op.mul, self._denom, coef1, op.mul, op.div, number._num, coef2, op.mul, number._denom, coef2, op.mul, op.div,op.add])
 
-        ini_step = Expression(self.postfix_tokens + number.postfix_tokens + [op.add])
         ans = exp.simplify()
+        ini_step = Expression(self.postfix_tokens + number.postfix_tokens + [op.add])
         ans.steps = [ini_step] + ans.steps
         return ans
 
@@ -194,8 +205,13 @@ class Fraction(Explicable):
         >>> g = Fraction(2, 3)
         >>> f - g
         < Fraction -1 / 6>
-        >>> (f-g).steps
-        [< <class 'pymath.expression.Expression'> [1, 2, '/', 2, 3, '/', '-'] >, [1, 3, '*', 2, 3, '*', '/', 2, 2, '*', 3, 2, '*', '/', '-'], [3, 6, '/', 4, 6, '/', '-'], [< Fraction 3 / 6>, < Fraction 4 / 6>, '-'], [< Fraction 3 / 6>, < Fraction 4 / 6>, '-']]
+        >>> print("\\n".join([repr(i) for i in (f-g).steps]))
+        < <class 'pymath.expression.Expression'> [1, 2, '/', 2, 3, '/', '-'] >
+        < <class 'pymath.expression.Expression'> [1, 3, '*', 2, 3, '*', '/', 2, 2, '*', 3, 2, '*', '/', '-'] >
+        < <class 'pymath.expression.Expression'> [3, 6, '/', 4, 6, '/', '-'] >
+        < <class 'pymath.expression.Expression'> [< Fraction 3 / 6>, < Fraction 4 / 6>, '-'] >
+        < <class 'pymath.expression.Expression'> [3, 6, '/', 4, 6, '/', '-'] >
+        < <class 'pymath.expression.Expression'> [3, 4, '-', 6, '/'] >
         >>> f - 0
         < Fraction 1 / 2>
         >>> (f-0).steps
@@ -263,8 +279,12 @@ class Fraction(Explicable):
         >>> g = Fraction(2, 3)
         >>> f*g
         < Fraction 1 / 3>
-        >>> (f*g).steps
-        [< <class 'pymath.expression.Expression'> [1, 2, '/', 2, 3, '/', '*'] >, [1, 1, 2, '*', '*', 1, 2, '*', 3, '*', '/'], [1, 2, '*', 2, 3, '*', '/'], [2, 6, '/'], < <class 'pymath.expression.Expression'> [2, 6, '/'] >, < <class 'pymath.expression.Expression'> [1, 2, '*', 3, 2, '*', '/'] >]
+        >>> print("\\n".join([repr(i) for i in (f*g).steps]))
+        < <class 'pymath.expression.Expression'> [1, 2, '/', 2, 3, '/', '*'] >
+        < <class 'pymath.expression.Expression'> [1, 1, 2, '*', '*', 1, 2, '*', 3, '*', '/'] >
+        < <class 'pymath.expression.Expression'> [1, 2, '*', 2, 3, '*', '/'] >
+        < <class 'pymath.expression.Expression'> [2, 6, '/'] >
+        < <class 'pymath.expression.Expression'> [1, 2, '*', 3, 2, '*', '/'] >
         >>> f * 0
         0
         >>> (f*0).steps
@@ -275,8 +295,10 @@ class Fraction(Explicable):
         []
         >>> f*4
         2
-        >>> (f*4).steps
-        [< <class 'pymath.expression.Expression'> [1, 2, '/', 4, '*'] >, [1, 2, '*', 2, '*', 1, 2, '*', '/'], [2, 2, '*', 2, '/'], [4, 2, '/']]
+        >>> print("\\n".join([repr(i) for i in (f*4).steps]))
+        < <class 'pymath.expression.Expression'> [1, 2, '/', 4, '*'] >
+        < <class 'pymath.expression.Expression'> [1, 2, '*', 2, '*', 1, 2, '*', '/'] >
+        < <class 'pymath.expression.Expression'> [2, 2, '*', 2, '/'] >
 
         """
         steps = []
@@ -381,13 +403,17 @@ class Fraction(Explicable):
         []
         >>> f**3
         < Fraction 27 / 64>
-        >>> (f**3).steps
-        [< <class 'pymath.expression.Expression'> [3, 4, '/', 3, '^'] >, [3, 3, '^', 4, 3, '^', '/'], [27, 64, '/'], [27, 64, '/']]
+        >>> print("\\n".join([repr(i) for i in (f**3).steps]))
+        < <class 'pymath.expression.Expression'> [3, 4, '/', 3, '^'] >
+        < <class 'pymath.expression.Expression'> [3, 3, '^', 4, 3, '^', '/'] >
         >>> f = Fraction(6, 4)
         >>> f**3
         < Fraction 27 / 8>
-        >>> (f**3).steps
-        [< <class 'pymath.expression.Expression'> [6, 4, '/', 3, '^'] >, [6, 3, '^', 4, 3, '^', '/'], [216, 64, '/'], < <class 'pymath.expression.Expression'> [216, 64, '/'] >, < <class 'pymath.expression.Expression'> [27, 8, '*', 8, 8, '*', '/'] >]
+        >>> print("\\n".join([repr(i) for i in (f**3).steps]))
+        < <class 'pymath.expression.Expression'> [6, 4, '/', 3, '^'] >
+        < <class 'pymath.expression.Expression'> [6, 3, '^', 4, 3, '^', '/'] >
+        < <class 'pymath.expression.Expression'> [216, 64, '/'] >
+        < <class 'pymath.expression.Expression'> [27, 8, '*', 8, 8, '*', '/'] >
         
         """
         if not type(power) == int:
