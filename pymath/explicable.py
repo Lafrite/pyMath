@@ -32,16 +32,24 @@ class Renderable(object):
         >>> for i in exp.simplify().explain():
         ...     print(i)
         2 \\times \\frac{ 3 }{ 5 }
+        \\frac{ 3 }{ 5 } \\times 2
+        \\frac{ 3 \\times 2 }{ 5 }
         \\frac{ 6 }{ 5 }
         >>> with Expression.tmp_render(txt):
         ...     for i in exp.simplify().explain():
         ...         print(i)
         2 * 3 / 5
+        3 / 5 * 2
+        ( 3 * 2 ) / 5
         6 / 5
         >>> for i in exp.simplify().explain():
         ...     print(i)
         2 \\times \\frac{ 3 }{ 5 }
+        \\frac{ 3 }{ 5 } \\times 2
+        \\frac{ 3 \\times 2 }{ 5 }
         \\frac{ 6 }{ 5 }
+
+        # TODO: essayer de ne pas afficher ce changement de position. |lun. avril  6 17:29:56 CEST 2015
 
         """
         class TmpRenderEnv(object):
@@ -65,8 +73,12 @@ class Explicable(Renderable):
     def __init__(self, *args, **kwargs):
         self.steps = []
 
-    def explain(self):
-        """ Generate and render steps  which leed to itself """
+    def explain(self, noself = True):
+        """ Generate and render steps  which leed to itself
+        
+        :param noself: does explain return self
+
+        """
         old_s = ''
         # les étapes pour l'atteindre
         try:
@@ -81,10 +93,11 @@ class Explicable(Renderable):
         except AttributeError:
             pass
 
-        # Lui même
-        new_s = self.STR_RENDER(self.postfix_tokens)
-        if new_s != old_s:
-            yield new_s
+        if noself:
+            # Lui même
+            new_s = self.STR_RENDER(self.postfix_tokens)
+            if new_s != old_s:
+                yield new_s
         
 
 

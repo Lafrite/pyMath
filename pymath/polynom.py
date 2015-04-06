@@ -364,7 +364,7 @@ class Polynom(Explicable):
         >>> Q
         < Polynom [3, 12, 6]>
         >>> Q.steps
-        [< Polynom [< <class 'pymath.expression.Expression'> [1, 2, '+'] >, < <class 'pymath.expression.Expression'> [3, 4, '+', 5, '+'] >, 6]>, < Polynom [< <class 'pymath.expression.Expression'> [1, 2, '+'] >, < <class 'pymath.expression.Expression'> [7, 5, '+'] >, 6]>, < Polynom [3, < <class 'pymath.expression.Expression'> [7, 5, '+'] >, 6]>]
+        [< Polynom [< <class 'pymath.expression.Expression'> [1, 2, '+'] >, < <class 'pymath.expression.Expression'> [3, 4, '+', 5, '+'] >, 6]>, < Polynom [3, < <class 'pymath.expression.Expression'> [7, 5, '+'] >, 6]>]
         """
     
         # TODO: It doesn't not compute quick enough |ven. févr. 27 18:04:01 CET 2015
@@ -477,7 +477,7 @@ class Polynom(Explicable):
         >>> R
         < Polynom [5, 7, 3]>
         >>> R.steps
-        [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', 5, 'x', '*', 4, '+', '+'] >, < Polynom [< <class 'pymath.expression.Expression'> [1, 4, '+'] >, < <class 'pymath.expression.Expression'> [2, 5, '+'] >, 3]>, < Polynom [< <class 'pymath.expression.Expression'> [1, 4, '+'] >, < <class 'pymath.expression.Expression'> [2, 5, '+'] >, 3]>]
+        [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', 5, 'x', '*', 4, '+', '+'] >, < Polynom [< <class 'pymath.expression.Expression'> [1, 4, '+'] >, < <class 'pymath.expression.Expression'> [2, 5, '+'] >, 3]>]
         """
         o_poly = self.conv2poly(other)
 
@@ -517,7 +517,7 @@ class Polynom(Explicable):
         >>> R
         < Polynom [-3, -3, -3]>
         >>> R.steps
-        [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', 6, 'x', 2, '^', '*', 5, 'x', '*', '+', 4, '+', '-'] >, < <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', 6, 'x', 2, '^', '*', '-', 5, 'x', '*', '-', 4, '-', '+'] >, < Polynom [< <class 'pymath.expression.Expression'> [1, -4, '+'] >, < <class 'pymath.expression.Expression'> [2, -5, '+'] >, < <class 'pymath.expression.Expression'> [3, -6, '+'] >]>, < Polynom [< <class 'pymath.expression.Expression'> [1, -4, '+'] >, < <class 'pymath.expression.Expression'> [2, -5, '+'] >, < <class 'pymath.expression.Expression'> [3, -6, '+'] >]>]
+        [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', 6, 'x', 2, '^', '*', 5, 'x', '*', '+', 4, '+', '-'] >, < <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', 6, 'x', 2, '^', '*', '-', 5, 'x', '*', '-', 4, '-', '+'] >, < Polynom [< <class 'pymath.expression.Expression'> [1, -4, '+'] >, < <class 'pymath.expression.Expression'> [2, -5, '+'] >, < <class 'pymath.expression.Expression'> [3, -6, '+'] >]>]
         """
         o_poly = self.conv2poly(other)
         ini_step = [Expression(self.postfix_tokens + o_poly.postfix_tokens + [op.sub])]
@@ -541,12 +541,12 @@ class Polynom(Explicable):
         >>> p*3
         < Polynom [3, 6]>
         >>> (p*3).steps
-        [[< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 3, '*'] >], < Polynom [3, < <class 'pymath.expression.Expression'> [2, 3, '*'] >]>, < Polynom [3, < <class 'pymath.expression.Expression'> [2, 3, '*'] >]>]
+        [[< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 3, '*'] >], < Polynom [3, < <class 'pymath.expression.Expression'> [2, 3, '*'] >]>]
         >>> q = Polynom([0,0,4])
         >>> q*3
         < Polynom [0, 0, 12]>
         >>> (q*3).steps
-        [[< <class 'pymath.expression.Expression'> [4, 'x', 2, '^', '*', 3, '*'] >], < Polynom [0, 0, < <class 'pymath.expression.Expression'> [4, 3, '*'] >]>, < Polynom [0, 0, < <class 'pymath.expression.Expression'> [4, 3, '*'] >]>]
+        [[< <class 'pymath.expression.Expression'> [4, 'x', 2, '^', '*', 3, '*'] >], < Polynom [0, 0, < <class 'pymath.expression.Expression'> [4, 3, '*'] >]>]
         >>> r = Polynom([0,1])
         >>> r*3
         < Polynom [0, 3]>
@@ -555,7 +555,7 @@ class Polynom(Explicable):
         >>> p*q
         < Polynom [0, 0, 4, 8]>
         >>> (p*q).steps
-        [[< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 4, 'x', 2, '^', '*', '*'] >], < Polynom [0, 0, 4, < <class 'pymath.expression.Expression'> [2, 4, '*'] >]>, < Polynom [0, 0, 4, < <class 'pymath.expression.Expression'> [2, 4, '*'] >]>]
+        [[< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 4, 'x', 2, '^', '*', '*'] >], < Polynom [0, 0, 4, < <class 'pymath.expression.Expression'> [2, 4, '*'] >]>]
         >>> p*r
         < Polynom [0, 1, 2]>
         >>> P = Polynom([1,2,3])
@@ -606,12 +606,12 @@ class Polynom(Explicable):
         >>> p**2
         < Polynom [0, 0, 0, 0, 9]>
         >>> (p**2).steps
-        [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, '^'] >, < Polynom [0, 0, 0, 0, < <class 'pymath.expression.Expression'> [3, 2, '^'] >]>, < Polynom [0, 0, 0, 0, < <class 'pymath.expression.Expression'> [3, 2, '^'] >]>]
+        [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, '^'] >, < Polynom [0, 0, 0, 0, < <class 'pymath.expression.Expression'> [3, 2, '^'] >]>]
         >>> p = Polynom([1,2])
         >>> p**2
         < Polynom [1, 4, 4]>
         >>> (p**2).steps
-        [< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 2, '^'] >, [< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 2, 'x', '*', 1, '+', '*'] >], < Polynom [1, < <class 'pymath.expression.Expression'> [2, 2, '+'] >, < <class 'pymath.expression.Expression'> [2, 2, '*'] >]>, < Polynom [1, < <class 'pymath.expression.Expression'> [2, 2, '+'] >, < <class 'pymath.expression.Expression'> [2, 2, '*'] >]>]
+        [< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 2, '^'] >, [< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 2, 'x', '*', 1, '+', '*'] >], < Polynom [1, < <class 'pymath.expression.Expression'> [2, 2, '+'] >, < <class 'pymath.expression.Expression'> [2, 2, '*'] >]>]
         >>> p = Polynom([0,0,1])
         >>> p**3
         < Polynom [0, 0, 0, 0, 0, 0, 1]>

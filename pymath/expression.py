@@ -38,23 +38,30 @@ class Expression(Explicable):
         >>> for i in exp.simplify().explain():
         ...     print(i)
         2 \\times \\frac{ 3 }{ 5 }
+        \\frac{ 3 }{ 5 } \\times 2
+        \\frac{ 3 \\times 2 }{ 5 }
         \\frac{ 6 }{ 5 }
         >>> with Expression.tmp_render():
         ...     for i in exp.simplify().explain():
         ...         i
         < <class 'pymath.expression.Expression'> [2, 3, 5, '/', '*'] >
         < <class 'pymath.expression.Expression'> [2, < Fraction 3 / 5>, '*'] >
-        < <class 'pymath.expression.Expression'> [2, < Fraction 3 / 5>, '*'] >
+        < <class 'pymath.expression.Expression'> [3, 5, '/', 2, '*'] >
+        < <class 'pymath.expression.Expression'> [3, 2, '*', 5, '/'] >
         < <class 'pymath.expression.Expression'> [6, 5, '/'] >
         >>> from .render import txt
         >>> with Expression.tmp_render(txt):
         ...     for i in exp.simplify().explain():
         ...         print(i)
         2 * 3 / 5
+        3 / 5 * 2
+        ( 3 * 2 ) / 5
         6 / 5
         >>> for i in exp.simplify().explain():
         ...     print(i)
         2 \\times \\frac{ 3 }{ 5 }
+        \\frac{ 3 }{ 5 } \\times 2
+        \\frac{ 3 \\times 2 }{ 5 }
         \\frac{ 6 }{ 5 }
 
         """
@@ -117,19 +124,34 @@ class Expression(Explicable):
 
     def simplify(self):
         """ Compute entirely the expression and return the result with .steps attribute """
+        #print("\tSimplify self -> ", repr(self))
         self.compute_exp()
+        #print("\t End Compute Simplify self -> ", self)
 
         self.simplified = self.child.simplify()
-        try:
-            self.simplified.steps = self.child.steps + self.simplified.steps
-        except AttributeError:
-            pass
+        #print("\t self.simplified -> ", repr(self.simplified))
+        #print("\t self.child -> ", repr(self.child))
+        if self.simplified != self.child:
+            try:
+                #print('\t\t in try')
+                #print("\t\t self.child-> ", self.child)
+                #print("\t\t|-> self.child.steps -> ", self.child.steps)
+                #print("\t\t self.simplified -> ", self.simplified)
+                #print("\t\t|-> self.simplified.steps -> ", self.simplified.steps)
+                self.simplified.steps = self.child.steps + self.simplified.steps
+                #print("\t\t|--> self.simplified.steps -> ", self.simplified.steps)
+            except AttributeError:
+                pass
+        
+        #print("\t self -> ",  self)
+        #print("\t self.simplified.steps ->\n\t\t ", self.simplified.steps)
 
+        #print("\tEnd simplify self -> ", repr(self))
         return self.simplified
 
     def compute_exp(self):
         """ Create self.child with and stock steps in it """
-        child_steps = [self.postfix_tokens]
+        ini_step = Expression(self.postfix_tokens)
 
         tokenList = self.postfix_tokens.copy()
         tmpTokenList = []
@@ -185,9 +207,17 @@ class Expression(Explicable):
             del tokenList[0:2]
 
         tmpTokenList += tokenList
-
+        #print("\t ----------------")
+        #print("\t self -> ", repr(self))
+        #print("\t tmpTokenList -> ", tmpTokenList)
         self.child = Expression(tmpTokenList)
-        self.child.steps = self.develop_steps(tmpTokenList)
+        if self.child.postfix_tokens == ini_step.postfix_tokens:
+            self.child.steps = self.develop_steps(tmpTokenList)
+        else:
+            self.child.steps = [ini_step] + self.develop_steps(tmpTokenList)
+        #print("\t\t self -> ",  repr(self))
+        #print("\t self.child -> ", repr(self.child))
+        #print("\t self.child.steps -> ", repr(self.child.steps))
 
     def develop_steps(self, tokenList):
         """ From a list of tokens, it develops steps of each tokens """
@@ -198,10 +228,16 @@ class Expression(Explicable):
                     tmp_steps.append([i for i in t.explain()])
                 else:
                     tmp_steps.append(t)
-        tmp_steps = expand_list(tmp_steps)
-        steps = [Expression(s) for s in tmp_steps]
-
-        return steps
+        #print("\t\t tokenList -> ", tokenList)
+        #print("\t\t 1.tmp_steps -> ", tmp_steps)
+        if max([len(i) if type(i) == list else 1 for i in tmp_steps]) == 1:
+            return []
+        else:
+            tmp_steps = expand_list(tmp_steps)[:-1]
+            #print("\t\t 2.tmp_steps -> ", tmp_steps)
+            steps = [Expression(s) for s in tmp_steps]
+            #print("\t\t steps -> ", steps)
+            return steps
 
     @classmethod
     def isExpression(self, other):
@@ -322,7 +358,7 @@ class Expression(Explicable):
         return Expression(self.postfix_tokens + [op.sub1])
     
 
-def test(exp):
+def untest(exp):
     a = Expression(exp)
     b = a.simplify()
 
@@ -342,20 +378,20 @@ if __name__ == '__main__':
 
     #Expression.set_render(txt)
     #exp = "2 ^ 3 * 5"
-    #test(exp)
+    #untest(exp)
 
     #exp = "2x + 5"
-    #test(exp)
+    #untest(exp)
 
     #Expression.set_render(tex)
 
-    #test(exp1)
+    #untest(exp1)
 
     #from pymath.operator import op
     #exp = [2, 3, op.pw, 5, op.mul]
-    #test(exp)
+    #untest(exp)
 
-    #test([Expression(exp1), Expression(exp), op.add])
+    #untest([Expression(exp1), Expression(exp), op.add])
 
     #exp = "1 + 3 * 5"
     #e = Expression(exp)
@@ -363,50 +399,50 @@ if __name__ == '__main__':
     #print(f)
 
     #exp = "2 * 3 * 3 * 5"
-    #test(exp)
+    #untest(exp)
 
     #exp = "2 * 3 + 3 * 5"
-    #test(exp)
+    #untest(exp)
 
     #exp = "2 * ( 3 + 4 ) + 3 * 5"
-    #test(exp)
+    #untest(exp)
 
     #exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
-    #test(exp)
+    #untest(exp)
     #
     #exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
-    #test(exp)
+    #untest(exp)
     #
     #exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
-    #test(exp)
+    #untest(exp)
     #
     #exp = "2 + 5 * ( 3 - 4 )"
-    #test(exp)
+    #untest(exp)
 
     #exp = "( 2 + 5 ) * ( 3 - 4 )^4"
-    #test(exp)
+    #untest(exp)
 
     #exp = "( 2 + 5 ) * ( 3 * 4 )"
-    #test(exp)
+    #untest(exp)
 
     #exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
-    #test(exp)
+    #untest(exp)
 
     #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
-    #test(exp)
+    #untest(exp)
 
     #exp = "( 2+ 5 )/( 3 * 4 ) + 1 / 2"
-    #test(exp)
+    #untest(exp)
 
     #exp="(-2+5)/(3*4)+1/12+5*5"
-    #test(exp)
+    #untest(exp)
 
     #exp="-2*4(12 + 1)(3-12)"
-    #test(exp)
+    #untest(exp)
 
 
     #exp="(-2+5)/(3*4)+1/12+5*5"
-    #test(exp)
+    #untest(exp)
 
     # TODO: The next one doesn't work  |ven. janv. 17 14:56:58 CET 2014
     #exp="-2*(-a)(12 + 1)(3-12)"
@@ -415,15 +451,27 @@ if __name__ == '__main__':
 
     ## Can't handle it yet!!
     #exp="-(-2)"
-    #test(exp)
+    #untest(exp)
 
     #print("\n")
     #exp = Expression.random("({a} + 3)({b} - 1)", ["{a} > 4"])
     #for i in exp.simplify():
     #    print(i)
 
-    import doctest
-    doctest.testmod()
+    from .fraction import Fraction
+    f1 = Fraction(3,5)
+    f2 = Fraction(5,10)
+    q = f1+f2
+    print("---------")
+    print(q.steps)
+    print("---------")
+
+    for i in q.explain():
+        print(i)
+    
+
+    #import doctest
+    #doctest.testmod()
 
 # -----------------------------
 # Reglages pour 'vim'
