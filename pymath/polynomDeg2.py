@@ -133,6 +133,7 @@ class Polynom_deg2(Polynom):
         >>> P.roots()
         [-1.0, 1.0]
         """
+        # TODO: Use sympy to compute those |mar. avril  7 07:31:42 CEST 2015
         if self.delta > 0:
             self._roots = [round((-self.b - sqrt(self.delta))/(2*self.a),after_coma), round((-self.b + sqrt(self.delta))/(2*self.a),after_coma)]
         elif self.delta == 0:
