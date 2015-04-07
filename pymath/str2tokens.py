@@ -12,7 +12,7 @@ def str2tokens(exp):
     >>> str2tokens('2*3+4')
     [2, 3, '*', 4, '+']
     >>> str2tokens('2x+4')
-    [2, < Polynom [0, 1]>, '*', 4, '+']
+    [2, < <class 'pymath.polynom.Polynom'> [0, 1]>, '*', 4, '+']
     """
     in_tokens = str2in_tokens(exp)
     post_tokens = in2post_fix(in_tokens)

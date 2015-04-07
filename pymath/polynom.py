@@ -18,9 +18,13 @@ def polynom_factory(func):
     @wraps(func)
     def wrapper(*args, **kwrds):
         P = func(*args, **kwrds)
-        if isinstance(P,Polynom) and P.degree == 2:
+        if issubclass(type(P),AbstractPolynom) and P.degree == 2:
             from .polynomDeg2 import Polynom_deg2
             new_P = Polynom_deg2(poly=P)
+            new_P.steps = P.steps
+            return new_P
+        elif issubclass(type(P),AbstractPolynom):
+            new_P = Polynom(poly=P)
             new_P.steps = P.steps
             return new_P
         else:
@@ -54,13 +58,15 @@ class Polynom(AbstractPolynom):
         /!\ variables need to be in brackets {}
 
         >>> Polynom.random(["{b}", "{a}"]) # doctest:+ELLIPSIS
-        < Polynom ...
+        < <class 'pymath.polynom.Polynom'> ...
         >>> Polynom.random(degree = 2) # doctest:+ELLIPSIS
-        < Polynom ...
+        < <class 'pymath.polynomDeg2.Polynom_deg2'> ...
+        >>> Polynom.random(degree = 3) # doctest:+ELLIPSIS
+        < <class 'pymath.polynom.Polynom'> ...
         >>> Polynom.random(degree = 2, conditions=["{b**2-4*a*c}>0"]) # Polynom deg 2 with positive Delta (ax^2 + bx + c)
-        < Polynom ...
+        < <class 'pymath.polynomDeg2.Polynom_deg2'> ...
         >>> Polynom.random(["{c}", "{b}", "{a}"], conditions=["{b**2-4*a*c}>0"]) # Same as above
-        < Polynom ...
+        < <class 'pymath.polynomDeg2.Polynom_deg2'> ...
 
         """
         if (degree > 0 and degree < 26):
@@ -76,7 +82,7 @@ class Polynom(AbstractPolynom):
         # Création du polynom
         return Polynom(coefs = coefs, letter = letter, name = name)
 
-    def __init__(self, coefs = [1], letter = "x", name = "P"):
+    def __init__(self, coefs = [1], letter = "x", name = "P", poly = 0):
         """Initiate the polynom
 
         :param coef: coefficients of the polynom (ascending degree sorted)
@@ -105,6 +111,11 @@ class Polynom(AbstractPolynom):
         >>> Polynom([1, 2, 3], name = "Q").name
         'Q'
         """
+        if poly:
+            coefs = poly._coef
+            letter = poly._letter
+            name = poly.name
+
         super(Polynom, self).__init__(coefs, letter, name)
 
     def __call__(self, value):
@@ -140,7 +151,7 @@ class Polynom(AbstractPolynom):
         >>> P = Polynom([1, 2, 3])
         >>> Q = P.derivate()
         >>> Q
-        < Polynom [2, 6]>
+        < <class 'pymath.polynom.Polynom'> [2, 6]>
         >>> print(Q.name)
         P'
         >>> for i in Q.explain():

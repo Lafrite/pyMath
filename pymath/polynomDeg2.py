@@ -5,6 +5,7 @@ from .polynom import Polynom
 from .expression import Expression
 from .operator import op
 from .random_expression import RdExpression
+
 from math import sqrt
 
 __all__ = ["Polynom_deg2"]
@@ -217,10 +218,6 @@ class Polynom_deg2(Polynom):
                 return "\\tkzTabVar{+/{}, -/{$" + str(beta) + "$}, +/{}}"
             else:
                 return "\\tkzTabVar{-/{}, +/{$" + str(beta) + "$}, -/{}}"
-
-
-    
-
 
 
 if __name__ == '__main__':
