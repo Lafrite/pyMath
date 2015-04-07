@@ -124,29 +124,14 @@ class Expression(Explicable):
 
     def simplify(self):
         """ Compute entirely the expression and return the result with .steps attribute """
-        #print("\tSimplify self -> ", repr(self))
         self.compute_exp()
-        #print("\t End Compute Simplify self -> ", self)
 
         self.simplified = self.child.simplify()
-        #print("\t self.simplified -> ", repr(self.simplified))
-        #print("\t self.child -> ", repr(self.child))
         if self.simplified != self.child:
             try:
-                #print('\t\t in try')
-                #print("\t\t self.child-> ", self.child)
-                #print("\t\t|-> self.child.steps -> ", self.child.steps)
-                #print("\t\t self.simplified -> ", self.simplified)
-                #print("\t\t|-> self.simplified.steps -> ", self.simplified.steps)
                 self.simplified.steps = self.child.steps + self.simplified.steps
-                #print("\t\t|--> self.simplified.steps -> ", self.simplified.steps)
             except AttributeError:
                 pass
-        
-        #print("\t self -> ",  self)
-        #print("\t self.simplified.steps ->\n\t\t ", self.simplified.steps)
-
-        #print("\tEnd simplify self -> ", repr(self))
         return self.simplified
 
     def compute_exp(self):
@@ -207,17 +192,11 @@ class Expression(Explicable):
             del tokenList[0:2]
 
         tmpTokenList += tokenList
-        #print("\t ----------------")
-        #print("\t self -> ", repr(self))
-        #print("\t tmpTokenList -> ", tmpTokenList)
         self.child = Expression(tmpTokenList)
         if self.child.postfix_tokens == ini_step.postfix_tokens:
             self.child.steps = self.develop_steps(tmpTokenList)
         else:
             self.child.steps = [ini_step] + self.develop_steps(tmpTokenList)
-        #print("\t\t self -> ",  repr(self))
-        #print("\t self.child -> ", repr(self.child))
-        #print("\t self.child.steps -> ", repr(self.child.steps))
 
     def develop_steps(self, tokenList):
         """ From a list of tokens, it develops steps of each tokens """
@@ -228,15 +207,12 @@ class Expression(Explicable):
                     tmp_steps.append([i for i in t.explain()])
                 else:
                     tmp_steps.append(t)
-        #print("\t\t tokenList -> ", tokenList)
-        #print("\t\t 1.tmp_steps -> ", tmp_steps)
         if max([len(i) if type(i) == list else 1 for i in tmp_steps]) == 1:
+            # Cas où rien n'a dû être expliqué.
             return []
         else:
             tmp_steps = expand_list(tmp_steps)[:-1]
-            #print("\t\t 2.tmp_steps -> ", tmp_steps)
             steps = [Expression(s) for s in tmp_steps]
-            #print("\t\t steps -> ", steps)
             return steps
 
     @classmethod
