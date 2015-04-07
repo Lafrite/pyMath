@@ -277,9 +277,9 @@ class AbstractPolynom(Explicable):
         
         >>> P = AbstractPolynom([1,2,3])
         >>> P.conv2poly(1)
-        < AbstractPolynom [1]>
+        < <class 'pymath.abstract_polynom.AbstractPolynom'> [1]>
         >>> P.conv2poly(0)
-        < AbstractPolynom [0]>
+        < <class 'pymath.abstract_polynom.AbstractPolynom'> [0]>
         
         """
         if isNumber(other) and not isPolynom(other):
@@ -297,15 +297,15 @@ class AbstractPolynom(Explicable):
         >>> P = AbstractPolynom([1,2,3])
         >>> Q = P.reduce()
         >>> Q
-        < AbstractPolynom [1, 2, 3]>
+        < <class 'pymath.abstract_polynom.AbstractPolynom'> [1, 2, 3]>
         >>> Q.steps
         []
         >>> P = AbstractPolynom([[1,2], [3,4,5], 6])
         >>> Q = P.reduce()
         >>> Q
-        < AbstractPolynom [3, 12, 6]>
+        < <class 'pymath.abstract_polynom.AbstractPolynom'> [3, 12, 6]>
         >>> Q.steps
-        [< AbstractPolynom [< <class 'pymath.expression.Expression'> [1, 2, '+'] >, < <class 'pymath.expression.Expression'> [3, 4, '+', 5, '+'] >, 6]>, < AbstractPolynom [< <class 'pymath.expression.Expression'> [1, 2, '+'] >, < <class 'pymath.expression.Expression'> [7, 5, '+'] >, 6]>, < AbstractPolynom [3, < <class 'pymath.expression.Expression'> [7, 5, '+'] >, 6]>]
+        [< <class 'pymath.abstract_polynom.AbstractPolynom'> [< <class 'pymath.expression.Expression'> [1, 2, '+'] >, < <class 'pymath.expression.Expression'> [3, 4, '+', 5, '+'] >, 6]>, < <class 'pymath.abstract_polynom.AbstractPolynom'> [3, < <class 'pymath.expression.Expression'> [7, 5, '+'] >, 6]>]
         """
     
         # TODO: It doesn't not compute quick enough |ven. févr. 27 18:04:01 CET 2015
@@ -399,9 +399,9 @@ class AbstractPolynom(Explicable):
         >>> Q = AbstractPolynom([4,5])
         >>> R = P+Q
         >>> R
-        < AbstractPolynom [5, 7, 3]>
+        < <class 'pymath.abstract_polynom.AbstractPolynom'> [5, 7, 3]>
         >>> R.steps
-        [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', 5, 'x', '*', 4, '+', '+'] >, < AbstractPolynom [< <class 'pymath.expression.Expression'> [1, 4, '+'] >, < <class 'pymath.expression.Expression'> [2, 5, '+'] >, 3]>, < AbstractPolynom [< <class 'pymath.expression.Expression'> [1, 4, '+'] >, < <class 'pymath.expression.Expression'> [2, 5, '+'] >, 3]>]
+        [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', 5, 'x', '*', 4, '+', '+'] >, < <class 'pymath.abstract_polynom.AbstractPolynom'> [< <class 'pymath.expression.Expression'> [1, 4, '+'] >, < <class 'pymath.expression.Expression'> [2, 5, '+'] >, 3]>]
         """
         o_poly = self.conv2poly(other)
 
@@ -423,7 +423,7 @@ class AbstractPolynom(Explicable):
         >>> P = AbstractPolynom([1,2,3])
         >>> Q = -P
         >>> Q
-        < AbstractPolynom [-1, -2, -3]>
+        < <class 'pymath.abstract_polynom.AbstractPolynom'> [-1, -2, -3]>
         >>> Q.steps
         [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', '-'] >]
         """
@@ -439,9 +439,15 @@ class AbstractPolynom(Explicable):
         >>> Q = AbstractPolynom([4,5,6])
         >>> R = P - Q
         >>> R
-        < AbstractPolynom [-3, -3, -3]>
+        < <class 'pymath.abstract_polynom.AbstractPolynom'> [-3, -3, -3]>
         >>> R.steps
-        [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', 6, 'x', 2, '^', '*', 5, 'x', '*', '+', 4, '+', '-'] >, < <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', 6, 'x', 2, '^', '*', '-', 5, 'x', '*', '-', 4, '-', '+'] >, < AbstractPolynom [< <class 'pymath.expression.Expression'> [1, -4, '+'] >, < <class 'pymath.expression.Expression'> [2, -5, '+'] >, < <class 'pymath.expression.Expression'> [3, -6, '+'] >]>, < AbstractPolynom [< <class 'pymath.expression.Expression'> [1, -4, '+'] >, < <class 'pymath.expression.Expression'> [2, -5, '+'] >, < <class 'pymath.expression.Expression'> [3, -6, '+'] >]>]
+        [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', 6, 'x', 2, '^', '*', 5, 'x', '*', '+', 4, '+', '-'] >, < <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, 'x', '*', '+', 1, '+', 6, 'x', 2, '^', '*', '-', 5, 'x', '*', '-', 4, '-', '+'] >, < <class 'pymath.abstract_polynom.AbstractPolynom'> [< <class 'pymath.expression.Expression'> [1, -4, '+'] >, < <class 'pymath.expression.Expression'> [2, -5, '+'] >, < <class 'pymath.expression.Expression'> [3, -6, '+'] >]>]
+        >>> for i in R.explain():
+        ...     print(i)
+        3 x^{  2 } + 2 x + 1 - ( 6 x^{  2 } + 5 x + 4 )
+        3 x^{  2 } + 2 x + 1 -  6 x^{  2 } - 5 x - 4
+        ( 3 - 6 ) x^{  2 } + ( 2 - 5 ) x + 1 - 4
+        - 3 x^{  2 } - 3 x - 3
         """
         o_poly = self.conv2poly(other)
         ini_step = [Expression(self.postfix_tokens + o_poly.postfix_tokens + [op.sub])]
@@ -463,29 +469,29 @@ class AbstractPolynom(Explicable):
 
         >>> p = AbstractPolynom([1,2])
         >>> p*3
-        < AbstractPolynom [3, 6]>
+        < <class 'pymath.abstract_polynom.AbstractPolynom'> [3, 6]>
         >>> (p*3).steps
-        [[< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 3, '*'] >], < AbstractPolynom [3, < <class 'pymath.expression.Expression'> [2, 3, '*'] >]>, < AbstractPolynom [3, < <class 'pymath.expression.Expression'> [2, 3, '*'] >]>]
+        [[< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 3, '*'] >], < <class 'pymath.abstract_polynom.AbstractPolynom'> [3, < <class 'pymath.expression.Expression'> [2, 3, '*'] >]>]
         >>> q = AbstractPolynom([0,0,4])
         >>> q*3
-        < AbstractPolynom [0, 0, 12]>
+        < <class 'pymath.abstract_polynom.AbstractPolynom'> [0, 0, 12]>
         >>> (q*3).steps
-        [[< <class 'pymath.expression.Expression'> [4, 'x', 2, '^', '*', 3, '*'] >], < AbstractPolynom [0, 0, < <class 'pymath.expression.Expression'> [4, 3, '*'] >]>, < AbstractPolynom [0, 0, < <class 'pymath.expression.Expression'> [4, 3, '*'] >]>]
+        [[< <class 'pymath.expression.Expression'> [4, 'x', 2, '^', '*', 3, '*'] >], < <class 'pymath.abstract_polynom.AbstractPolynom'> [0, 0, < <class 'pymath.expression.Expression'> [4, 3, '*'] >]>]
         >>> r = AbstractPolynom([0,1])
         >>> r*3
-        < AbstractPolynom [0, 3]>
+        < <class 'pymath.abstract_polynom.AbstractPolynom'> [0, 3]>
         >>> (r*3).steps
         [[< <class 'pymath.expression.Expression'> ['x', 3, '*'] >]]
         >>> p*q
-        < AbstractPolynom [0, 0, 4, 8]>
+        < <class 'pymath.abstract_polynom.AbstractPolynom'> [0, 0, 4, 8]>
         >>> (p*q).steps
-        [[< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 4, 'x', 2, '^', '*', '*'] >], < AbstractPolynom [0, 0, 4, < <class 'pymath.expression.Expression'> [2, 4, '*'] >]>, < AbstractPolynom [0, 0, 4, < <class 'pymath.expression.Expression'> [2, 4, '*'] >]>]
+        [[< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 4, 'x', 2, '^', '*', '*'] >], < <class 'pymath.abstract_polynom.AbstractPolynom'> [0, 0, 4, < <class 'pymath.expression.Expression'> [2, 4, '*'] >]>]
         >>> p*r
-        < AbstractPolynom [0, 1, 2]>
+        < <class 'pymath.abstract_polynom.AbstractPolynom'> [0, 1, 2]>
         >>> P = AbstractPolynom([1,2,3])
         >>> Q = AbstractPolynom([4,5,6])
         >>> P*Q
-        < AbstractPolynom [4, 13, 28, 27, 18]>
+        < <class 'pymath.abstract_polynom.AbstractPolynom'> [4, 13, 28, 27, 18]>
         """
         # TODO: Je trouve qu'elle grille trop d'étapes... |ven. févr. 27 19:08:44 CET 2015
         o_poly = self.conv2poly(other)
@@ -528,20 +534,20 @@ class AbstractPolynom(Explicable):
 
         >>> p = AbstractPolynom([0,0,3])
         >>> p**2
-        < AbstractPolynom [0, 0, 0, 0, 9]>
+        < <class 'pymath.abstract_polynom.AbstractPolynom'> [0, 0, 0, 0, 9]>
         >>> (p**2).steps
-        [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, '^'] >, < AbstractPolynom [0, 0, 0, 0, < <class 'pymath.expression.Expression'> [3, 2, '^'] >]>, < AbstractPolynom [0, 0, 0, 0, < <class 'pymath.expression.Expression'> [3, 2, '^'] >]>]
+        [< <class 'pymath.expression.Expression'> [3, 'x', 2, '^', '*', 2, '^'] >, < <class 'pymath.abstract_polynom.AbstractPolynom'> [0, 0, 0, 0, < <class 'pymath.expression.Expression'> [3, 2, '^'] >]>]
         >>> p = AbstractPolynom([1,2])
         >>> p**2
-        < AbstractPolynom [1, 4, 4]>
+        < <class 'pymath.abstract_polynom.AbstractPolynom'> [1, 4, 4]>
         >>> (p**2).steps
-        [< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 2, '^'] >, [< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 2, 'x', '*', 1, '+', '*'] >], < AbstractPolynom [1, < <class 'pymath.expression.Expression'> [2, 2, '+'] >, < <class 'pymath.expression.Expression'> [2, 2, '*'] >]>, < AbstractPolynom [1, < <class 'pymath.expression.Expression'> [2, 2, '+'] >, < <class 'pymath.expression.Expression'> [2, 2, '*'] >]>]
+        [< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 2, '^'] >, [< <class 'pymath.expression.Expression'> [2, 'x', '*', 1, '+', 2, 'x', '*', 1, '+', '*'] >], < <class 'pymath.abstract_polynom.AbstractPolynom'> [1, < <class 'pymath.expression.Expression'> [2, 2, '+'] >, < <class 'pymath.expression.Expression'> [2, 2, '*'] >]>]
         >>> p = AbstractPolynom([0,0,1])
         >>> p**3
-        < AbstractPolynom [0, 0, 0, 0, 0, 0, 1]>
+        < <class 'pymath.abstract_polynom.AbstractPolynom'> [0, 0, 0, 0, 0, 0, 1]>
         >>> p = AbstractPolynom([1,2,3])
         >>> p**2
-        < AbstractPolynom [1, 4, 10, 12, 9]>
+        < <class 'pymath.abstract_polynom.AbstractPolynom'> [1, 4, 10, 12, 9]>
 
         """
         if not type(power):
