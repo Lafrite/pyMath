@@ -65,6 +65,9 @@ class AbstractPolynom(Explicable):
         except IndexError:
             pass
 
+        if coefs == []:
+            coefs = [0]
+
         self.feed_coef(coefs)
         self._letter = letter
         self.name = name
