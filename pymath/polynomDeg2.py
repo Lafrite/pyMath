@@ -3,10 +3,12 @@
 
 from .polynom import Polynom
 from .expression import Expression
+from .fraction import Fraction
 from .operator import op
 from .random_expression import RdExpression
 
-from math import sqrt
+from sympy import sqrt, latex
+#from sympy.fractions import Fraction as sp.Fraction
 
 __all__ = ["Polynom_deg2"]
 
@@ -125,7 +127,8 @@ class Polynom_deg2(Polynom):
     def roots(self, after_coma = 2):
         """ Compute roots of the polynom
 
-        /!\ Can't manage exact solution because of pymath does not handle sqare root yet
+        /!\ Can't manage nice rendering because of sqrt.
+        It use sympy to compute roots
 
         # TODO: Pymath has to know how to compute with sqare root |mar. févr. 24 18:40:04 CET 2015
 
@@ -134,16 +137,18 @@ class Polynom_deg2(Polynom):
         []
         >>> P = Polynom_deg2([1, 2, 1])
         >>> P.roots()
-        [-1.0]
+        [-1]
         >>> P = Polynom_deg2([-1, 0, 1])
         >>> P.roots()
-        [-1.0, 1.0]
+        ['-1', '1']
+        >>> P = Polynom_deg2([1, 4, 1])
+        >>> P.roots()
+        ['-2 - \\\\sqrt{3}', '-2 + \\\\sqrt{3}']
         """
-        # TODO: Use sympy to compute those |mar. avril  7 07:31:42 CEST 2015
         if self.delta > 0:
-            self._roots = [round((-self.b - sqrt(self.delta))/(2*self.a),after_coma), round((-self.b + sqrt(self.delta))/(2*self.a),after_coma)]
+            self._roots = [latex((-self.b - sqrt(self.delta))/(2*self.a)), latex((-self.b + sqrt(self.delta))/(2*self.a))]
         elif self.delta == 0:
-            self._roots = [round(-self.b /(2*self.a), after_coma)]
+            self._roots = [Fraction(-self.b,2*self.a).simplify()]
         else:
             self._roots = []
         return self._roots
