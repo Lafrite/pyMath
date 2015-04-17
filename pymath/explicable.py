@@ -87,7 +87,7 @@ class Explicable(Renderable):
                     new_s = self.STR_RENDER(s.postfix_tokens)
                 else:
                     new_s = self.STR_RENDER(s)
-                if new_s != old_s:
+                if not self.is_same_step(new_s, old_s):
                     old_s = new_s
                     yield new_s
         except AttributeError:
@@ -96,8 +96,23 @@ class Explicable(Renderable):
         if noself:
             # Lui même
             new_s = self.STR_RENDER(self.postfix_tokens)
-            if new_s != old_s:
+            if not self.is_same_step(new_s, old_s):
                 yield new_s
+
+    def is_same_step(self, new, old):
+        """Return whether the new step is the same than old step
+        """
+        try:
+            if new.replace(" ", "") == old.replace(" ", ""):
+                return True
+            else:
+                return False
+        except AttributeError:
+            if new == old:
+                return True
+            else:
+                return False
+
         
 
 
