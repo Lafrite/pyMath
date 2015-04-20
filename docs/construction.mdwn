@@ -45,14 +45,14 @@ Dans cette partie, on va expliquer le fonctionnement des mécanismes de simplifi
 La simplification des expressions se fait avec les deux méthodes suivantes:
 
 * *simplify()* pour:
-    * un polynôme permet d'accéder à la forme canonique d'un polynôme
+    * un polynôme permet d'accéder à la forme developpée d'un polynôme
     * une fraction permet d'avoir la fraction irréductible associée
     * une expression permet de faire tous les calculs possibles de cette expression (à la fin il ne doit y avoir qu'un élément de la liste de tokens)
 * *compute_exp()* pour:
     * un polynôme ou une fraction fait la même chose que $simplify$.
     * une expression fait tous les calculs élémentaires de cette expression.
 
-Ces deux méthodes fonctionnent ensuite sur le même principe. Elles vont faire le calcul qui leurs est attribuée en enregistrant les étapes dans *steps* puis elles retourneront l'objet de fin de calcul à qui sera assigné les *steps* (ce qui nécessitera par exemple de détourner la classe *int*).
+Ces deux méthodes fonctionnent ensuite sur le même principe. Elles vont faire le calcul qui leurs est attribué en enregistrant les étapes dans *steps* puis elles retourneront l'objet de fin de calcul à qui sera assigné les *steps* (ce qui nécessitera par exemple de détourner la classe *int*).
 
 Pour accéder à ces étapes, on utilisera alors la méthode *explain* qui expliqueront les étapes intermédiaires.
 
