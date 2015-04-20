@@ -11,9 +11,9 @@ from .random_expression import RdExpression
 __all__ = ['Expression']
 
 
+
 class Expression(Explicable):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
-
 
     @classmethod
     def random(self, form="", conditions=[], val_min = -10, val_max=10):
@@ -86,7 +86,8 @@ class Expression(Explicable):
         if len(expression.postfix_tokens) == 1:
             token = expression.postfix_tokens[0]
             if hasattr(token, 'simplify') and hasattr(token, 'explain'):
-                return expression.postfix_tokens[0]
+                ans = expression.postfix_tokens[0]
+                return ans
 
             elif type(token) == int:
             # On crée un faux int en ajoutant la méthode simplify et simplified et la caractérisique isNumber
@@ -124,14 +125,27 @@ class Expression(Explicable):
 
     def simplify(self):
         """ Compute entirely the expression and return the result with .steps attribute """
+        #from .render import txt
+        #with Expression.tmp_render(txt):
+        #    print("self -> ", self, " --> ", len(self.steps))
+        
         self.compute_exp()
 
+        #with Expression.tmp_render(txt):
+        #    print("|-> self.child -> ", self.child, " --> ", len(self.child.steps))
+
         self.simplified = self.child.simplify()
-        if self.simplified != self.child:
-            try:
-                self.simplified.steps = self.child.steps + self.simplified.steps
-            except AttributeError:
-                pass
+        #print('|-- len(self.simplified.steps)=', len(self.child.steps) , " + ", len(self.simplified.steps))
+        self.simplified.steps = self.child.steps + self.simplified.steps
+        #if self.simplified != self.child:
+        #    try:
+        #        self.simplified.steps = self.child.steps + self.simplified.steps
+        #    except AttributeError as e:
+        #        #print(e)
+        #        pass
+
+        #with Expression.tmp_render(txt):
+        #    print("End self.simplified -> ", self.simplified, " --> ", len(self.simplified.steps))
         return self.simplified
 
     def compute_exp(self):
@@ -193,26 +207,53 @@ class Expression(Explicable):
 
         tmpTokenList += tokenList
         self.child = Expression(tmpTokenList)
+
+        #from .render import txt
+        #with Expression.tmp_render(txt):
+        #    print('------------')
+        #    print("self -> ", self)
+        #    print("self.child -> ", self.child)
+        #    print("self.child.steps -> ", [str(i) for i in self.child.steps], ' -- ', len(self.child.steps))
+
+        steps = self.develop_steps(tmpTokenList)
+        #with Expression.tmp_render(txt):
+        #    print('************')
+        #    print("steps -> ", [str(i) for i in steps], ' -- ', len(steps))
+        #    print('************')
+
+        #if steps !=[] and ini_step != steps[0]:
+        #    self.child.steps = [ini_step] + steps
+        #else:
+        #    self.child.steps = steps
+
         if self.child.postfix_tokens == ini_step.postfix_tokens:
-            self.child.steps = self.develop_steps(tmpTokenList)
+            self.child.steps = steps
         else:
-            self.child.steps = [ini_step] + self.develop_steps(tmpTokenList)
+            self.child.steps = [ini_step] + steps
+        #with Expression.tmp_render(txt):
+        #    print('++++')
+        #    print("self.child.steps -> ", [str(i) for i in self.child.steps], ' -- ', len(self.child.steps))
 
     def develop_steps(self, tokenList):
         """ From a list of tokens, it develops steps of each tokens """
+        # TODO: Attention les étapes sont dans le mauvais sens |lun. avril 20 10:06:03 CEST 2015
+        print("---- develop_steps ------")
+        print("tokenList -> ", tokenList)
         tmp_steps = []
         with Expression.tmp_render():
             for t in tokenList:
                 if hasattr(t, "explain"):
                     tmp_steps.append([i for i in t.explain()])
                 else:
-                    tmp_steps.append(t)
-        if max([len(i) if type(i) == list else 1 for i in tmp_steps]) == 1:
+                    tmp_steps.append([t])
+        print("tmp_steps -> ", tmp_steps)
+        if max([len(i) for i in tmp_steps]) == 1:
             # Cas où rien n'a dû être expliqué.
             return []
         else:
             tmp_steps = expand_list(tmp_steps)[:-1]
             steps = [Expression(s) for s in tmp_steps]
+            print("steps -> ", steps)
             return steps
 
     @classmethod
@@ -347,104 +388,30 @@ def untest(exp):
     print("\n")
 
 if __name__ == '__main__':
-    #render = lambda _,x : str(x)
-    #Expression.set_render(render)
-    #exp = Expression("1/2 - 4")
-    #print(list(exp.simplify()))
-
-    #Expression.set_render(txt)
-    #exp = "2 ^ 3 * 5"
-    #untest(exp)
-
-    #exp = "2x + 5"
-    #untest(exp)
-
-    #Expression.set_render(tex)
-
-    #untest(exp1)
-
-    #from pymath.operator import op
-    #exp = [2, 3, op.pw, 5, op.mul]
-    #untest(exp)
-
-    #untest([Expression(exp1), Expression(exp), op.add])
-
-    #exp = "1 + 3 * 5"
-    #e = Expression(exp)
-    #f = -e
-    #print(f)
-
-    #exp = "2 * 3 * 3 * 5"
-    #untest(exp)
-
-    #exp = "2 * 3 + 3 * 5"
-    #untest(exp)
-
-    #exp = "2 * ( 3 + 4 ) + 3 * 5"
-    #untest(exp)
-
-    #exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
-    #untest(exp)
-    #
-    #exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
-    #untest(exp)
-    #
-    #exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
-    #untest(exp)
-    #
-    #exp = "2 + 5 * ( 3 - 4 )"
-    #untest(exp)
-
-    #exp = "( 2 + 5 ) * ( 3 - 4 )^4"
-    #untest(exp)
-
-    #exp = "( 2 + 5 ) * ( 3 * 4 )"
-    #untest(exp)
-
-    #exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
-    #untest(exp)
-
-    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
-    #untest(exp)
-
-    #exp = "( 2+ 5 )/( 3 * 4 ) + 1 / 2"
-    #untest(exp)
-
-    #exp="(-2+5)/(3*4)+1/12+5*5"
-    #untest(exp)
-
-    #exp="-2*4(12 + 1)(3-12)"
-    #untest(exp)
-
-
-    #exp="(-2+5)/(3*4)+1/12+5*5"
-    #untest(exp)
-
-    # TODO: The next one doesn't work  |ven. janv. 17 14:56:58 CET 2014
-    #exp="-2*(-a)(12 + 1)(3-12)"
-    #e = Expression(exp)
-    #print(e)
-
-    ## Can't handle it yet!!
-    #exp="-(-2)"
-    #untest(exp)
-
-    #print("\n")
-    #exp = Expression.random("({a} + 3)({b} - 1)", ["{a} > 4"])
-    #for i in exp.simplify():
+    #print('\n')
+    #A = Expression.random("( -8 x + 8 ) ( -8 - ( -6 x ) )")
+    #Ar = A.simplify()
+    #print("Ar.steps -> ", Ar.steps)
+    #for i in Ar.steps:
+    #    print(i)
+    #print("------------")
+    #for i in Ar.explain():
     #    print(i)
 
-    from .fraction import Fraction
-    f1 = Fraction(3,5)
-    f2 = Fraction(5,10)
-    q = f1+f2
-    print("---------")
-    print(q.steps)
-    print("---------")
-
-    for i in q.explain():
-        print(i)
+    #print(type(Ar))
     
+
+    print('\n-----------')
+    A = Expression.random("2 / 3 + 4 / 5")
+    Ar = A.simplify()
+    #print("Ar.steps -> ", Ar.steps)
+    #for i in Ar.steps:
+    #    print(i)
+    #print("------------")
+    #for i in Ar.explain():
+    #    print(i)
+
+    #print(type(Ar))
 
     #import doctest
     #doctest.testmod()
