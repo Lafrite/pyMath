@@ -4,6 +4,9 @@
 from .render import txt, tex
 
 class Renderable(object):
+    """
+    A Renderable object is an object which can work with Render class. It means that it has to have attribute postfix_tokens.
+    """
     STR_RENDER = tex
     DEFAULT_RENDER = tex
 
@@ -60,6 +63,15 @@ class Renderable(object):
             def __exit__(self, type, value, traceback):
                 Renderable.set_render(self.old_render)
         return TmpRenderEnv()
+
+    def __eq__(self, other):
+        """ Two Renderable objects are the same if they have same postfix_tokens """
+        try:
+            return self.postfix_tokens == other.postfix_tokens
+        except AttributeError:
+            return False
+
+    
         
 class Explicable(Renderable):
 
