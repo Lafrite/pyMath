@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+#debuging
+#from debug.tools import report
+
 from .generic import Stack, flatten_list, expand_list, isNumber, isOperator, isNumerand
 from .str2tokens import str2tokens
 from .operator import op
@@ -347,10 +350,10 @@ def untest(exp):
 
 if __name__ == '__main__':
     #print('\n')
-    A = Expression.random("( -8 x + 8 ) ( -8 - ( -6 x ) )")
+    A = Expression("( -8 x + 8 ) ( -8 - ( -6 x ) )")
     Ar = A.simplify()
     #print("Ar.steps -> ", Ar.steps)
-    for i in Ar.steps:
+    for i in Ar.explain():
         print(i)
     #print("------------")
     #for i in Ar.explain():
@@ -360,7 +363,7 @@ if __name__ == '__main__':
     
 
     print('\n-----------')
-    A = Expression.random("2 / 3 + 4 / 5")
+    A = Expression("2 / 3 + 4 / 5")
     Ar = A.simplify()
     #print("Ar.steps -> ", Ar.steps)
     #for i in Ar.steps:
