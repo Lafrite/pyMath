@@ -10,8 +10,6 @@ from .random_expression import RdExpression
 
 __all__ = ['Expression']
 
-
-
 class Expression(Explicable):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
 
@@ -125,27 +123,10 @@ class Expression(Explicable):
 
     def simplify(self):
         """ Compute entirely the expression and return the result with .steps attribute """
-        #from .render import txt
-        #with Expression.tmp_render(txt):
-        #    print("self -> ", self, " --> ", len(self.steps))
-        
         self.compute_exp()
 
-        #with Expression.tmp_render(txt):
-        #    print("|-> self.child -> ", self.child, " --> ", len(self.child.steps))
-
         self.simplified = self.child.simplify()
-        #print('|-- len(self.simplified.steps)=', len(self.child.steps) , " + ", len(self.simplified.steps))
         self.simplified.steps = self.child.steps + self.simplified.steps
-        #if self.simplified != self.child:
-        #    try:
-        #        self.simplified.steps = self.child.steps + self.simplified.steps
-        #    except AttributeError as e:
-        #        #print(e)
-        #        pass
-
-        #with Expression.tmp_render(txt):
-        #    print("End self.simplified -> ", self.simplified, " --> ", len(self.simplified.steps))
         return self.simplified
 
     def compute_exp(self):
@@ -208,37 +189,16 @@ class Expression(Explicable):
         tmpTokenList += tokenList
         self.child = Expression(tmpTokenList)
 
-        #from .render import txt
-        #with Expression.tmp_render(txt):
-        #    print('------------')
-        #    print("self -> ", self)
-        #    print("self.child -> ", self.child)
-        #    print("self.child.steps -> ", [str(i) for i in self.child.steps], ' -- ', len(self.child.steps))
-
         steps = self.develop_steps(tmpTokenList)
-        #with Expression.tmp_render(txt):
-        #    print('************')
-        #    print("steps -> ", [str(i) for i in steps], ' -- ', len(steps))
-        #    print('************')
-
-        #if steps !=[] and ini_step != steps[0]:
-        #    self.child.steps = [ini_step] + steps
-        #else:
-        #    self.child.steps = steps
 
         if self.child.postfix_tokens == ini_step.postfix_tokens:
             self.child.steps = steps
         else:
             self.child.steps = [ini_step] + steps
-        #with Expression.tmp_render(txt):
-        #    print('++++')
-        #    print("self.child.steps -> ", [str(i) for i in self.child.steps], ' -- ', len(self.child.steps))
 
     def develop_steps(self, tokenList):
         """ From a list of tokens, it develops steps of each tokens """
         # TODO: Attention les étapes sont dans le mauvais sens |lun. avril 20 10:06:03 CEST 2015
-        print("---- develop_steps ------")
-        print("tokenList -> ", tokenList)
         tmp_steps = []
         with Expression.tmp_render():
             for t in tokenList:
@@ -246,14 +206,12 @@ class Expression(Explicable):
                     tmp_steps.append([i for i in t.explain()])
                 else:
                     tmp_steps.append([t])
-        print("tmp_steps -> ", tmp_steps)
         if max([len(i) for i in tmp_steps]) == 1:
             # Cas où rien n'a dû être expliqué.
             return []
         else:
             tmp_steps = expand_list(tmp_steps)[:-1]
             steps = [Expression(s) for s in tmp_steps]
-            print("steps -> ", steps)
             return steps
 
     @classmethod
@@ -389,11 +347,11 @@ def untest(exp):
 
 if __name__ == '__main__':
     #print('\n')
-    #A = Expression.random("( -8 x + 8 ) ( -8 - ( -6 x ) )")
-    #Ar = A.simplify()
+    A = Expression.random("( -8 x + 8 ) ( -8 - ( -6 x ) )")
+    Ar = A.simplify()
     #print("Ar.steps -> ", Ar.steps)
-    #for i in Ar.steps:
-    #    print(i)
+    for i in Ar.steps:
+        print(i)
     #print("------------")
     #for i in Ar.explain():
     #    print(i)
@@ -408,8 +366,8 @@ if __name__ == '__main__':
     #for i in Ar.steps:
     #    print(i)
     #print("------------")
-    #for i in Ar.explain():
-    #    print(i)
+    for i in Ar.explain():
+        print(i)
 
     #print(type(Ar))
 
