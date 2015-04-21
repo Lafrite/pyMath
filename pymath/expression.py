@@ -350,11 +350,11 @@ def untest(exp):
 
 if __name__ == '__main__':
     #print('\n')
-    A = Expression("( -8 x + 8 ) ( -8 - ( -6 x ) )")
-    Ar = A.simplify()
+    #A = Expression("( -8 x + 8 ) ( -8 - ( -6 x ) )")
+    #Ar = A.simplify()
     #print("Ar.steps -> ", Ar.steps)
-    for i in Ar.explain():
-        print(i)
+    #for i in Ar.explain():
+    #    print(i)
     #print("------------")
     #for i in Ar.explain():
     #    print(i)
@@ -362,20 +362,20 @@ if __name__ == '__main__':
     #print(type(Ar))
     
 
-    print('\n-----------')
-    A = Expression("2 / 3 + 4 / 5")
-    Ar = A.simplify()
+    #print('\n-----------')
+    #A = Expression("2 / 3 + 4 / 5")
+    #Ar = A.simplify()
     #print("Ar.steps -> ", Ar.steps)
     #for i in Ar.steps:
     #    print(i)
     #print("------------")
-    for i in Ar.explain():
-        print(i)
+    #for i in Ar.explain():
+    #    print(i)
 
     #print(type(Ar))
 
-    #import doctest
-    #doctest.testmod()
+    import doctest
+    doctest.testmod()
 
 # -----------------------------
 # Reglages pour 'vim'

@@ -307,6 +307,11 @@ class AbstractPolynom(Explicable):
         >>> Q = P.reduce()
         >>> Q
         < <class 'pymath.abstract_polynom.AbstractPolynom'> [3, 12, 6]>
+        >>> for i in Q.explain():
+        ...     print(i)
+        6 x^{  2 } + ( 3 + 4 + 5 ) x + 1 + 2
+        6 x^{  2 } + ( 7 + 5 ) x + 3
+        6 x^{  2 } + 12 x + 3
         >>> Q.steps
         [< <class 'pymath.abstract_polynom.AbstractPolynom'> [< <class 'pymath.expression.Expression'> [1, 2, '+'] >, < <class 'pymath.expression.Expression'> [3, 4, '+', 5, '+'] >, 6]>, < <class 'pymath.abstract_polynom.AbstractPolynom'> [3, < <class 'pymath.expression.Expression'> [7, 5, '+'] >, 6]>]
         """
@@ -580,6 +585,14 @@ class AbstractPolynom(Explicable):
     def __xor__(self, power):
         return self.__pow__(power)
 
+if __name__ == '__main__':
+    P = AbstractPolynom([[1,2],[3,4,5],6])
+    Q = P.reduce()
+    for i in Q.explain():
+        print(i)
+
+    #import doctest
+    #doctest.testmod()
 
 
 # -----------------------------
