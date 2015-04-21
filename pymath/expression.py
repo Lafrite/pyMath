@@ -103,14 +103,6 @@ class Expression(Explicable):
                 ans = expression.postfix_tokens[0]
                 return ans
 
-            #elif type(token) == int:
-            ## On crée un faux int en ajoutant la méthode simplify et simplified et la caractérisique isNumber
-            #    #simplify = lambda x:int(x)
-            #    #is_number = True
-            #    #methods_attr = {'simplify':simplify, 'isNumber': is_number, 'postfix_tokens': [token], 'steps':[]}
-            #    #fake_token = type('fake_int', (int,Explicable, ), methods_attr)(token)
-            #    return Fake_int(token)
-
             elif type(token) == str:
                 # TODO: Pourquoi ne pas créer directement un polynom ici? |jeu. févr. 26 18:59:24 CET 2015
             # On crée un faux str en ajoutant la méthode simplify et simplified et la caractérisique isNumber
