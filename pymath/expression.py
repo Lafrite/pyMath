@@ -13,6 +13,17 @@ from .random_expression import RdExpression
 
 __all__ = ['Expression']
 
+class Fake_int(int, Explicable):
+    isNumber = True
+    def __init__(self, val):
+        super(Fake_int, self).__init__(val)
+        self._val = val
+        self.postfix_tokens = [self]
+        self.steps = []
+    def simplify(self):
+        return Fake_int(self._val)
+        
+
 class Expression(Explicable):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
 
@@ -86,17 +97,19 @@ class Expression(Explicable):
 
         if len(expression.postfix_tokens) == 1:
             token = expression.postfix_tokens[0]
-            if hasattr(token, 'simplify') and hasattr(token, 'explain'):
+            if type(token) == Fake_int or type(token) == int:
+                return Fake_int(token)
+            elif hasattr(token, 'simplify') and hasattr(token, 'explain'):
                 ans = expression.postfix_tokens[0]
                 return ans
 
-            elif type(token) == int:
-            # On crée un faux int en ajoutant la méthode simplify et simplified et la caractérisique isNumber
-                simplify = lambda x:x
-                is_number = True
-                methods_attr = {'simplify':simplify, 'isNumber': is_number, 'postfix_tokens': [token]}
-                fake_token = type('fake_int', (int,Explicable, ), methods_attr)(token)
-                return fake_token
+            #elif type(token) == int:
+            ## On crée un faux int en ajoutant la méthode simplify et simplified et la caractérisique isNumber
+            #    #simplify = lambda x:int(x)
+            #    #is_number = True
+            #    #methods_attr = {'simplify':simplify, 'isNumber': is_number, 'postfix_tokens': [token], 'steps':[]}
+            #    #fake_token = type('fake_int', (int,Explicable, ), methods_attr)(token)
+            #    return Fake_int(token)
 
             elif type(token) == str:
                 # TODO: Pourquoi ne pas créer directement un polynom ici? |jeu. févr. 26 18:59:24 CET 2015
@@ -349,12 +362,11 @@ def untest(exp):
     print("\n")
 
 if __name__ == '__main__':
-    #print('\n')
-    #A = Expression("( -8 x + 8 ) ( -8 - ( -6 x ) )")
-    #Ar = A.simplify()
-    #print("Ar.steps -> ", Ar.steps)
-    #for i in Ar.explain():
-    #    print(i)
+    print('\n')
+    A = Expression("( -8 x + 8 ) ( -8 - ( -6 x ) )")
+    Ar = A.simplify()
+    for i in Ar.explain():
+        print(i)
     #print("------------")
     #for i in Ar.explain():
     #    print(i)
@@ -363,19 +375,19 @@ if __name__ == '__main__':
     
 
     #print('\n-----------')
-    #A = Expression("2 / 3 + 4 / 5")
+    #A = Expression("-6 / 3 + 10 / -5")
     #Ar = A.simplify()
-    #print("Ar.steps -> ", Ar.steps)
-    #for i in Ar.steps:
-    #    print(i)
-    #print("------------")
     #for i in Ar.explain():
     #    print(i)
 
-    #print(type(Ar))
+    #print('\n-----------')
+    #A = Expression("1/3 + 4/6")
+    #Ar = A.simplify()
+    #for i in Ar.explain():
+    #    print(i)
 
-    import doctest
-    doctest.testmod()
+    #import doctest
+    #doctest.testmod()
 
 # -----------------------------
 # Reglages pour 'vim'
