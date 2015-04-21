@@ -122,7 +122,7 @@ class Polynom_deg2(Polynom):
         \\frac{ -1 + 3 }{ 3 }
         \\frac{ 2 }{ 3 }
         """
-        return self(self.alpha).simplify()
+        return self(self.alpha)
 
     def roots(self, after_coma = 2):
         """ Compute roots of the polynom
@@ -226,14 +226,17 @@ class Polynom_deg2(Polynom):
 
 
 if __name__ == '__main__':
-   # from .render import txt
-   # with Expression.tmp_render(txt):
-   #     P = Polynom_deg2([2, 3, 4])
-   #     print(P)
+    #from .render import txt
+    #with Expression.tmp_render(txt):
+    #    P = Polynom_deg2([2, 3, 4])
+    #    print(P)
 
-   #     print("Delta")
-   #     for i in P.delta.simplify():
-   #         print(i)
+    #    print("\nDelta")
+    #    for i in P.delta.explain():
+    #        print(i)
+    #    print("\nBeta")
+    #    for i in P.beta.explain():
+    #        print(i)
 
     import doctest
     doctest.testmod()
