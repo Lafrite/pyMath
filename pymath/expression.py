@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+#debuging
+#from debug.tools import report
+
 from .generic import Stack, flatten_list, expand_list, isNumber, isOperator, isNumerand
 from .str2tokens import str2tokens
 from .operator import op
@@ -10,10 +13,19 @@ from .random_expression import RdExpression
 
 __all__ = ['Expression']
 
+class Fake_int(int, Explicable):
+    isNumber = True
+    def __init__(self, val):
+        super(Fake_int, self).__init__(val)
+        self._val = val
+        self.postfix_tokens = [self]
+        self.steps = []
+    def simplify(self):
+        return Fake_int(self._val)
+        
 
 class Expression(Explicable):
     """A calculus expression. Today it can andle only expression with numbers later it will be able to manipulate unknown"""
-
 
     @classmethod
     def random(self, form="", conditions=[], val_min = -10, val_max=10):
@@ -85,16 +97,11 @@ class Expression(Explicable):
 
         if len(expression.postfix_tokens) == 1:
             token = expression.postfix_tokens[0]
-            if hasattr(token, 'simplify') and hasattr(token, 'explain'):
-                return expression.postfix_tokens[0]
-
-            elif type(token) == int:
-            # On crée un faux int en ajoutant la méthode simplify et simplified et la caractérisique isNumber
-                simplify = lambda x:x
-                is_number = True
-                methods_attr = {'simplify':simplify, 'isNumber': is_number, 'postfix_tokens': [token]}
-                fake_token = type('fake_int', (int,Explicable, ), methods_attr)(token)
-                return fake_token
+            if type(token) == Fake_int or type(token) == int:
+                return Fake_int(token)
+            elif hasattr(token, 'simplify') and hasattr(token, 'explain'):
+                ans = expression.postfix_tokens[0]
+                return ans
 
             elif type(token) == str:
                 # TODO: Pourquoi ne pas créer directement un polynom ici? |jeu. févr. 26 18:59:24 CET 2015
@@ -127,11 +134,7 @@ class Expression(Explicable):
         self.compute_exp()
 
         self.simplified = self.child.simplify()
-        if self.simplified != self.child:
-            try:
-                self.simplified.steps = self.child.steps + self.simplified.steps
-            except AttributeError:
-                pass
+        self.simplified.steps = self.child.steps + self.simplified.steps
         return self.simplified
 
     def compute_exp(self):
@@ -193,21 +196,25 @@ class Expression(Explicable):
 
         tmpTokenList += tokenList
         self.child = Expression(tmpTokenList)
+
+        steps = self.develop_steps(tmpTokenList)
+
         if self.child.postfix_tokens == ini_step.postfix_tokens:
-            self.child.steps = self.develop_steps(tmpTokenList)
+            self.child.steps = steps
         else:
-            self.child.steps = [ini_step] + self.develop_steps(tmpTokenList)
+            self.child.steps = [ini_step] + steps
 
     def develop_steps(self, tokenList):
         """ From a list of tokens, it develops steps of each tokens """
+        # TODO: Attention les étapes sont dans le mauvais sens |lun. avril 20 10:06:03 CEST 2015
         tmp_steps = []
         with Expression.tmp_render():
             for t in tokenList:
                 if hasattr(t, "explain"):
                     tmp_steps.append([i for i in t.explain()])
                 else:
-                    tmp_steps.append(t)
-        if max([len(i) if type(i) == list else 1 for i in tmp_steps]) == 1:
+                    tmp_steps.append([t])
+        if max([len(i) for i in tmp_steps]) == 1:
             # Cas où rien n'a dû être expliqué.
             return []
         else:
@@ -347,104 +354,29 @@ def untest(exp):
     print("\n")
 
 if __name__ == '__main__':
-    #render = lambda _,x : str(x)
-    #Expression.set_render(render)
-    #exp = Expression("1/2 - 4")
-    #print(list(exp.simplify()))
-
-    #Expression.set_render(txt)
-    #exp = "2 ^ 3 * 5"
-    #untest(exp)
-
-    #exp = "2x + 5"
-    #untest(exp)
-
-    #Expression.set_render(tex)
-
-    #untest(exp1)
-
-    #from pymath.operator import op
-    #exp = [2, 3, op.pw, 5, op.mul]
-    #untest(exp)
-
-    #untest([Expression(exp1), Expression(exp), op.add])
-
-    #exp = "1 + 3 * 5"
-    #e = Expression(exp)
-    #f = -e
-    #print(f)
-
-    #exp = "2 * 3 * 3 * 5"
-    #untest(exp)
-
-    #exp = "2 * 3 + 3 * 5"
-    #untest(exp)
-
-    #exp = "2 * ( 3 + 4 ) + 3 * 5"
-    #untest(exp)
-
-    #exp = "2 * ( 3 + 4 ) + ( 3 - 4 ) * 5"
-    #untest(exp)
-    #
-    #exp = "2 * ( 2 - ( 3 + 4 ) ) + ( 3 - 4 ) * 5"
-    #untest(exp)
-    #
-    #exp = "2 * ( 2 - ( 3 + 4 ) ) + 5 * ( 3 - 4 )"
-    #untest(exp)
-    #
-    #exp = "2 + 5 * ( 3 - 4 )"
-    #untest(exp)
-
-    #exp = "( 2 + 5 ) * ( 3 - 4 )^4"
-    #untest(exp)
-
-    #exp = "( 2 + 5 ) * ( 3 * 4 )"
-    #untest(exp)
-
-    #exp = "( 2 + 5 - 1 ) / ( 3 * 4 )"
-    #untest(exp)
-
-    #exp = "( 2 + 5 ) / ( 3 * 4 ) + 1 / 12"
-    #untest(exp)
-
-    #exp = "( 2+ 5 )/( 3 * 4 ) + 1 / 2"
-    #untest(exp)
-
-    #exp="(-2+5)/(3*4)+1/12+5*5"
-    #untest(exp)
-
-    #exp="-2*4(12 + 1)(3-12)"
-    #untest(exp)
-
-
-    #exp="(-2+5)/(3*4)+1/12+5*5"
-    #untest(exp)
-
-    # TODO: The next one doesn't work  |ven. janv. 17 14:56:58 CET 2014
-    #exp="-2*(-a)(12 + 1)(3-12)"
-    #e = Expression(exp)
-    #print(e)
-
-    ## Can't handle it yet!!
-    #exp="-(-2)"
-    #untest(exp)
-
-    #print("\n")
-    #exp = Expression.random("({a} + 3)({b} - 1)", ["{a} > 4"])
-    #for i in exp.simplify():
+    print('\n')
+    A = Expression("( -8 x + 8 ) ( -8 - ( -6 x ) )")
+    Ar = A.simplify()
+    for i in Ar.explain():
+        print(i)
+    #print("------------")
+    #for i in Ar.explain():
     #    print(i)
 
-    from .fraction import Fraction
-    f1 = Fraction(3,5)
-    f2 = Fraction(5,10)
-    q = f1+f2
-    print("---------")
-    print(q.steps)
-    print("---------")
-
-    for i in q.explain():
-        print(i)
+    #print(type(Ar))
     
+
+    #print('\n-----------')
+    #A = Expression("-6 / 3 + 10 / -5")
+    #Ar = A.simplify()
+    #for i in Ar.explain():
+    #    print(i)
+
+    #print('\n-----------')
+    #A = Expression("1/3 + 4/6")
+    #Ar = A.simplify()
+    #for i in Ar.explain():
+    #    print(i)
 
     #import doctest
     #doctest.testmod()

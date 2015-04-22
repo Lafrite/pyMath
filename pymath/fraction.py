@@ -78,7 +78,7 @@ class Fraction(Explicable):
             return n_frac
 
         else:
-            return self
+            return copy(self)
 
     @property
     def postfix_tokens(self):
@@ -188,6 +188,7 @@ class Fraction(Explicable):
         ans = exp.simplify()
         ini_step = Expression(self.postfix_tokens + number.postfix_tokens + [op.add])
         ans.steps = [ini_step] + ans.steps
+        #print("\t\tIn add ans.steps -> ", ans.steps)
         return ans
 
     def __radd__(self, other):
