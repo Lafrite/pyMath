@@ -8,4 +8,5 @@ setup(name='pyMath',
       author='Benjamin Bertrand',
       author_email='lafrite@poneyworld.net',
       packages=['pymath'],
+      install_requires=['pyparsing', 'sympy'],
      )
