@@ -1,6 +1,0 @@
-Soucis: 
-    -> Travailler avec des strings c'est nul faut que ça change.
-    -> Les prints c'est encore plus moche il faut encore plus que ça change
-
-Idées farfelues:
-    -> Surcharger le __truediv__ des entiers pour creer des fractions ça rendra la chose plus belle et plus simple à utiliser.

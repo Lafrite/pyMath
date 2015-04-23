@@ -5,7 +5,7 @@
 * bug: expression can't handle -(-2)
 * Overload + - * for expression (DONE ~ no steps yet)
 * Expression should be able to simplify expression with ":"
-* Add name to polynom
+* Add name to polynom (DONE)
 
 * Expression parents class and his children: Numerical_exp, toGenerate_exp and formal expression
 * Create tbl sgn and variation render
