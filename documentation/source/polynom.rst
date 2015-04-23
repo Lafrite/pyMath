@@ -8,6 +8,7 @@ Générer un polynôme "fixe"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
  .. code-block:: python
+
     >>> P = Polynom([1,2,3])
     >>> print(P)
     3 x ^ 2 + 2 x + 1
@@ -26,6 +27,7 @@ Générer un polynôme aléatoirement
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
  .. code-block:: python
+
     >>> P = Polynom.random(["{b}", "{a}"]) # Polynom du type ax + b
     >>> print(P)
     - 8 x - 3
@@ -40,6 +42,7 @@ Les représentations des polynômes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
  .. code-block:: python
+
     >>> P = Polynom([1, 2, 3])
     >>> print(P)
     3 x ^ 2 + 2 x + 1
@@ -49,8 +52,11 @@ Les représentations des polynômes
 
 Les polynômes peuvent se comporter comme des fonctions, on peut les évaluer. Il est possible de les évaluer sur des nombres, des expressions et même des polynômes.
 
-Évaluer un polynôme avec un entier.
+Évaluer un polynôme avec un entier
+""""""""""""""""""""""""""""""""""
+
  .. code-block:: python
+
     >>> type(P(3))
     pymath.expression.Fake_int
     >>> P(3)
@@ -65,8 +71,11 @@ Les polynômes peuvent se comporter comme des fonctions, on peut les évaluer. I
     >>> hp1 = Expression('h+1')
 
 
-Évaluer un polynôme avec une expression.
+Évaluer un polynôme avec une expression
+"""""""""""""""""""""""""""""""""""""""
+
  .. code-block:: python
+
     >>> type(P(hp1))
     < <class 'pymath.polynomDeg2.Polynom_deg2'> [6, 8, 3]>
     >>> print(P(hp1))
@@ -85,8 +94,11 @@ Les polynômes peuvent se comporter comme des fonctions, on peut les évaluer. I
     3 h^{  2 } + 8 h + 5 + 1
     3 h^{  2 } + 8 h + 6
 
-Évaluer un polynôme avec un autre polynôme.
- .. code-block:: python
+Évaluer un polynôme avec un autre polynôme
+""""""""""""""""""""""""""""""""""""""""""
+
+.. code-block:: python
+
     >>> type(P(P))
     pymath.polynom.Polynom
     >>> print(P(P))
@@ -114,6 +126,7 @@ Opération et polynômes
 Les opérations +, -, \* et ^ sont accessibles aux polynômes. Elles renvoient *toujours* un polynôme (même si le résultat est une constante)
 
  .. code-block:: python
+
     >>> type(P + 1)
     pymath.polynomDeg2.Polynom_deg2
     >>> for i in (P+1).explain():
@@ -139,6 +152,7 @@ Dérivation
 Il est possible de dériver les polynômes à partir de la méthode *derivate*. De la même façon que pour les opérations, le polynôme dérivé pour s'expliquer avec la méthode *explain*.
 
  .. code-block:: python
+
     >>> P1 = P.derivate()
     >>> print(P1)
     6 x + 2
