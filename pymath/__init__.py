@@ -3,6 +3,7 @@
 
 from .expression import Expression
 from .polynom import Polynom
+from .fraction import Fraction
 from .random_expression import random_str
 from .render import txt,tex
 
