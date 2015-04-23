@@ -6,7 +6,7 @@ pyMath est un module python qui permet la manipulation d'expressions mathématiq
 
 * *Calculer comme un collégien*: Pour faire de la correction automatisé d'exercice, un logiciel de calcul formel ne suffit pas. Si les étapes de calculs ne sont pas présentes, l'élève ne pourra pas analyser ses erreurs ou s'inspirer de la correction.
 
-    >>> from pymath.expression import Expression
+    >>> from pymath import Expression
     >>> ajout_fractions = Expression("2 / 5 + 2 / 3")
     >>> resultat = ajout_fractions.simplify()
     >>> print(resultat)
@@ -21,25 +21,25 @@ pyMath est un module python qui permet la manipulation d'expressions mathématiq
 
 * *Créer des exercices aléatoirement*: Pour faire des devoirs personnels, des fiches de révisions ou des exercices en classe, un générateur d'expressions est inclus.
 
-    >>> from pymath.expression import Expression
+    >>> from pymath import Expression
     >>> ajout_fraction = Expression.random("{a} + {b} / {c}")
     >>> print(ajout_fraction)
     5 + \frac{ -7 }{ 4 }
 
 * *Gérer différents type de données*: Pour le moment, pyMath est capable de gérer les entiers naturels, les rationnels (sous forme de fractions) et les polynômes. L'utilisation des nombres à virgules et des racines devraient être ajoutés dans les prochaines versions.
 
-    >>> from pymath.fraction import Fraction
+    >>> from pymath import Fraction
     >>> une_fraction = Fraction(1,2)
     >>> print(une_fraction)
     1 / 2
-    >>> from pymath.polynom import Polynom 
+    >>> from pymath import Polynom 
     >>> un_polynom = Polynom([1,2,3])
     >>> print(un_polynom)
     3 x^{  2 } + 2 x + 1
 
 * *Afficher avec deux types de rendus*: Un en mode texte pour l'affichage dans une console. Un deuxième spécialement pour écrire des documents latex.
 
-    >>> from pymath.expression import Expression
+    >>> from pymath import Expression
     >>> ajout_fractions = Expression("2 / 5 + 2 / 3")
     >>> for i in ajout_fractions.simpliy().explain():
     ...     print(i)
@@ -47,7 +47,7 @@ pyMath est un module python qui permet la manipulation d'expressions mathématiq
     \frac{ 2 \times 3 }{ 5 \times 3 } + \frac{ 2 \times 5 }{ 3 \times 5 }
     \frac{ 6 + 10 }{ 15 }
     \frac{ 16 }{ 15 }
-    >>> from pymath.render import txt
+    >>> from pymath import txt
     >>> with Expression.tmp_render(txt):
     ...     for i in ajout_fractions.simpliy():
     ...         print(i)
@@ -64,7 +64,7 @@ Ce module a pour but d'être un outil pour faciliter la construction d'exercices
 
 Actuellement le module principal pour faire calculer python comme un collégien est *pymath.expression*.
 
-    >>> from pymath.expression import Expression
+    >>> from pymath import Expression
 
 
 ### Déclarer une expression 
@@ -79,7 +79,7 @@ Un expression peut être initialisée de deux façons différentes: à partir d'
 
 Et si l'on souhaite un rendu plus adapté à la console:
 
-    >>> from pymath.render import txt
+    >>> from pymath import txt
     >>> Expression.set_render(txt)
     >>> un_calcul.render()
     1 + 2 * 3
@@ -90,8 +90,8 @@ Et si l'on souhaite un rendu plus adapté à la console:
 Une fois les expressions créées, elles peuvent se réduire en expliquant les étapes et en respectant les règles de priorités. Ces étapes de calcul sont stockés dans l'objet résultat du calcul et sont accéssibles à travers la méthode *explain*.
 Les exemples suivants seront données avec un rendu texte.
 
-    >>> from pymath.expression import Expression
-    >>> from pymath.renders import txt
+    >>> from pymath import Expression
+    >>> from pymath import txt
     >>> Expression.set_render(txt)
 
     >>> exp = Expression("1 + 2 * 3")
@@ -129,12 +129,12 @@ Les opérations autorisées sont les opérations "classique": + - * / ^. L'utili
 ### Type de variables et opérations
 On peut vouloir créer directement des objets (fractions ou polynômes) sans passer par le module expression (voir [fraction](fraction.mdwn) et [polynom](polynom.mdwn) pour plus de details)
 
-    >>> from pymath.fraction import Fraction
+    >>> from pymath import Fraction
     >>> fraction1 = Fraction(1,2)
     >>> fraction2 = Fraction(2,3)
     >>> print(fraction1)
     1 / 2
-    >>> from pymath.polynom import Polynom
+    >>> from pymath import Polynom
     >>> p = Polynom([1,2,3])
     >>> print(p)
     3 x ^ 2 + 2 x + 1
@@ -187,7 +187,7 @@ Pour changer le rendu, on import le rendu depuis *pymath.render* et on appelle l
 
 Voici un exemple d'utilisation du rendu txt
 
-    >>> from pymath.render import txt
+    >>> from pymath import txt
     >>> Expression.set_render(txt)
     >>> exp = Expression("1 + 2 / 5")
     >>> for i in exp.simplify().explain():
@@ -236,7 +236,7 @@ On peut vouloir ne pas passer par la classe Expression pour obtenir notre expres
 
 La fonction qui permet de faire cela est *random_str*:
 
-    >>> from pymath.random_expression import random_str
+    >>> from pymath import random_str
     >>> form = "{a} / {b} + {c} / {k*b}"
     >>> conditions = ["abs({b}) != 1", "{d} > 1", "{b} != {d}", "gcd({a},{b}) == 1", "gcd({c},{k*b}) == 1"]
     >>> str_addition_fraction = random_str(form, conditions)
