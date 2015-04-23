@@ -177,3 +177,11 @@ Les polynômes du second degré héritent de toutes les méthodes venant de la c
     * *tbl_sgn_header*: en-tête du tableau du tableau de signe écrit pour *TkzTab*
     * *tbl_sgn*: ligne du tableau de signe pour *TkzTab*
     * *tbl_variation*: ligne du tableau de variation pour *TkzTab*
+
+Packages
+--------
+
+Abstact_polynom
+~~~~~~~~~~~~~~~
+
+.. automodule:: pymath.abstact_polynom
