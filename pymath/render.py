@@ -77,11 +77,11 @@ if __name__ == '__main__':
     from itertools import permutations
     from pymath import Polynom
     from pymath import Expression 
-    coefs_p = [[(i-2),(j-2)] for i,j in permutations(range(3),2)] 
-    coefs_q = [[2*(i-2),2*(j-2)] for i,j in permutations(range(3),2)] 
+    coefs_p = [[(i-2),(j-2)] for i,j in permutations(range(5),2)] 
+    coefs_q = [[2*(i-2),2*(j-2)] for i,j in permutations(range(5),2)] 
     l_p = [Polynom(i) for i in coefs_p]
     l_q = [Polynom(i) for i in coefs_q]
-    operations = [Expression([l_p[i],l_q[j],op.mul]) for i,j in permutations(range(len(coefs_p)),2)]
+    operations = [Expression([l_p[i],l_q[j],op.pw]) for i,j in permutations(range(len(coefs_p)),2)]
     for i in operations:
         print(i)
     

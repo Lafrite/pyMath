@@ -565,6 +565,21 @@ class op(object):
             """ Calling this operator performs the rigth calculus """
             return getattr(op1, "__pow__")(op2)
 
+        def l_parenthesis(self, opl, str_join=False):
+            """ Add parenthesis for left operand if necessary """
+            ans = opl
+            try:
+                if opl.mainOp.priority < self.priority:
+                    ans = flatten_list(["(", opl, ")"])
+            except AttributeError as e:
+                # op has not the attribute priority
+                pass
+
+            ans = flatten_list([ans])
+            if str_join:
+                ans = ' '.join([str(i) for i in ans])
+            return ans
+
         caract = {
             "operator" : "^", \
             "name" : "pw",\
@@ -573,6 +588,7 @@ class op(object):
             "actions" : ("__pow__",""), \
             "txt" :  "{op1} ^ {op2}",\
             "tex" :  "{op1}^{{  {op2} }}",\
+            "l_parenthesis": l_parenthesis,\
             "_call":_call,\
         }
 
