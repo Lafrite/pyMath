@@ -116,7 +116,6 @@ class Operator(str):
         :*args: Operands for this operation
         :returns: list with the operator surrounded by operands
 
-        # TODO: order doctest  |lun. nov. 24 07:17:29 CET 2014
         >>> op.mul.__p2i__(1,2)
         [1, '*', 2]
         >>> f = save_mainOp([2, op.add, 3],op.add)
@@ -131,9 +130,7 @@ class Operator(str):
         >>> op.sub1.__p2i__(f)
         ['-', '(', 2, '+', 3, ')']
         """
-        # TODO: Attention à gestion des fractions qui se comportent chelou avec les parenthèses |dim. nov.  9 09:21:52 CET 2014
         if self.arity == 1:
-            # TODO: Marche juste avec -, il faudra voir quand il y aura d'autres operateurs unitaires |dim. nov.  9 09:24:53 CET 2014
             op1 = self.l_parenthesis(args[0])
             ans = flatten_list([self, op1])
 
@@ -165,7 +162,6 @@ class Operator(str):
 
     def r_parenthesis(self, op, str_join=False):
         """ Add parenthesis for rigth operand if necessary """
-        # TODO: /!\ Parenthèses pour -2abc et l'opérateur * |lun. mars  9 19:02:32 CET 2015
         try:
             if op.mainOp.priority < self.priority:
                 op = flatten_list(["(", op, ")"])

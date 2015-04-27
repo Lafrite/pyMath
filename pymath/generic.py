@@ -8,7 +8,6 @@ class Stack(object):
     """Docstring for Stack """
 
     def __init__(self):
-        """@todo: to be defined1 """
         self.items = []
 
     def pushFromList(self, list):
@@ -21,16 +20,12 @@ class Stack(object):
 
     def isEmpty(self):
         """ Says if the stack is empty
-        :returns: @todo
 
         """
         return self.items == []
 
     def push(self,  item):
         """Push an item in the stack
-
-        :param item: @todo
-        :returns: @todo
 
         """
         self.items.append(item)
