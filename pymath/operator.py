@@ -149,7 +149,8 @@ class Operator(str):
         """ Add parenthesis for left operand if necessary """
         ans = opl
         try:
-            if opl.mainOp == op.sub1:
+            # TODO: Je pige pas pourquoi quand on enlève .name ça marche plus... |lun. avril 27 19:07:24 CEST 2015
+            if opl.mainOp.name == op.sub1.name:
                 ans = opl
             elif opl.mainOp.priority < self.priority:
                 ans = flatten_list(["(", opl, ")"])
@@ -163,7 +164,7 @@ class Operator(str):
         return ans
 
     def r_parenthesis(self, op, str_join=False):
-        """ Add parenthesis for left operand if necessary """
+        """ Add parenthesis for rigth operand if necessary """
         # TODO: /!\ Parenthèses pour -2abc et l'opérateur * |lun. mars  9 19:02:32 CET 2015
         try:
             if op.mainOp.priority < self.priority:
@@ -211,6 +212,12 @@ def operatorize(fun):
     @wraps(fun)
     def mod_fun(self, *args):
         ans = fun(self, *args)
+
+        def _eq(op1, op2):
+            """ op1 == op2 """
+            return op1.name == op2.name == name and op1.arity == op2.arity
+
+        ans["__eq__"] = _eq
 
         new_op = Operator(ans["operator"])
         for (attr, value) in ans.items():
@@ -603,18 +610,8 @@ if __name__ == '__main__':
     #print("\t op.can_be_operator('+') :" + str(op.can_be_operator('+')))
     #print("\t op.can_be_operator('t') :" + str(op.can_be_operator('t')))
 
-    from .render import tex
-    print(tex([-2, 3, op.add ]))
-    print("-----------------")
-    print(tex([-2, 3, op.mul ]))
-    print("-----------------")
-    from .polynom import Polynom
-    print(tex([Polynom([1,2,3]), 2, op.mul]))
-    print("-----------------")
-    from .fraction import Fraction
-    print(tex([2, Fraction(1,2), op.mul]))
-    print("-----------------")
-
+    print("op.sub.__dict__ -> ", op.sub.__dict__)
+    print(op.sub == op.sub1)
     #import doctest
     #doctest.testmod()
 
