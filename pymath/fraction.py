@@ -24,6 +24,8 @@ class Fraction(Explicable):
         """
         super(Fraction, self).__init__()
         self._num = num
+        if denom == 0:
+            raise ZeroDivisionError("Can't create Fraction: division by zero")
         self._denom = denom
 
         self.isNumber = 1
