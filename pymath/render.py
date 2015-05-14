@@ -74,11 +74,17 @@ p2i = Render(p2i_render)
 
 if __name__ == '__main__':
     from .operator import op
-    exp = [ 2, 3, op.add, 4, op.mul]
-    print(exp)
-    print("txt(exp) :" + str(txt(exp)))
-    print("tex(exp) :" + str(tex(exp)))
-    print("p2i(exp) :" + str(p2i(exp)))
+    from itertools import permutations
+    from pymath import Polynom
+    from pymath import Expression 
+    from pymath import Fraction
+    coefs_p = [[(i-2),(j-2)] for i,j in permutations(range(5),2)] 
+    coefs_q = [[2*(i-2),2*(j-2)] for i,j in permutations(range(5),2)] 
+    l_p = [Polynom(i) for i in coefs_p]
+    l_q = [Fraction(i,j) for i,j in coefs_q if j!=0]
+    operations = [Expression([l_p[i],l_q[j],op.mul]) for i,j in permutations(range(len(l_q)),2)]
+    for i in operations:
+        print(i)
     
 
 

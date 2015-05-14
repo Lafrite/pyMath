@@ -116,7 +116,6 @@ class Operator(str):
         :*args: Operands for this operation
         :returns: list with the operator surrounded by operands
 
-        # TODO: order doctest  |lun. nov. 24 07:17:29 CET 2014
         >>> op.mul.__p2i__(1,2)
         [1, '*', 2]
         >>> f = save_mainOp([2, op.add, 3],op.add)
@@ -131,9 +130,7 @@ class Operator(str):
         >>> op.sub1.__p2i__(f)
         ['-', '(', 2, '+', 3, ')']
         """
-        # TODO: Attention à gestion des fractions qui se comportent chelou avec les parenthèses |dim. nov.  9 09:21:52 CET 2014
         if self.arity == 1:
-            # TODO: Marche juste avec -, il faudra voir quand il y aura d'autres operateurs unitaires |dim. nov.  9 09:24:53 CET 2014
             op1 = self.l_parenthesis(args[0])
             ans = flatten_list([self, op1])
 
@@ -149,7 +146,8 @@ class Operator(str):
         """ Add parenthesis for left operand if necessary """
         ans = opl
         try:
-            if opl.mainOp == op.sub1:
+            # TODO: Je pige pas pourquoi quand on enlève .name ça marche plus... |lun. avril 27 19:07:24 CEST 2015
+            if opl.mainOp.name == op.sub1.name:
                 ans = opl
             elif opl.mainOp.priority < self.priority:
                 ans = flatten_list(["(", opl, ")"])
@@ -163,8 +161,7 @@ class Operator(str):
         return ans
 
     def r_parenthesis(self, op, str_join=False):
-        """ Add parenthesis for left operand if necessary """
-        # TODO: /!\ Parenthèses pour -2abc et l'opérateur * |lun. mars  9 19:02:32 CET 2015
+        """ Add parenthesis for rigth operand if necessary """
         try:
             if op.mainOp.priority < self.priority:
                 op = flatten_list(["(", op, ")"])
@@ -211,6 +208,12 @@ def operatorize(fun):
     @wraps(fun)
     def mod_fun(self, *args):
         ans = fun(self, *args)
+
+        def _eq(op1, op2):
+            """ op1 == op2 """
+            return op1.name == op2.name == name and op1.arity == op2.arity
+
+        ans["__eq__"] = _eq
 
         new_op = Operator(ans["operator"])
         for (attr, value) in ans.items():
@@ -558,6 +561,21 @@ class op(object):
             """ Calling this operator performs the rigth calculus """
             return getattr(op1, "__pow__")(op2)
 
+        def l_parenthesis(self, opl, str_join=False):
+            """ Add parenthesis for left operand if necessary """
+            ans = opl
+            try:
+                if opl.mainOp.priority < self.priority:
+                    ans = flatten_list(["(", opl, ")"])
+            except AttributeError as e:
+                # op has not the attribute priority
+                pass
+
+            ans = flatten_list([ans])
+            if str_join:
+                ans = ' '.join([str(i) for i in ans])
+            return ans
+
         caract = {
             "operator" : "^", \
             "name" : "pw",\
@@ -566,6 +584,7 @@ class op(object):
             "actions" : ("__pow__",""), \
             "txt" :  "{op1} ^ {op2}",\
             "tex" :  "{op1}^{{  {op2} }}",\
+            "l_parenthesis": l_parenthesis,\
             "_call":_call,\
         }
 
@@ -603,18 +622,8 @@ if __name__ == '__main__':
     #print("\t op.can_be_operator('+') :" + str(op.can_be_operator('+')))
     #print("\t op.can_be_operator('t') :" + str(op.can_be_operator('t')))
 
-    from .render import tex
-    print(tex([-2, 3, op.add ]))
-    print("-----------------")
-    print(tex([-2, 3, op.mul ]))
-    print("-----------------")
-    from .polynom import Polynom
-    print(tex([Polynom([1,2,3]), 2, op.mul]))
-    print("-----------------")
-    from .fraction import Fraction
-    print(tex([2, Fraction(1,2), op.mul]))
-    print("-----------------")
-
+    print("op.sub.__dict__ -> ", op.sub.__dict__)
+    print(op.sub == op.sub1)
     #import doctest
     #doctest.testmod()
 

@@ -83,6 +83,18 @@ mathématiques. Voici ce qu'il est capable de faire:
                 ( 6 + 10 ) / 15
                 16 / 15
 
+    Le rendu latex permet ensuite d'être directement compiler et par exemple d'avoir le rendu suivant
+
+    .. math::
+        :nowrap:
+
+            \frac{ 2 }{ 5 } + \frac{ 2 }{ 3 } \\
+            \frac{ 2 \times 3 }{ 5 \times 3 } + \frac{ 2 \times 5 }{ 3 \times 5 } \\
+            \frac{ 6 }{ 15 } + \frac{ 10 }{ 15 } \\
+            \frac{ 6 + 10 }{ 15 } \\
+            \frac{ 16 }{ 15 }
+
+
 
 Ce module a pour but d'être un outil pour faciliter la construction
 d'exercices et leurs correction. Il a pour but d'être le plus simple
